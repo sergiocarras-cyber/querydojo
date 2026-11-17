@@ -19,7 +19,7 @@ npm test           # valida el formato y ejecuta las soluciones oficiales
 npm run build      # build estático en dist/
 ```
 
-Atajos del editor: **⌘/Ctrl + Enter** ejecuta (Run).
+Atajos del editor: **⌘/Ctrl + Enter** ejecuta (Run) y **⌘/Ctrl + Shift + Enter** corrige (Submit).
 
 ## Estructura
 
@@ -69,13 +69,23 @@ order_matters: true      # solo SQL: true si el enunciado exige un ORDER BY conc
 | `## Hidden Data` | Uno o más bloques ` ```sql `; cada bloque es un dataset **oculto** completo (casos límite: NULLs, empates, bordes de fechas, grupos vacíos). Solo se usan en Submit. |
 | `## Starter` | Un bloque ` ```sql ` con el código inicial del editor. |
 | `## Solution` | Un bloque ` ```sql ` con la consulta oficial. Es la referencia con la que se compara tu resultado. |
+| `## Wrong Answers` | *(Opcional, recomendado)* Uno o más bloques ` ```sql ` con errores típicos. No se muestran en la web: `npm test` comprueba que **todos** se rechazan en Submit, lo que demuestra que los datos ocultos cubren esos casos límite. |
+
+### Cómo se corrige un problema SQL
+
+- **Run** ejecuta tu consulta y la oficial sobre el dataset visible y compara.
+- **Submit** hace lo mismo sobre el dataset visible y sobre cada dataset oculto, cada uno en una base de datos limpia.
+- Se comparan los **nombres de columna en orden** (sin distinguir mayúsculas) y las **filas** como multiconjunto; el orden de filas solo cuenta si `order_matters: true`.
+- Los números se comparan con tolerancia (`1e-6` relativa), así que `3`, `3.0` y `'3.00'::numeric` son iguales; un timestamp a medianoche equivale a la fecha (`2025-10-01 00:00:00` = `2025-10-01`).
+- Si falla el caso visible verás un diff (filas que faltan / sobran); si falla uno oculto, solo el motivo (sin los datos).
 
 > Los formatos de algoritmos, pandas y estadística se documentarán aquí cuando lleguen sus fases.
 
 ### Añadir un problema
 
 1. Copia un archivo existente de la misma sección y cambia `id`, `slug` y el nombre del archivo.
-2. Escribe el enunciado, los datos y la solución.
+2. Escribe el enunciado, los datos, la solución y algunas respuestas incorrectas típicas.
+   Ojo con YAML: en `topics`, palabras como `NULL`, `yes` o `no` hay que escribirlas entre comillas o con más texto.
 3. Ejecuta `npm test`: el problema se valida y la solución oficial se ejecuta contra todos los datasets.
 4. `npm run dev` y ya aparece en la lista.
 

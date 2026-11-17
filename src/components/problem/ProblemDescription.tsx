@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { statusOf, useProgress, type Submission } from '../../lib/progress/store';
 import type { Problem } from '../../lib/problems/types';
 import { readJson, writeJson } from '../../lib/storage/local';
 import { DifficultyBadge, SectionBadge, TopicChip } from '../Badges';
@@ -14,7 +15,12 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'submissions', label: 'Mis envíos' },
 ];
 
-export function ProblemDescription({ problem }: { problem: Problem }) {
+interface Props {
+  problem: Problem;
+  onLoadCode: (code: string) => void;
+}
+
+export function ProblemDescription({ problem, onLoadCode }: Props) {
   const [tab, setTab] = useState<Tab>('statement');
 
   return (
@@ -36,16 +42,21 @@ export function ProblemDescription({ problem }: { problem: Problem }) {
         {tab === 'statement' && <Statement problem={problem} />}
         {tab === 'hints' && <Hints problem={problem} />}
         {tab === 'solution' && <Solution problem={problem} />}
-        {tab === 'submissions' && <p className="text-sm text-ink-500">El historial de envíos llega en la fase 2.</p>}
+        {tab === 'submissions' && <Submissions problem={problem} onLoadCode={onLoadCode} />}
       </div>
     </div>
   );
 }
 
 function Statement({ problem }: { problem: Problem }) {
+  const progress = useProgress();
+  const status = statusOf(progress, problem.id);
   return (
     <article>
-      <h1 className="text-xl font-semibold text-ink-100">{problem.title}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="text-xl font-semibold text-ink-100">{problem.title}</h1>
+        <StatusBadge status={status} />
+      </div>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <DifficultyBadge difficulty={problem.difficulty} />
         <SectionBadge section={problem.section} />
@@ -122,5 +133,63 @@ function Solution({ problem }: { problem: Problem }) {
       <h2 className="mt-6 mb-2 text-sm font-semibold text-ink-100">Explicación</h2>
       <Markdown>{problem.explanation}</Markdown>
     </div>
+  );
+}
+
+function StatusBadge({ status }: { status: ReturnType<typeof statusOf> }) {
+  if (status === 'todo') return null;
+  return status === 'solved' ? (
+    <span className="shrink-0 rounded-full bg-jade/15 px-2 py-0.5 font-mono text-[11px] text-jade">✓ Resuelto</span>
+  ) : (
+    <span className="shrink-0 rounded-full bg-amber/15 px-2 py-0.5 font-mono text-[11px] text-amber">● Intentado</span>
+  );
+}
+
+const VERDICT_LABEL: Record<Submission['verdict'], { text: string; cls: string }> = {
+  accepted: { text: 'Aceptado', cls: 'text-jade' },
+  wrong: { text: 'Incorrecto', cls: 'text-rose' },
+  error: { text: 'Error', cls: 'text-amber' },
+  timeout: { text: 'Tiempo límite', cls: 'text-amber' },
+};
+
+function Submissions({ problem, onLoadCode }: Props) {
+  const progress = useProgress();
+  const subs = progress.submissions[problem.id] ?? [];
+  const [open, setOpen] = useState<number | null>(null);
+
+  if (subs.length === 0) {
+    return <p className="text-sm text-ink-500">Todavía no has enviado ninguna solución. Usa Submit para corregir.</p>;
+  }
+  return (
+    <ul className="space-y-2">
+      {subs.map((s, i) => {
+        const v = VERDICT_LABEL[s.verdict];
+        return (
+          <li key={s.at} className="rounded-lg border border-ink-700 bg-ink-850">
+            <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-center gap-3 px-3 py-2 text-left">
+              <span className={`w-24 text-sm font-medium ${v.cls}`}>{v.text}</span>
+              <span className="font-mono text-xs text-ink-400">
+                {s.passed}/{s.total}
+              </span>
+              <span className="ml-auto font-mono text-[11px] text-ink-500">
+                {new Date(s.at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+              </span>
+            </button>
+            {open === i && (
+              <div className="border-t border-ink-700 px-3 py-3">
+                <p className="mb-2 text-xs text-ink-300">{s.detail}</p>
+                <pre className="max-h-64 overflow-auto rounded bg-ink-950 p-2 font-mono text-xs text-ink-200">{s.code}</pre>
+                <button
+                  onClick={() => onLoadCode(s.code)}
+                  className="mt-2 rounded bg-ink-700 px-2.5 py-1 text-xs text-ink-100 hover:bg-ink-600"
+                >
+                  Cargar en el editor
+                </button>
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

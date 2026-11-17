@@ -1,5 +1,5 @@
 import type { TableInfo } from './engine';
-import type { JobResult, SqlJob, SqlRequest, SqlResponse } from './protocol';
+import type { JobResults, SqlJob, SqlRequest, SqlResponse } from './protocol';
 
 export const SQL_TIMEOUT_MS = 5_000;
 
@@ -104,10 +104,11 @@ class SqlClient {
     return r.tables;
   }
 
-  /** Runs every job on its own fresh database. One timeout covers each job. */
-  async run(schema: string, jobs: SqlJob[]): Promise<JobResult[]> {
+  /** Runs every job on its own fresh database. */
+  async run(schema: string, jobs: SqlJob[]): Promise<JobResults[]> {
     await this.init();
-    const r = await this.send({ type: 'run', schema, jobs }, SQL_TIMEOUT_MS * Math.max(1, jobs.length));
+    // Datasets are tiny: 5 s for the user's query plus a little headroom per extra dataset.
+    const r = await this.send({ type: 'run', schema, jobs }, SQL_TIMEOUT_MS + 1_000 * (jobs.length - 1));
     if (!r.ok) throw new Error(r.error);
     if (r.type !== 'run') throw new Error('Respuesta inesperada');
     return r.results;

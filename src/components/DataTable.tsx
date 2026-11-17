@@ -6,6 +6,8 @@ interface Props {
   /** Optional per-column type label shown under the header. */
   types?: string[];
   maxHeight?: string;
+  /** Row index to highlight (first mismatch in an ordered comparison). */
+  highlightRow?: number;
 }
 
 function renderCell(value: Cell) {
@@ -15,7 +17,7 @@ function renderCell(value: Cell) {
   return value;
 }
 
-export function DataTable({ columns, rows, types, maxHeight = '18rem' }: Props) {
+export function DataTable({ columns, rows, types, maxHeight = '18rem', highlightRow }: Props) {
   return (
     <div className="overflow-auto rounded-md border border-ink-700" style={{ maxHeight }}>
       <table className="w-full border-collapse font-mono text-xs">
@@ -31,7 +33,7 @@ export function DataTable({ columns, rows, types, maxHeight = '18rem' }: Props) 
         </thead>
         <tbody>
           {rows.map((row, r) => (
-            <tr key={r} className="odd:bg-ink-900 even:bg-ink-850">
+            <tr key={r} className={r === highlightRow ? 'bg-rose/15' : 'odd:bg-ink-900 even:bg-ink-850'}>
               {row.map((cell, c) => (
                 <td key={c} className="border-b border-ink-800 px-3 py-1 whitespace-nowrap text-ink-200">
                   {renderCell(cell)}

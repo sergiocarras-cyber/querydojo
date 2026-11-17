@@ -146,3 +146,29 @@ ORDER BY total_minutes DESC, a.plan;
 
 **Common mistakes:** `COUNT(*)` counts sessions, not viewers; `started_at BETWEEN '2025-10-01' AND '2025-10-31'`
 drops everything after midnight on the 31st.
+
+## Wrong Answers
+
+```sql
+-- BETWEEN on dates drops the last day after midnight
+SELECT a.plan, COUNT(DISTINCT a.account_id) AS viewers, SUM(s.minutes) AS total_minutes
+FROM viewing_sessions s JOIN accounts a ON a.account_id = s.account_id
+WHERE s.started_at BETWEEN '2025-10-01' AND '2025-10-31'
+GROUP BY a.plan ORDER BY total_minutes DESC, a.plan;
+```
+
+```sql
+-- Counts sessions instead of distinct viewers
+SELECT a.plan, COUNT(*) AS viewers, SUM(s.minutes) AS total_minutes
+FROM viewing_sessions s JOIN accounts a ON a.account_id = s.account_id
+WHERE s.started_at >= '2025-10-01' AND s.started_at < '2025-11-01'
+GROUP BY a.plan ORDER BY total_minutes DESC, a.plan;
+```
+
+```sql
+-- Missing the tie-breaker on plan
+SELECT a.plan, COUNT(DISTINCT a.account_id) AS viewers, SUM(s.minutes) AS total_minutes
+FROM viewing_sessions s JOIN accounts a ON a.account_id = s.account_id
+WHERE s.started_at >= '2025-10-01' AND s.started_at < '2025-11-01'
+GROUP BY a.plan ORDER BY total_minutes DESC, a.plan DESC;
+```

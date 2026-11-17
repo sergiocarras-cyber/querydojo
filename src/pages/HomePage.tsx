@@ -1,11 +1,13 @@
 import { Link } from 'react-router';
 import { DifficultyBadge, SECTION_BG, SECTION_TEXT, SectionBadge } from '../components/Badges';
 import { problemOfTheDay } from '../lib/daily';
+import { statusOf, useProgress } from '../lib/progress/store';
 import { problems, problemsIn } from '../lib/problems/registry';
 import { SECTIONS, SECTION_INFO } from '../lib/problems/types';
 
 export function HomePage() {
   const daily = problemOfTheDay(problems);
+  const progress = useProgress();
 
   return (
     <div className="dojo-grid min-h-full">
@@ -42,8 +44,9 @@ export function HomePage() {
         <section className="mt-10 grid gap-4 sm:grid-cols-2">
           {SECTIONS.map((id) => {
             const info = SECTION_INFO[id];
-            const total = problemsIn(id).length;
-            const solved = 0; // progress tracking arrives in phase 5
+            const list = problemsIn(id);
+            const total = list.length;
+            const solved = list.filter((p) => statusOf(progress, p.id) === 'solved').length;
             const pct = total ? Math.round((solved / total) * 100) : 0;
             return (
               <Link

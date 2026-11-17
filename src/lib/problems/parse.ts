@@ -127,6 +127,7 @@ export function parseProblem(raw: string, file: string): Problem {
         hiddenData: codeBlocks(hiddenRaw).map((b) => b.code),
         solution: singleCode(sections, 'solution', file),
         orderMatters: fm.order_matters ?? false,
+        wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
       };
     }
     default:

@@ -80,6 +80,11 @@ export interface SqlProblem extends BaseProblem {
   hiddenData: string[];
   /** When true, row order must match the official solution. */
   orderMatters: boolean;
+  /**
+   * Plausible wrong queries (never shown in the UI). The test suite checks
+   * that each one is rejected on Submit, proving the hidden data has teeth.
+   */
+  wrongAnswers: string[];
 }
 
 export type Problem = SqlProblem;

@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { PGlite } from '@electric-sql/pglite';
 import { PG_PARSERS, describeTables, loadDataset, runQuery } from './engine';
-import type { SqlRequest, SqlResponse } from './protocol';
+import type { JobResults, SqlRequest, SqlResponse } from './protocol';
 
 let dbPromise: Promise<PGlite> | null = null;
 
@@ -20,16 +20,20 @@ async function handle(req: SqlRequest): Promise<SqlResponse> {
       return { id: req.id, ok: true, type: 'describe', tables: await describeTables(db) };
     }
     case 'run': {
-      const results = [];
+      const results: JobResults[] = [];
       for (const job of req.jobs) {
         await loadDataset(db, req.schema, job.data);
-        const started = performance.now();
-        try {
-          const result = await runQuery(db, job.query);
-          results.push({ ok: true as const, result, ms: performance.now() - started });
-        } catch (err) {
-          results.push({ ok: false as const, error: errorMessage(err), ms: performance.now() - started });
+        const jobResults: JobResults = [];
+        for (const query of job.queries) {
+          const started = performance.now();
+          try {
+            const result = await runQuery(db, query);
+            jobResults.push({ ok: true, result, ms: performance.now() - started });
+          } catch (err) {
+            jobResults.push({ ok: false, error: errorMessage(err), ms: performance.now() - started });
+          }
         }
+        results.push(jobResults);
       }
       return { id: req.id, ok: true, type: 'run', results };
     }
