@@ -1,20 +1,20 @@
 import { useRef, useState } from 'react';
 import type { useDraft } from '../../hooks/useDraft';
 import { usePyEngine } from '../../hooks/usePyEngine';
-import { PyTimeoutError, pyClient } from '../../lib/python/client';
-import { evaluatePython, type PyEvaluation } from '../../lib/python/evaluate';
+import { PY_RUN_TIMEOUT_MS, PY_SUBMIT_TIMEOUT_MS, PyTimeoutError, pyClient } from '../../lib/python/client';
+import { PANDAS_PACKAGES, evaluateCode, type PyEvaluation } from '../../lib/python/evaluate';
 import { recordSubmission } from '../../lib/progress/store';
-import type { AlgorithmsProblem } from '../../lib/problems/types';
+import type { AlgorithmsProblem, PandasProblem } from '../../lib/problems/types';
 import { CodeEditor } from '../CodeEditor';
 import { SplitPane } from '../SplitPane';
 import { PyResultPanel, type PyOutput } from './PyResultPanel';
 
 interface Props {
-  problem: AlgorithmsProblem;
+  problem: AlgorithmsProblem | PandasProblem;
   draft: ReturnType<typeof useDraft>;
 }
 
-const PACKAGES: string[] = [];
+const NO_PACKAGES: string[] = [];
 
 function summarize(ev: PyEvaluation): string {
   const { output } = ev;
@@ -31,7 +31,8 @@ function summarize(ev: PyEvaluation): string {
 export function PythonWorkspace({ problem, draft }: Props) {
   const [output, setOutput] = useState<PyOutput>({ kind: 'idle' });
   const busy = useRef(false);
-  const engine = usePyEngine(PACKAGES);
+  const packages = problem.section === 'pandas' ? PANDAS_PACKAGES : NO_PACKAGES;
+  const engine = usePyEngine(packages);
   const codeRef = useRef(draft.code);
   codeRef.current = draft.code;
   const onCodeChange = (value: string) => {
@@ -45,7 +46,8 @@ export function PythonWorkspace({ problem, draft }: Props) {
     const code = codeRef.current;
     setOutput({ kind: 'running', mode });
     try {
-      const ev = await evaluatePython(problem, code, mode, (c, spec, pkgs) => pyClient.run(c, spec, pkgs, mode));
+      const ev = await evaluateCode(problem, code, mode, (fn, args, pkgs) =>
+        pyClient.call(fn, args, pkgs, mode === 'run' ? PY_RUN_TIMEOUT_MS : PY_SUBMIT_TIMEOUT_MS),);
       setOutput({ kind: 'evaluated', evaluation: ev });
       if (mode === 'submit') {
         recordSubmission(problem.id, {
@@ -64,7 +66,7 @@ export function PythonWorkspace({ problem, draft }: Props) {
         recordSubmission(problem.id, {
           verdict: timeout ? 'timeout' : 'error',
           passed: 0,
-          total: problem.tests.length + problem.hiddenTests.length,
+          total: ev_total(problem),
           ms: 0,
           code,
           detail: timeout ? 'Tiempo límite superado' : (e as Error).message,
@@ -78,7 +80,7 @@ export function PythonWorkspace({ problem, draft }: Props) {
   const restartEngine = () => {
     pyClient.reset();
     setOutput({ kind: 'idle' });
-    void pyClient.init(PACKAGES).catch(() => {});
+    void pyClient.init(packages).catch(() => {});
   };
 
   const running = output.kind === 'running';
@@ -87,7 +89,9 @@ export function PythonWorkspace({ problem, draft }: Props) {
   return (
     <div className="flex h-full flex-col bg-ink-950">
       <div className="flex h-10 shrink-0 items-center gap-2 border-b border-ink-700 bg-ink-900 px-3">
-        <span className="font-mono text-xs text-vermilion">Python 3</span>
+        <span className={`font-mono text-xs ${problem.section === 'pandas' ? 'text-jade' : 'text-vermilion'}`}>
+          {problem.section === 'pandas' ? 'Python 3 · pandas' : 'Python 3'}
+        </span>
         <EngineBadge state={engine} />
         <div className="flex-1" />
         <button
@@ -154,4 +158,9 @@ function EngineBadge({ state }: { state: ReturnType<typeof usePyEngine> }) {
       {state.status === 'loading' ? state.message : 'en espera'}
     </span>
   );
+}
+
+/** Number of known cases (generated ones are unknown until the harness runs). */
+function ev_total(problem: AlgorithmsProblem | PandasProblem): number {
+  return problem.section === 'pandas' ? 1 : problem.tests.length + problem.hiddenTests.length;
 }

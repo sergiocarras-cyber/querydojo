@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { PyEngineState } from '../../lib/python/client';
 import type { PyCaseResult, PyEvaluation } from '../../lib/python/evaluate';
 import { Banner } from './Banner';
+import { PandasTable } from './PandasTables';
 
 export type PyOutput =
   | { kind: 'idle' }
@@ -130,6 +131,7 @@ function VerdictBanner({ ev, failed }: { ev: PyEvaluation; failed: PyCaseResult 
 }
 
 function CaseView({ c }: { c: PyCaseResult }) {
+  if (c.expected_table) return <PandasCaseView c={c} />;
   return (
     <div className="space-y-2">
       <Block label="Entrada (args)">
@@ -167,4 +169,40 @@ function Block({ label, children }: { label: string; children: React.ReactNode }
 
 function Code({ children, tone = 'text-ink-100' }: { children: string; tone?: string }) {
   return <pre className={`font-mono text-xs break-all whitespace-pre-wrap ${tone}`}>{children}</pre>;
+}
+
+function PandasCaseView({ c }: { c: PyCaseResult }) {
+  return (
+    <div className="space-y-3">
+      {c.message && (
+        <Block label="Diferencia">
+          <pre className="max-h-48 overflow-auto font-mono text-xs whitespace-pre-wrap text-rose">{c.message}</pre>
+        </Block>
+      )}
+      {c.error && (
+        <Block label="Excepción">
+          <pre className="font-mono text-xs whitespace-pre-wrap text-rose">{c.error}</pre>
+        </Block>
+      )}
+      {c.got_table ? (
+        <PandasTable
+          name={`Tu resultado${c.ms !== undefined ? ` · ${c.ms} ms` : ''}`}
+          table={c.got_table}
+          highlight={c.passed ? 'text-jade' : 'text-rose'}
+        />
+      ) : (
+        !c.error && (
+          <Block label="Tu resultado">
+            <Code tone="text-rose">{c.got ?? '—'}</Code>
+          </Block>
+        )
+      )}
+      {!c.hidden && c.expected_table && <PandasTable name="Resultado esperado" table={c.expected_table} highlight="text-ink-300" />}
+      {c.stdout && (
+        <Block label="stdout (tus print)">
+          <pre className="max-h-48 overflow-auto font-mono text-xs whitespace-pre-wrap text-ink-200">{c.stdout}</pre>
+        </Block>
+      )}
+    </div>
+  );
 }

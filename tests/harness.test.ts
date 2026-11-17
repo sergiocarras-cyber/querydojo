@@ -10,7 +10,7 @@ beforeAll(() => {
 afterAll(() => close());
 
 async function suite(code: string, spec: Record<string, unknown>): Promise<PyRunOutput> {
-  return JSON.parse(await run(code, JSON.stringify({ mode: 'submit', ...spec }), []));
+  return JSON.parse(await run('run_suite', [code, JSON.stringify({ mode: 'submit', ...spec })], []));
 }
 
 describe('harness.py', () => {
@@ -85,7 +85,7 @@ describe('harness.py', () => {
   it('stops at the first failure in submit mode only', async () => {
     const spec = { function: 'f', cases: [{ args: [1], expected: 0 }, { args: [2], expected: 2 }] };
     expect((await suite('def f(x):\n    return x', spec)).cases).toHaveLength(1);
-    const runOut: PyRunOutput = JSON.parse(await run('def f(x):\n    return x', JSON.stringify({ ...spec, mode: 'run' }), []));
+    const runOut: PyRunOutput = JSON.parse(await run('run_suite', ['def f(x):\n    return x', JSON.stringify({ ...spec, mode: 'run' })], []));
     expect(runOut.cases).toHaveLength(2);
   });
 
@@ -105,8 +105,8 @@ describe('node runner', () => {
   it('kills an infinite loop and recovers', async () => {
     const { run: quick, close: closeQuick } = createNodePyRunner(1_500);
     const spec = JSON.stringify({ mode: 'run', function: 'f', cases: [{ args: [], expected: 1 }] });
-    await expect(quick('def f():\n    while True:\n        pass', spec, [])).rejects.toThrow(/límite/);
-    const out: PyRunOutput = JSON.parse(await quick('def f():\n    return 1', spec, []));
+    await expect(quick('run_suite', ['def f():\n    while True:\n        pass', spec], [])).rejects.toThrow(/límite/);
+    const out: PyRunOutput = JSON.parse(await quick('run_suite', ['def f():\n    return 1', spec], []));
     expect(out.cases[0].passed).toBe(true);
     await closeQuick();
   });

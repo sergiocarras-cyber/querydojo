@@ -7,12 +7,12 @@ import { loadPyodide } from 'pyodide';
 const py = await loadPyodide();
 py.runPython(readFileSync(workerData.harnessPath, 'utf8'));
 
-parentPort.on('message', async ({ id, code, spec, packages }) => {
+parentPort.on('message', async ({ id, fn: name, args, packages }) => {
   try {
     if (packages.length) await py.loadPackage(packages, { messageCallback: () => {} });
-    const fn = py.globals.get('run_suite');
+    const fn = py.globals.get(name);
     try {
-      parentPort.postMessage({ id, ok: true, json: fn(code, spec) });
+      parentPort.postMessage({ id, ok: true, json: fn(...args) });
     } finally {
       fn.destroy();
     }

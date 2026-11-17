@@ -43,12 +43,12 @@ self.onmessage = async (event: MessageEvent<PyRequest>) => {
       return;
     }
     await ensurePackages(py, req.packages);
-    const runSuite = py.globals.get('run_suite');
+    const fn = py.globals.get(req.fn);
     try {
-      const json = runSuite(req.code, req.spec) as string;
+      const json = fn(...req.args) as string;
       post({ type: 'result', id: req.id, ok: true, json });
     } finally {
-      runSuite.destroy();
+      fn.destroy();
     }
   } catch (err) {
     const message = (err as Error).message ?? String(err);

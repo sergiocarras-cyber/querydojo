@@ -1,7 +1,7 @@
 # QueryDojo
 
 Web personal para preparar entrevistas técnicas (data engineer / data analyst / software engineer):
-SQL, Python de algoritmos, pandas y estadística. **Todo se ejecuta en el navegador**: sin backend,
+SQL, Python de algoritmos, pandas y estadística (105 problemas originales). **Todo se ejecuta en el navegador**: sin backend,
 sin API keys, coste 0 €.
 
 - **SQL:** PostgreSQL real en WebAssembly ([PGlite](https://pglite.dev)) dentro de un Web Worker.
@@ -17,7 +17,8 @@ npm install
 npm run dev        # http://localhost:5173
 npm test           # todo: formato, SQL y Python
 npm run verify:sql     # solo SQL (PGlite)
-npm run verify:python  # solo Python: cada solución oficial contra todos sus tests (Pyodide en Node)
+npm run verify:python  # solo Python: algoritmos y pandas (Pyodide en Node)
+npm run verify:stats   # solo estadística: recalcula cada respuesta numérica
 npm run build      # build estático en dist/
 ```
 
@@ -126,7 +127,39 @@ Listas enlazadas y árboles se escriben como listas JSON: `[1, 2, 3]` es `1 → 
   (botón **Reiniciar entorno** para hacerlo a mano).
 - En Pyodide el límite de recursión es ~1000: en entradas grandes, usa versiones iterativas.
 
-> Los formatos de pandas y estadística se documentarán aquí cuando lleguen sus fases.
+### Problemas de pandas
+
+Frontmatter adicional: `function`, `order_matters` (por defecto `false`: las filas se comparan
+ordenadas), `check_dtype` (por defecto `false`: `1` y `1.0` son iguales) y `tolerance`.
+
+| Sección | Contenido |
+| --- | --- |
+| `## Starter` | Python con `import pandas as pd` y la firma de la función. |
+| `## Data` | Python con `def cases():` que hace `yield [df1, df2, ...]` (los argumentos visibles). El primer caso se muestra en el enunciado. |
+| `## Hidden Data` | Igual, con casos límite. Solo en Submit. |
+| `## Solution` | Solución oficial: su resultado es el esperado. |
+| `## Wrong Answers` | *(Opcional, recomendado)* Soluciones incorrectas que deben fallar. |
+
+La corrección usa `pandas.testing.assert_frame_equal` después de comprobar columnas (nombres y
+orden) y número de filas; el índice siempre se ignora. Con pandas 3, usa un formato de fecha
+uniforme dentro de cada `pd.to_datetime([...])`.
+
+### Problemas de estadística y probabilidad
+
+```yaml
+answer_type: numeric      # numeric | choice
+answer: 0.141             # número, o índice (desde 0) de la opción correcta
+tolerance: 0.002          # margen absoluto (solo numeric; por defecto 0.001)
+```
+
+| Sección | Contenido |
+| --- | --- |
+| `## Options` | *(Solo choice)* Una línea `- texto` por opción (Markdown). |
+| `## Verification` | *(Obligatoria en numeric)* Python con `def answer():` que **recalcula** la respuesta; los tests comprueban que coincide con `answer`. |
+| `## Explanation` | Explicación completa; se muestra al responder. |
+
+El usuario puede responder con decimales (`0.375` o `0,375`), fracciones (`3/8`) o porcentajes
+(`37.5%`).
 
 ### Añadir un problema
 

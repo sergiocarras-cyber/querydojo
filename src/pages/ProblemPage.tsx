@@ -2,10 +2,11 @@ import { useParams } from 'react-router';
 import { ProblemDescription } from '../components/problem/ProblemDescription';
 import { PythonWorkspace } from '../components/problem/PythonWorkspace';
 import { SqlWorkspace } from '../components/problem/SqlWorkspace';
+import { StatsWorkspace } from '../components/problem/StatsWorkspace';
 import { SplitPane } from '../components/SplitPane';
 import { useDraft } from '../hooks/useDraft';
 import { getProblem } from '../lib/problems/registry';
-import type { Problem } from '../lib/problems/types';
+import type { CodeProblem, Problem, StatsProblem } from '../lib/problems/types';
 import { NotFoundPage } from './NotFoundPage';
 
 export function ProblemPage() {
@@ -16,6 +17,10 @@ export function ProblemPage() {
 }
 
 function ProblemView({ problem }: { problem: Problem }) {
+  return problem.section === 'stats' ? <StatsView problem={problem} /> : <CodeView problem={problem} />;
+}
+
+function CodeView({ problem }: { problem: CodeProblem }) {
   // The draft lives here so "Mis envíos" can load an old submission into the editor.
   const draft = useDraft(problem.id, problem.starter);
   const workspace =
@@ -32,6 +37,19 @@ function ProblemView({ problem }: { problem: Problem }) {
       max={70}
       left={<ProblemDescription problem={problem} onLoadCode={draft.setCode} />}
       right={workspace}
+    />
+  );
+}
+
+function StatsView({ problem }: { problem: StatsProblem }) {
+  return (
+    <SplitPane
+      storageKey="problem"
+      initial={42}
+      min={25}
+      max={70}
+      left={<ProblemDescription problem={problem} />}
+      right={<StatsWorkspace problem={problem} />}
     />
   );
 }

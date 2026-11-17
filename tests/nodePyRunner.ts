@@ -31,7 +31,7 @@ export function createNodePyRunner(timeoutMs = PY_SUBMIT_TIMEOUT_MS): { run: PyR
     });
   };
 
-  const run: PyRunner = async (code, spec, packages) => {
+  const run: PyRunner = async (fn, args, packages) => {
     if (!worker) boot();
     await ready;
     const w = worker!;
@@ -58,7 +58,7 @@ export function createNodePyRunner(timeoutMs = PY_SUBMIT_TIMEOUT_MS): { run: PyR
         }
       };
       w.on('message', onMsg);
-      w.postMessage({ id, code, spec, packages });
+      w.postMessage({ id, fn, args, packages });
     });
   };
 

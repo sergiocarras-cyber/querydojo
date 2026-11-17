@@ -30,7 +30,7 @@ describe.each(problems.map((p) => [p.id, p] as const))('%s', (_id, p) => {
   });
 
   it('starter code loads without errors', async () => {
-    const out: PyRunOutput = JSON.parse(await run(p.starter, buildSpec(p, 'run'), []));
+    const out: PyRunOutput = JSON.parse(await run('run_suite', [p.starter, buildSpec(p, 'run')], []));
     expect(out.error ?? '').toBe('');
     expect(out.status).toBe('ok');
   });

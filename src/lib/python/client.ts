@@ -1,4 +1,4 @@
-import type { PyRequest, PyResponse } from './pyProtocol';
+import type { HarnessFn, PyRequest, PyResponse } from './pyProtocol';
 
 export const PY_RUN_TIMEOUT_MS = 5_000;
 export const PY_SUBMIT_TIMEOUT_MS = 10_000;
@@ -132,12 +132,9 @@ class PyClient {
     return this.ready;
   }
 
-  async run(code: string, spec: string, packages: string[], mode: 'run' | 'submit'): Promise<string> {
+  async call(fn: HarnessFn, args: string[], packages: string[], timeoutMs: number): Promise<string> {
     await this.init(packages);
-    return this.send(
-      { type: 'run', code, spec, packages },
-      mode === 'run' ? PY_RUN_TIMEOUT_MS : PY_SUBMIT_TIMEOUT_MS,
-    );
+    return this.send({ type: 'call', fn, args, packages }, timeoutMs);
   }
 }
 

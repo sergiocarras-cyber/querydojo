@@ -24,6 +24,10 @@ const frontmatterSchema = z.object({
   return_type: z.enum(['linked_list', 'tree']).optional(),
   time_limit_ms: z.number().int().positive().optional(),
   complexity: z.object({ time: z.string(), space: z.string() }).optional(),
+  check_dtype: z.boolean().optional(),
+  // stats
+  answer_type: z.enum(['numeric', 'choice']).optional(),
+  answer: z.number().optional(),
 });
 
 const testCasesSchema = z.array(
@@ -194,6 +198,51 @@ export function parseProblem(raw: string, file: string): Problem {
         generator: optionalCode(sections, 'generator'),
         checker,
         wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
+      };
+    }
+    case 'pandas': {
+      if (!fm.function) throw new ProblemFormatError(file, 'pandas problems need "function" in the frontmatter');
+      return {
+        ...base,
+        section: 'pandas',
+        function: fm.function,
+        orderMatters: fm.order_matters ?? false,
+        checkDtype: fm.check_dtype ?? false,
+        tolerance: fm.tolerance ?? 1e-6,
+        starter: singleCode(sections, 'starter', file),
+        solution: singleCode(sections, 'solution', file),
+        dataCode: singleCode(sections, 'data', file),
+        hiddenDataCode: optionalCode(sections, 'hidden data'),
+        wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
+      };
+    }
+    case 'stats': {
+      if (!fm.answer_type || fm.answer === undefined) {
+        throw new ProblemFormatError(file, 'stats problems need "answer_type" and "answer"');
+      }
+      const options = (sections.get('options') ?? '')
+        .split('\n')
+        .filter((l) => /^\s*-\s+/.test(l))
+        .map((l) => l.replace(/^\s*-\s+/, '').trim());
+      if (fm.answer_type === 'choice') {
+        if (options.length < 2) throw new ProblemFormatError(file, 'choice problems need at least 2 "- option" lines in "## Options"');
+        if (!Number.isInteger(fm.answer) || fm.answer < 0 || fm.answer >= options.length) {
+          throw new ProblemFormatError(file, '"answer" must be the 0-based index of the correct option');
+        }
+      }
+      const verification = optionalCode(sections, 'verification');
+      if (fm.answer_type === 'numeric' && !verification) {
+        throw new ProblemFormatError(file, 'numeric stats problems need a "## Verification" python block');
+      }
+      return {
+        ...base,
+        section: 'stats',
+        answerType: fm.answer_type,
+        answer: fm.answer,
+        tolerance: fm.tolerance ?? 1e-3,
+        options,
+        verification,
+        solution: base.explanation,
       };
     }
     default:

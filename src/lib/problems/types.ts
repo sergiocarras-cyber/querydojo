@@ -120,4 +120,36 @@ export interface AlgorithmsProblem extends BaseProblem {
   wrongAnswers: string[];
 }
 
-export type Problem = SqlProblem | AlgorithmsProblem;
+export interface PandasProblem extends BaseProblem {
+  section: 'pandas';
+  starter: string;
+  function: string;
+  /** Row order must match the official solution. */
+  orderMatters: boolean;
+  /** Compare dtypes too (default false: 1 == 1.0). */
+  checkDtype: boolean;
+  tolerance: number;
+  /** Python defining cases() -> visible argument lists (DataFrames). */
+  dataCode: string;
+  /** Python defining cases() -> hidden argument lists. */
+  hiddenDataCode: string | null;
+  wrongAnswers: string[];
+}
+
+export interface StatsProblem extends BaseProblem {
+  section: 'stats';
+  answerType: 'numeric' | 'choice';
+  /** Numeric answer, or the index of the correct option. */
+  answer: number;
+  /** Absolute tolerance for numeric answers. */
+  tolerance: number;
+  /** Markdown options for multiple choice. */
+  options: string[];
+  /** Python defining answer() that recomputes the numeric answer (tests only). */
+  verification: string | null;
+}
+
+export type Problem = SqlProblem | AlgorithmsProblem | PandasProblem | StatsProblem;
+
+/** Problems solved by writing code in the editor. */
+export type CodeProblem = SqlProblem | AlgorithmsProblem | PandasProblem;

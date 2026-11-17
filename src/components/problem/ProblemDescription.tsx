@@ -4,6 +4,8 @@ import type { Problem } from '../../lib/problems/types';
 import { readJson, writeJson } from '../../lib/storage/local';
 import { DifficultyBadge, SectionBadge, TopicChip } from '../Badges';
 import { Markdown } from '../Markdown';
+import { formatNumber } from '../../lib/stats/answer';
+import { PandasTables } from './PandasTables';
 import { SqlTables } from './SqlTables';
 
 type Tab = 'statement' | 'hints' | 'solution' | 'submissions';
@@ -17,7 +19,8 @@ const TABS: { id: Tab; label: string }[] = [
 
 interface Props {
   problem: Problem;
-  onLoadCode: (code: string) => void;
+  /** Code problems only: loads an old submission into the editor. */
+  onLoadCode?: (code: string) => void;
 }
 
 export function ProblemDescription({ problem, onLoadCode }: Props) {
@@ -76,6 +79,12 @@ function Statement({ problem }: { problem: Problem }) {
           <SqlTables problem={problem} />
         </div>
       )}
+      {problem.section === 'pandas' && (
+        <div className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold text-ink-100">DataFrames de ejemplo</h2>
+          <PandasTables problem={problem} />
+        </div>
+      )}
     </article>
   );
 }
@@ -126,6 +135,21 @@ function Solution({ problem }: { problem: Problem }) {
       </div>
     );
   }
+  if (problem.section === 'stats') {
+    return (
+      <div>
+        <div className="mb-4 rounded-md border border-jade/30 bg-jade/10 px-3 py-2 text-sm text-ink-100">
+          <span className="text-jade">Respuesta: </span>
+          {problem.answerType === 'numeric' ? (
+            <span className="font-mono">{formatNumber(problem.answer)}</span>
+          ) : (
+            <Markdown>{problem.options[problem.answer]}</Markdown>
+          )}
+        </div>
+        <Markdown>{problem.explanation}</Markdown>
+      </div>
+    );
+  }
   const lang = problem.section === 'sql' ? 'sql' : 'python';
   return (
     <div>
@@ -170,7 +194,13 @@ function Submissions({ problem, onLoadCode }: Props) {
   const [open, setOpen] = useState<number | null>(null);
 
   if (subs.length === 0) {
-    return <p className="text-sm text-ink-500">Todavía no has enviado ninguna solución. Usa Submit para corregir.</p>;
+    return (
+      <p className="text-sm text-ink-500">
+        {problem.section === 'stats'
+          ? 'Todavía no has respondido. Escribe tu respuesta y pulsa Comprobar.'
+          : 'Todavía no has enviado ninguna solución. Usa Submit para corregir.'}
+      </p>
+    );
   }
   return (
     <ul className="space-y-2">
@@ -191,12 +221,14 @@ function Submissions({ problem, onLoadCode }: Props) {
               <div className="border-t border-ink-700 px-3 py-3">
                 <p className="mb-2 text-xs text-ink-300">{s.detail}</p>
                 <pre className="max-h-64 overflow-auto rounded bg-ink-950 p-2 font-mono text-xs text-ink-200">{s.code}</pre>
-                <button
-                  onClick={() => onLoadCode(s.code)}
-                  className="mt-2 rounded bg-ink-700 px-2.5 py-1 text-xs text-ink-100 hover:bg-ink-600"
-                >
-                  Cargar en el editor
-                </button>
+                {onLoadCode && (
+                  <button
+                    onClick={() => onLoadCode(s.code)}
+                    className="mt-2 rounded bg-ink-700 px-2.5 py-1 text-xs text-ink-100 hover:bg-ink-600"
+                  >
+                    Cargar en el editor
+                  </button>
+                )}
               </div>
             )}
           </li>

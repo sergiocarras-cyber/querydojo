@@ -1,4 +1,5 @@
-import type { AlgorithmsProblem } from '../problems/types';
+import type { HarnessFn } from './pyProtocol';
+import type { AlgorithmsProblem, PandasProblem } from '../problems/types';
 
 /** One test case as reported by harness.py. */
 export interface PyCaseResult {
@@ -12,6 +13,19 @@ export interface PyCaseResult {
   ms?: number;
   passed: boolean;
   tle?: boolean;
+  /** pandas only */
+  expected_table?: PyTable;
+  got_table?: PyTable;
+  message?: string;
+}
+
+/** A DataFrame rendered by harness._df_table. */
+export interface PyTable {
+  columns: string[];
+  dtypes: string[];
+  rows: (string | number | boolean | null)[][];
+  total_rows: number;
+  index_named: boolean;
 }
 
 export interface PyRunOutput {
@@ -23,8 +37,8 @@ export interface PyRunOutput {
   total: number;
 }
 
-/** Runs harness.run_suite(code, spec) somewhere (browser worker or Node). */
-export type PyRunner = (code: string, specJson: string, packages: string[]) => Promise<string>;
+/** Calls a harness.py function somewhere (browser worker or Node) and returns its JSON. */
+export type PyRunner = (fn: HarnessFn, args: string[], packages: string[]) => Promise<string>;
 
 export type PyStatus = 'accepted' | 'wrong' | 'error' | 'timeout';
 
@@ -67,7 +81,45 @@ export async function evaluatePython(
   mode: 'run' | 'submit',
   run: PyRunner,
 ): Promise<PyEvaluation> {
-  const raw = await run(code, buildSpec(problem, mode), []);
+  const raw = await run('run_suite', [code, buildSpec(problem, mode)], []);
   const output = JSON.parse(raw) as PyRunOutput;
   return { mode, status: statusOf(output), output };
+}
+
+export const PANDAS_PACKAGES = ['pandas'];
+
+export function buildPandasSpec(problem: PandasProblem, mode: 'run' | 'submit'): string {
+  return JSON.stringify({
+    mode,
+    function: problem.function,
+    order_matters: problem.orderMatters,
+    check_dtype: problem.checkDtype,
+    tolerance: problem.tolerance,
+    reference_code: problem.solution,
+    data_code: problem.dataCode,
+    hidden_data_code: mode === 'submit' ? problem.hiddenDataCode : null,
+  });
+}
+
+export async function evaluatePandas(
+  problem: PandasProblem,
+  code: string,
+  mode: 'run' | 'submit',
+  run: PyRunner,
+): Promise<PyEvaluation> {
+  const raw = await run('run_pandas_suite', [code, buildPandasSpec(problem, mode)], PANDAS_PACKAGES);
+  const output = JSON.parse(raw) as PyRunOutput;
+  return { mode, status: statusOf(output), output };
+}
+
+/** Grades a Python-based problem (algorithms or pandas). */
+export function evaluateCode(
+  problem: AlgorithmsProblem | PandasProblem,
+  code: string,
+  mode: 'run' | 'submit',
+  run: PyRunner,
+): Promise<PyEvaluation> {
+  return problem.section === 'pandas'
+    ? evaluatePandas(problem, code, mode, run)
+    : evaluatePython(problem, code, mode, run);
 }

@@ -335,3 +335,207 @@ def run_suite(user_code, spec_json):
             "total": len(cases),
         }
     )
+
+
+# --------------------------------------------------------------------------
+# pandas problems
+# --------------------------------------------------------------------------
+
+MAX_TABLE_ROWS = 200
+
+
+def _cell(v):
+    """JSON-safe cell: NaN/NaT -> None, numpy scalars -> Python, timestamps -> ISO text."""
+    import pandas as pd
+
+    if v is None:
+        return None
+    try:
+        if pd.isna(v):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(v, pd.Timestamp):
+        return v.strftime("%Y-%m-%d") if v == v.normalize() else v.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(v, pd.Timedelta):
+        return str(v)
+    if hasattr(v, "item") and not isinstance(v, (str, bytes)):
+        try:
+            v = v.item()
+        except (ValueError, AttributeError):
+            return str(v)
+    if isinstance(v, float):
+        return round(v, 6)
+    if isinstance(v, (int, bool, str)):
+        return v
+    return str(v)
+
+
+def _df_table(df):
+    import pandas as pd
+
+    if not isinstance(df, (pd.DataFrame, pd.Series)):
+        # Scalar argument (e.g. a date string): show it as a 1x1 table.
+        return {"columns": ["value"], "dtypes": [type(df).__name__], "rows": [[_cell(df)]], "total_rows": 1, "index_named": False}
+    if isinstance(df, pd.Series):
+        df = df.to_frame()
+    shown = df.head(MAX_TABLE_ROWS)
+    return {
+        "columns": [str(c) for c in df.columns],
+        "dtypes": [str(t) for t in df.dtypes],
+        "rows": [[_cell(v) for v in row] for row in shown.itertuples(index=False, name=None)],
+        "total_rows": int(len(df)),
+        "index_named": df.index.name is not None or isinstance(df.index, pd.MultiIndex),
+    }
+
+
+def _sort_frame(df):
+    cols = list(df.columns)
+    try:
+        return df.sort_values(cols, kind="mergesort", na_position="last").reset_index(drop=True)
+    except TypeError:
+        # Mixed types in a column: sort by string representation instead.
+        key = df.astype(str)
+        return df.loc[key.sort_values(cols, kind="mergesort").index].reset_index(drop=True)
+
+
+def _compare_frames(got, expected, order_matters, check_dtype, tol):
+    import pandas as pd
+
+    if not isinstance(got, pd.DataFrame):
+        return False, f"Tu función debe devolver un DataFrame, pero devolvió {type(got).__name__}."
+    if list(map(str, got.columns)) != list(map(str, expected.columns)):
+        return False, (
+            f"Columnas distintas. Esperadas: {list(map(str, expected.columns))}. "
+            f"Obtenidas: {list(map(str, got.columns))}."
+        )
+    if len(got) != len(expected):
+        return False, f"Número de filas distinto: se esperaban {len(expected)} y se obtuvieron {len(got)}."
+    g = got.reset_index(drop=True)
+    e = expected.reset_index(drop=True)
+    if not order_matters:
+        g, e = _sort_frame(g), _sort_frame(e)
+    g.columns = e.columns
+    try:
+        pd.testing.assert_frame_equal(
+            g, e, check_dtype=check_dtype, check_exact=False, rtol=tol, atol=tol,
+            check_index_type=False, check_column_type=False, check_names=False,
+        )
+    except AssertionError as err:
+        msg = str(err).strip()
+        if not order_matters:
+            msg += "\n(Las filas se compararon ordenadas, así que el orden no importa.)"
+        else:
+            msg += "\n(El enunciado exige un orden de filas concreto.)"
+        return False, msg
+    return True, ""
+
+
+def _pandas_cases(code):
+    ns = {"__name__": "__data__"}
+    exec(compile(code, "<data>", "exec"), ns)
+    return [list(args) for args in ns["cases"]()]
+
+
+def _copy_args(args):
+    import pandas as pd
+
+    return [a.copy(deep=True) if isinstance(a, (pd.DataFrame, pd.Series)) else copy.deepcopy(a) for a in args]
+
+
+def preview_pandas(spec_json):
+    """Tables of the first visible case, labelled with the function's parameter names."""
+    import inspect
+
+    spec = json.loads(spec_json)
+    reference, _, _ = _load(spec["reference_code"], "<reference>", spec["function"])
+    names = list(inspect.signature(reference).parameters)
+    args = _pandas_cases(spec["data_code"])[0]
+    return json.dumps(
+        {"tables": [{"name": names[i] if i < len(names) else f"arg{i}", "table": _df_table(a)} for i, a in enumerate(args)]}
+    )
+
+
+def run_pandas_suite(user_code, spec_json):
+    spec = json.loads(spec_json)
+    function = spec["function"]
+    order_matters = spec.get("order_matters", False)
+    check_dtype = spec.get("check_dtype", False)
+    tol = spec.get("tolerance", 1e-6)
+    time_limit = spec.get("time_limit_ms", 3000) / 1000
+    submit = spec.get("mode") == "submit"
+
+    reference, _, _ = _load(spec["reference_code"], "<reference>", function)
+    cases = [(args, False) for args in _pandas_cases(spec["data_code"])]
+    if submit and spec.get("hidden_data_code"):
+        cases += [(args, True) for args in _pandas_cases(spec["hidden_data_code"])]
+
+    try:
+        fn, _, setup_stdout = _load(user_code, "<solution>", function)
+    except BaseException as exc:
+        if isinstance(exc, SyntaxError):
+            error = "".join(traceback.format_exception_only(type(exc), exc)).rstrip()
+        else:
+            error = _user_traceback(exc)
+        return json.dumps({"status": "error", "error": error, "cases": [], "passed": 0, "total": len(cases)})
+
+    results = []
+    for index, (args, hidden) in enumerate(cases):
+        expected = reference(*_copy_args(args))
+        entry = {
+            "index": index,
+            "hidden": hidden,
+            "input": ", ".join(f"DataFrame {a.shape[0]}×{a.shape[1]}" if hasattr(a, "shape") else _short(a) for a in args),
+            "expected": f"DataFrame {expected.shape[0]}×{expected.shape[1]}",
+            "expected_table": _df_table(expected),
+        }
+        out = io.StringIO()
+        start = time.perf_counter()
+        try:
+            with contextlib.redirect_stdout(out):
+                got = fn(*_copy_args(args))
+            elapsed = time.perf_counter() - start
+            entry["ms"] = round(elapsed * 1000, 2)
+            if hasattr(got, "shape") and hasattr(got, "columns"):
+                entry["got"] = f"DataFrame {got.shape[0]}×{got.shape[1]}"
+                entry["got_table"] = _df_table(got)
+            else:
+                entry["got"] = _short(got)
+            if elapsed > time_limit:
+                entry.update(passed=False, tle=True)
+            else:
+                ok, message = _compare_frames(got, expected, order_matters, check_dtype, tol)
+                entry["passed"] = ok
+                if message:
+                    entry["message"] = message[:2000]
+        except BaseException as exc:
+            entry.update(passed=False, ms=round((time.perf_counter() - start) * 1000, 2), error=_user_traceback(exc))
+        stdout = out.getvalue()
+        if stdout:
+            entry["stdout"] = stdout[:MAX_STDOUT]
+        results.append(entry)
+        if submit and not entry["passed"]:
+            break
+
+    return json.dumps(
+        {
+            "status": "ok",
+            "setup_stdout": setup_stdout[:MAX_STDOUT],
+            "cases": results,
+            "passed": sum(1 for r in results if r["passed"]),
+            "total": len(cases),
+        },
+        default=str,
+    )
+
+
+# --------------------------------------------------------------------------
+# Statistics problems (verification only)
+# --------------------------------------------------------------------------
+
+
+def eval_answer(code):
+    """Runs a problem's ## Verification block and returns answer() as JSON."""
+    ns = {"__name__": "__verify__"}
+    exec(compile(code, "<verification>", "exec"), ns)
+    return json.dumps(float(ns["answer"]()))
