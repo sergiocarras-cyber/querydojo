@@ -87,4 +87,37 @@ export interface SqlProblem extends BaseProblem {
   wrongAnswers: string[];
 }
 
-export type Problem = SqlProblem;
+export type Comparator = 'exact' | 'unordered' | 'unordered_deep' | 'float' | 'custom';
+export type StructureType = 'linked_list' | 'tree';
+
+export interface PyTestCase {
+  args: unknown[];
+  /** Omitted -> computed with the official solution. */
+  expected?: unknown;
+}
+
+export interface AlgorithmsProblem extends BaseProblem {
+  section: 'algorithms';
+  starter: string;
+  /** Name of the function the user implements. */
+  function: string;
+  comparator: Comparator;
+  tolerance: number;
+  /** Per-argument conversion from JSON (e.g. list -> linked list). */
+  argTypes: (StructureType | null)[] | null;
+  returnType: StructureType | null;
+  timeLimitMs: number;
+  complexity: { time: string; space: string };
+  /** Visible cases (Run). */
+  tests: PyTestCase[];
+  /** Hidden explicit cases (Submit). */
+  hiddenTests: PyTestCase[];
+  /** Python defining cases() -> iterable of arg lists; expected from the solution. */
+  generator: string | null;
+  /** Python defining check(got, expected, *args) -> bool for comparator "custom". */
+  checker: string | null;
+  /** Plausible wrong/slow solutions the tests must reject. */
+  wrongAnswers: string[];
+}
+
+export type Problem = SqlProblem | AlgorithmsProblem;

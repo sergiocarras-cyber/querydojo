@@ -1,5 +1,6 @@
 import { useParams } from 'react-router';
 import { ProblemDescription } from '../components/problem/ProblemDescription';
+import { PythonWorkspace } from '../components/problem/PythonWorkspace';
 import { SqlWorkspace } from '../components/problem/SqlWorkspace';
 import { SplitPane } from '../components/SplitPane';
 import { useDraft } from '../hooks/useDraft';
@@ -17,6 +18,12 @@ export function ProblemPage() {
 function ProblemView({ problem }: { problem: Problem }) {
   // The draft lives here so "Mis envíos" can load an old submission into the editor.
   const draft = useDraft(problem.id, problem.starter);
+  const workspace =
+    problem.section === 'sql' ? (
+      <SqlWorkspace problem={problem} draft={draft} />
+    ) : (
+      <PythonWorkspace problem={problem} draft={draft} />
+    );
   return (
     <SplitPane
       storageKey="problem"
@@ -24,7 +31,7 @@ function ProblemView({ problem }: { problem: Problem }) {
       min={25}
       max={70}
       left={<ProblemDescription problem={problem} onLoadCode={draft.setCode} />}
-      right={<SqlWorkspace problem={problem} draft={draft} />}
+      right={workspace}
     />
   );
 }

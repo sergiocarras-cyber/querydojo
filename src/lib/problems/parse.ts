@@ -16,7 +16,45 @@ const frontmatterSchema = z.object({
   topics: z.array(z.string().min(1)).min(1),
   company: z.string().min(2),
   order_matters: z.boolean().optional(),
+  // algorithms / pandas
+  function: z.string().regex(/^[a-z_][a-z0-9_]*$/).optional(),
+  comparator: z.enum(['exact', 'unordered', 'unordered_deep', 'float', 'custom']).optional(),
+  tolerance: z.number().positive().optional(),
+  arg_types: z.array(z.enum(['linked_list', 'tree']).nullable()).optional(),
+  return_type: z.enum(['linked_list', 'tree']).optional(),
+  time_limit_ms: z.number().int().positive().optional(),
+  complexity: z.object({ time: z.string(), space: z.string() }).optional(),
 });
+
+const testCasesSchema = z.array(
+  z.object({ args: z.array(z.unknown()), expected: z.unknown().optional() }).strict(),
+);
+
+function parseTests(sections: Map<string, string>, name: string, file: string, required: boolean) {
+  const raw = sections.get(name);
+  if (raw === undefined) {
+    if (required) throw new ProblemFormatError(file, `missing "## ${name}" section`);
+    return [];
+  }
+  const blocks = codeBlocks(raw);
+  if (blocks.length !== 1 || blocks[0].lang !== 'json') {
+    throw new ProblemFormatError(file, `section "${name}" must contain exactly one json code block`);
+  }
+  let data: unknown;
+  try {
+    data = JSON.parse(blocks[0].code);
+  } catch (e) {
+    throw new ProblemFormatError(file, `section "${name}": invalid JSON (${(e as Error).message})`);
+  }
+  const parsed = testCasesSchema.safeParse(data);
+  if (!parsed.success) throw new ProblemFormatError(file, `section "${name}": each case needs "args" (array) and optional "expected"`);
+  return parsed.data;
+}
+
+function optionalCode(sections: Map<string, string>, name: string): string | null {
+  const blocks = codeBlocks(sections.get(name) ?? '');
+  return blocks.length ? blocks[0].code : null;
+}
 
 export class ProblemFormatError extends Error {
   constructor(file: string, message: string) {
@@ -127,6 +165,34 @@ export function parseProblem(raw: string, file: string): Problem {
         hiddenData: codeBlocks(hiddenRaw).map((b) => b.code),
         solution: singleCode(sections, 'solution', file),
         orderMatters: fm.order_matters ?? false,
+        wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
+      };
+    }
+    case 'algorithms': {
+      if (!fm.function) throw new ProblemFormatError(file, 'algorithms problems need "function" in the frontmatter');
+      if (!fm.complexity) throw new ProblemFormatError(file, 'algorithms problems need "complexity: {time, space}"');
+      const comparator = fm.comparator ?? 'exact';
+      const checker = optionalCode(sections, 'checker');
+      if (comparator === 'custom' && !checker) throw new ProblemFormatError(file, 'comparator "custom" needs a "## Checker" section');
+      const tests = parseTests(sections, 'tests', file, true);
+      if (tests.length === 0) throw new ProblemFormatError(file, '"## Tests" needs at least one case');
+      if (tests.some((t) => !('expected' in t))) throw new ProblemFormatError(file, 'visible tests must include "expected"');
+      return {
+        ...base,
+        section: 'algorithms',
+        function: fm.function,
+        comparator,
+        tolerance: fm.tolerance ?? 1e-6,
+        argTypes: fm.arg_types ?? null,
+        returnType: fm.return_type ?? null,
+        timeLimitMs: fm.time_limit_ms ?? 2000,
+        complexity: fm.complexity,
+        starter: singleCode(sections, 'starter', file),
+        solution: singleCode(sections, 'solution', file),
+        tests,
+        hiddenTests: parseTests(sections, 'hidden tests', file, false),
+        generator: optionalCode(sections, 'generator'),
+        checker,
         wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
       };
     }

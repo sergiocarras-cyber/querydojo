@@ -7,7 +7,7 @@ export default defineConfig({
   base: './',
   plugins: [react(), tailwindcss()],
   optimizeDeps: {
-    exclude: ['@electric-sql/pglite'],
+    exclude: ['@electric-sql/pglite', 'pyodide'],
   },
   worker: {
     format: 'es',
@@ -15,6 +15,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
-    testTimeout: 60_000,
+    testTimeout: 120_000,
+    hookTimeout: 60_000,
   },
 });

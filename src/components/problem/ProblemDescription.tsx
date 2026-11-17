@@ -129,6 +129,18 @@ function Solution({ problem }: { problem: Problem }) {
   const lang = problem.section === 'sql' ? 'sql' : 'python';
   return (
     <div>
+      {problem.section === 'algorithms' && (
+        <div className="mb-4 flex flex-wrap gap-3 font-mono text-xs">
+          <span className="rounded-md border border-ink-700 bg-ink-850 px-2.5 py-1.5">
+            <span className="text-ink-500">Tiempo </span>
+            <span className="text-amber">{problem.complexity.time}</span>
+          </span>
+          <span className="rounded-md border border-ink-700 bg-ink-850 px-2.5 py-1.5">
+            <span className="text-ink-500">Espacio </span>
+            <span className="text-amber">{problem.complexity.space}</span>
+          </span>
+        </div>
+      )}
       <Markdown>{'```' + lang + '\n' + problem.solution + '\n```'}</Markdown>
       <h2 className="mt-6 mb-2 text-sm font-semibold text-ink-100">Explicación</h2>
       <Markdown>{problem.explanation}</Markdown>

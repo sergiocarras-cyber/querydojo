@@ -5,7 +5,7 @@ SQL, Python de algoritmos, pandas y estadística. **Todo se ejecuta en el navega
 sin API keys, coste 0 €.
 
 - **SQL:** PostgreSQL real en WebAssembly ([PGlite](https://pglite.dev)) dentro de un Web Worker.
-- **Python:** Pyodide en un Web Worker (llega en la fase 3).
+- **Python:** [Pyodide](https://pyodide.org) (CPython en WebAssembly) en un Web Worker, cargado desde jsDelivr solo al abrir un problema de Python.
 - **Progreso:** `localStorage` del navegador.
 
 ## Arrancar
@@ -15,7 +15,9 @@ Requisitos: Node 20 o superior (probado con Node 26).
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # valida el formato y ejecuta las soluciones oficiales
+npm test           # todo: formato, SQL y Python
+npm run verify:sql     # solo SQL (PGlite)
+npm run verify:python  # solo Python: cada solución oficial contra todos sus tests (Pyodide en Node)
 npm run build      # build estático en dist/
 ```
 
@@ -27,6 +29,8 @@ Atajos del editor: **⌘/Ctrl + Enter** ejecuta (Run) y **⌘/Ctrl + Shift + Ent
 problems/<sección>/<slug>.md   ← un archivo por problema (sql, algorithms, pandas, stats)
 src/lib/problems/              ← tipos, parser y registro de problemas
 src/lib/sql/                   ← motor SQL compartido (engine.ts), worker y cliente
+src/lib/python/harness.py      ← corrector de Python (el mismo en navegador y en Node)
+src/lib/python/                ← worker de Pyodide, cliente con timeout y evaluador
 src/components/, src/pages/    ← interfaz (React + Tailwind)
 tests/                         ← Vitest: formato de problemas y verificación de soluciones
 ```
@@ -79,7 +83,50 @@ order_matters: true      # solo SQL: true si el enunciado exige un ORDER BY conc
 - Los números se comparan con tolerancia (`1e-6` relativa), así que `3`, `3.0` y `'3.00'::numeric` son iguales; un timestamp a medianoche equivale a la fecha (`2025-10-01 00:00:00` = `2025-10-01`).
 - Si falla el caso visible verás un diff (filas que faltan / sobran); si falla uno oculto, solo el motivo (sin los datos).
 
-> Los formatos de algoritmos, pandas y estadística se documentarán aquí cuando lleguen sus fases.
+### Problemas de algoritmos (Python)
+
+Frontmatter adicional:
+
+```yaml
+function: gift_card_pair     # función que implementa el usuario
+comparator: exact            # exact | unordered | unordered_deep | float | custom
+tolerance: 1e-6              # solo para float
+arg_types: [linked_list, null]   # opcional: convierte argumentos (linked_list | tree | null)
+return_type: linked_list     # opcional: convierte el resultado a lista para comparar
+time_limit_ms: 2000          # por caso (por defecto 2000)
+complexity: { time: "O(n)", space: "O(n)" }
+```
+
+| Sección | Contenido |
+| --- | --- |
+| `## Starter` | Un bloque ` ```python ` con la firma de la función. |
+| `## Tests` | Un bloque ` ```json `: lista de `{"args": [...], "expected": ...}`. Visibles (Run). |
+| `## Hidden Tests` | *(Opcional)* Igual que Tests; si omites `expected`, se calcula con la solución oficial. |
+| `## Generator` | *(Opcional)* Python con `def cases():` que hace `yield [args...]`. Sirve para casos grandes; el esperado se calcula con la solución oficial. Usa `random.Random(semilla)` para que sea determinista. |
+| `## Checker` | *(Solo `comparator: custom`)* Python con `def check(got, expected, *args) -> bool`. |
+| `## Solution` | Solución oficial en Python. |
+| `## Wrong Answers` | *(Opcional, recomendado)* Soluciones incorrectas o lentas que los tests deben rechazar. |
+
+Comparadores: `exact` (igualdad; las tuplas cuentan como listas y `True` ≠ `1`),
+`unordered` (ignora el orden de la lista), `unordered_deep` (también el de cada sublista),
+`float` (tolerancia), `custom` (tu `check`).
+
+Listas enlazadas y árboles se escriben como listas JSON: `[1, 2, 3]` es `1 → 2 → 3` y
+`[3, 9, 20, null, null, 15, 7]` es un árbol en orden por niveles. Las clases `ListNode` y
+`TreeNode` están disponibles sin importar nada.
+
+### Cómo se corrige un problema de Python
+
+- **Run**: casos visibles, muestra entrada, esperado, obtenido, tus `print()` y las excepciones
+  (solo con las líneas de tu código). Límite global: 5 s.
+- **Submit**: visibles + ocultos + generados (grandes). Se detiene en el primer fallo y muestra
+  ese caso. Límite por caso (`time_limit_ms`) y límite global de 10 s.
+- Python no se puede interrumpir desde JavaScript sin cabeceras especiales que GitHub Pages no
+  permite, así que si se supera el límite global se **termina el worker** y se arranca uno nuevo
+  (botón **Reiniciar entorno** para hacerlo a mano).
+- En Pyodide el límite de recursión es ~1000: en entradas grandes, usa versiones iterativas.
+
+> Los formatos de pandas y estadística se documentarán aquí cuando lleguen sus fases.
 
 ### Añadir un problema
 

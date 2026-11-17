@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Cell } from '../../lib/sql/engine';
 import type { CaseOutcome, SqlEvaluation } from '../../lib/sql/evaluate';
 import { DataTable } from '../DataTable';
+import { Banner } from './Banner';
 
 export type SqlOutput =
   | { kind: 'idle' }
@@ -33,20 +34,6 @@ export function SqlResultPanel({ output }: { output: SqlOutput }) {
         )}
         {output.kind === 'evaluated' && <Evaluation ev={output.evaluation} />}
       </div>
-    </div>
-  );
-}
-
-function Banner({ tone, title, children }: { tone: 'ok' | 'bad' | 'error'; title: string; children?: React.ReactNode }) {
-  const cls = {
-    ok: 'border-jade/40 bg-jade/10 text-jade',
-    bad: 'border-rose/40 bg-rose/10 text-rose',
-    error: 'border-amber/40 bg-amber/10 text-amber',
-  }[tone];
-  return (
-    <div className={`rounded-md border px-3 py-2 ${cls}`}>
-      <div className="text-sm font-semibold">{title}</div>
-      {children && <div className="mt-1 text-ink-200">{children}</div>}
     </div>
   );
 }
