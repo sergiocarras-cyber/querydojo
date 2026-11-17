@@ -8,9 +8,9 @@ import { formatNumber } from '../../lib/stats/answer';
 import { PandasTables } from './PandasTables';
 import { SqlTables } from './SqlTables';
 
-type Tab = 'statement' | 'hints' | 'solution' | 'submissions';
+export type DescriptionTab = 'statement' | 'hints' | 'solution' | 'submissions';
 
-const TABS: { id: Tab; label: string }[] = [
+const TABS: { id: DescriptionTab; label: string }[] = [
   { id: 'statement', label: 'Enunciado' },
   { id: 'hints', label: 'Pistas' },
   { id: 'solution', label: 'Solución' },
@@ -21,15 +21,18 @@ interface Props {
   problem: Problem;
   /** Code problems only: loads an old submission into the editor. */
   onLoadCode?: (code: string) => void;
+  /** Visible tabs (interview mode shows only the statement). */
+  tabs?: DescriptionTab[];
 }
 
-export function ProblemDescription({ problem, onLoadCode }: Props) {
-  const [tab, setTab] = useState<Tab>('statement');
+export function ProblemDescription({ problem, onLoadCode, tabs }: Props) {
+  const [tab, setTab] = useState<DescriptionTab>('statement');
+  const visible = tabs ? TABS.filter((t) => tabs.includes(t.id)) : TABS;
 
   return (
     <div className="flex h-full flex-col bg-ink-900">
       <div className="flex shrink-0 border-b border-ink-700 px-2">
-        {TABS.map((t) => (
+        {visible.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}

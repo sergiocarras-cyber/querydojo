@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { DifficultyBadge, SECTION_BG, SECTION_TEXT, SectionBadge } from '../components/Badges';
 import { problemOfTheDay } from '../lib/daily';
+import { currentStreak } from '../lib/progress/stats';
 import { statusOf, useProgress } from '../lib/progress/store';
 import { problems, problemsIn } from '../lib/problems/registry';
 import { SECTIONS, SECTION_INFO } from '../lib/problems/types';
@@ -8,6 +9,8 @@ import { SECTIONS, SECTION_INFO } from '../lib/problems/types';
 export function HomePage() {
   const daily = problemOfTheDay(problems);
   const progress = useProgress();
+  const streak = currentStreak(progress.activeDays);
+  const solved = problems.filter((p) => statusOf(progress, p.id) === 'solved').length;
 
   return (
     <div className="dojo-grid min-h-full">
@@ -41,7 +44,27 @@ export function HomePage() {
           )}
         </section>
 
-        <section className="mt-10 grid gap-4 sm:grid-cols-2">
+        <section className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs text-ink-400">
+          <span>
+            <span className="text-ink-100">{solved}</span>/{problems.length} resueltos
+          </span>
+          <span>
+            racha <span className="text-vermilion">{streak}</span> {streak === 1 ? 'día' : 'días'}
+          </span>
+          <span className="flex gap-4 sm:ml-auto">
+            <Link to="/paths" className="hover:text-ink-100">
+              → rutas de estudio
+            </Link>
+            <Link to="/interview" className="hover:text-ink-100">
+              → simular entrevista (30 min)
+            </Link>
+            <Link to="/progress" className="hover:text-ink-100">
+              → ver progreso
+            </Link>
+          </span>
+        </section>
+
+        <section className="mt-4 grid gap-4 sm:grid-cols-2">
           {SECTIONS.map((id) => {
             const info = SECTION_INFO[id];
             const list = problemsIn(id);

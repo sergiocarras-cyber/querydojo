@@ -3,7 +3,9 @@ import { Layout } from './components/Layout';
 import { HomePage } from './pages/HomePage';
 import { ProblemListPage } from './pages/ProblemListPage';
 import { ProblemPage } from './pages/ProblemPage';
-import { PlaceholderPage } from './pages/PlaceholderPage';
+import { InterviewPage } from './pages/InterviewPage';
+import { PathDetailPage, PathsPage } from './pages/PathsPage';
+import { ProgressPage } from './pages/ProgressPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 // HashRouter: deep links work on GitHub Pages without server rewrites.
@@ -16,9 +18,10 @@ export function App() {
           <Route path="problems" element={<ProblemListPage />} />
           <Route path="problems/:section" element={<ProblemListPage />} />
           <Route path="problem/:slug" element={<ProblemPage />} />
-          <Route path="paths" element={<PlaceholderPage title="Rutas de estudio" phase={5} />} />
-          <Route path="interview" element={<PlaceholderPage title="Modo entrevista" phase={5} />} />
-          <Route path="progress" element={<PlaceholderPage title="Progreso" phase={5} />} />
+          <Route path="paths" element={<PathsPage />} />
+          <Route path="paths/:pathId" element={<PathDetailPage />} />
+          <Route path="interview" element={<InterviewPage />} />
+          <Route path="progress" element={<ProgressPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

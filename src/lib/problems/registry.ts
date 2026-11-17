@@ -23,3 +23,9 @@ export function getProblem(slug: string): Problem | undefined {
 export function problemsIn(section: Section): Problem[] {
   return problems.filter((p) => p.section === section);
 }
+
+const byId = new Map(problems.map((p) => [p.id, p]));
+
+export function getProblemById(id: string): Problem | undefined {
+  return byId.get(id);
+}

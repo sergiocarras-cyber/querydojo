@@ -8,8 +8,16 @@ import { Banner } from './Banner';
 
 type Result = { correct: boolean; given: string } | null;
 
-export function StatsWorkspace({ problem }: { problem: StatsProblem }) {
-  const draftKey = `draft:${problem.id}`;
+interface Props {
+  problem: StatsProblem;
+  /** Draft namespace, see useDraft. */
+  scope?: string;
+  /** Interview mode: no pistas and no explanation until you get it right. */
+  interview?: boolean;
+}
+
+export function StatsWorkspace({ problem, scope = '', interview = false }: Props) {
+  const draftKey = `draft:${scope}${problem.id}`;
   const [value, setValue] = useState(() => readJson<string>(draftKey, ''));
   const [choice, setChoice] = useState<number | null>(null);
   const [result, setResult] = useState<Result>(null);
@@ -120,11 +128,13 @@ export function StatsWorkspace({ problem }: { problem: StatsProblem }) {
             ) : (
               <Banner tone="bad" title="✗ No es correcto">
                 <p className="text-xs">
-                  Puedes volver a intentarlo, pedir una pista en la pestaña Pistas o ver la explicación completa.
+                  {interview
+                    ? 'Puedes volver a intentarlo mientras quede tiempo.'
+                    : 'Puedes volver a intentarlo, pedir una pista en la pestaña Pistas o ver la explicación completa.'}
                 </p>
               </Banner>
             )}
-            {!showExplanation ? (
+            {interview && !showExplanation ? null : !showExplanation ? (
               <button onClick={() => setShowExplanation(true)} className="text-sm text-sky hover:underline">
                 Ver la respuesta y la explicación
               </button>
