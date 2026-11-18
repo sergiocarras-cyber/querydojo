@@ -1,20 +1,10 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { parseProblem } from '../src/lib/problems/parse';
+import { join } from 'node:path';
+import { loadProblemFiles } from '../plugins/problems';
 import type { Problem } from '../src/lib/problems/types';
 
 const ROOT = join(import.meta.dirname, '..');
 
-/** Reads every problem file from disk, like the Vite glob does in the browser. */
+/** Reads every problem file from disk with the same loader the Vite plugin uses. */
 export function loadAllProblems(): Problem[] {
-  const out: Problem[] = [];
-  const dir = join(ROOT, 'problems');
-  for (const section of readdirSync(dir)) {
-    for (const file of readdirSync(join(dir, section))) {
-      if (!file.endsWith('.md')) continue;
-      const path = join(dir, section, file);
-      out.push(parseProblem(readFileSync(path, 'utf8'), '/' + relative(ROOT, path)));
-    }
-  }
-  return out;
+  return loadProblemFiles(ROOT).problems;
 }

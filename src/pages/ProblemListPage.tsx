@@ -4,6 +4,7 @@ import { DifficultyBadge, SectionBadge, TopicChip } from '../components/Badges';
 import { statusOf, useProgress, type ProblemStatus } from '../lib/progress/store';
 import { problems } from '../lib/problems/registry';
 import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Section } from '../lib/problems/types';
+import { useTitle } from '../hooks/useTitle';
 
 const STATUS_LABEL: Record<ProblemStatus, string> = {
   todo: 'Sin empezar',
@@ -26,6 +27,7 @@ export function ProblemListPage() {
   const [params, setParams] = useSearchParams();
   const progress = useProgress();
 
+  useTitle(current ? SECTION_INFO[current].name : 'Problemas');
   const q = params.get('q') ?? '';
   const difficulty = params.get('difficulty') ?? '';
   const topic = params.get('topic') ?? '';

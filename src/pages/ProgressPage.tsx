@@ -16,10 +16,12 @@ import {
 import { exportProgress, importProgress, resetProgress, useProgress, type Submission } from '../lib/progress/store';
 import { getProblemById, problems, problemsIn } from '../lib/problems/registry';
 import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Section } from '../lib/problems/types';
+import { useTitle } from '../hooks/useTitle';
 
 const pct = (t: Tally) => (t.total ? Math.round((t.solved / t.total) * 100) : 0);
 
 export function ProgressPage() {
+  useTitle('Progreso');
   const progress = useProgress();
   const today = todayKey();
 

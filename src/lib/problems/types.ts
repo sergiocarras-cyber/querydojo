@@ -69,6 +69,9 @@ interface BaseProblem {
   file: string;
 }
 
+/** What lists, paths and progress need: everything but the content. */
+export type ProblemMeta = Pick<BaseProblem, 'id' | 'slug' | 'title' | 'section' | 'difficulty' | 'topics' | 'company'>;
+
 export interface SqlProblem extends BaseProblem {
   section: 'sql';
   starter: string;

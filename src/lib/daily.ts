@@ -1,4 +1,4 @@
-import type { Problem } from './problems/types';
+import type { ProblemMeta } from './problems/types';
 
 /** Local calendar date as YYYY-MM-DD. */
 export function todayKey(date = new Date()): string {
@@ -19,7 +19,7 @@ function hash(text: string): number {
 }
 
 /** Same problem all day long, different one tomorrow. */
-export function problemOfTheDay(all: Problem[], date = new Date()): Problem | undefined {
+export function problemOfTheDay(all: ProblemMeta[], date = new Date()): ProblemMeta | undefined {
   if (all.length === 0) return undefined;
   return all[hash(todayKey(date)) % all.length];
 }

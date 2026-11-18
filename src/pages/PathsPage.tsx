@@ -4,6 +4,7 @@ import { STUDY_PATHS, getPath, pathProblemIds, type StudyPath } from '../lib/pat
 import { statusOf, useProgress, type ProgressData } from '../lib/progress/store';
 import { getProblemById } from '../lib/problems/registry';
 import { NotFoundPage } from './NotFoundPage';
+import { useTitle } from '../hooks/useTitle';
 
 function pathProgress(path: StudyPath, progress: ProgressData) {
   const ids = pathProblemIds(path);
@@ -13,6 +14,7 @@ function pathProgress(path: StudyPath, progress: ProgressData) {
 }
 
 export function PathsPage() {
+  useTitle('Rutas de estudio');
   const progress = useProgress();
   return (
     <div className="mx-auto max-w-6xl px-6 py-8">
@@ -69,6 +71,7 @@ export function PathDetailPage() {
   const { pathId = '' } = useParams();
   const path = getPath(pathId);
   const progress = useProgress();
+  useTitle(path?.title ?? 'No encontrado');
   if (!path) return <NotFoundPage />;
   const { total, solved, next } = pathProgress(path, progress);
 

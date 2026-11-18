@@ -1,5 +1,5 @@
 import { todayKey } from '../daily';
-import { DIFFICULTIES, SECTIONS, type Difficulty, type Problem, type Section } from '../problems/types';
+import { DIFFICULTIES, SECTIONS, type Difficulty, type ProblemMeta, type Section } from '../problems/types';
 import { statusOf, type ProgressData } from './store';
 
 /** Pure aggregations over the progress document, shared by the pages and the tests. */
@@ -65,7 +65,7 @@ export interface Tally {
 
 const tally = (): Tally => ({ total: 0, solved: 0, attempted: 0 });
 
-function count(t: Tally, data: ProgressData, p: Problem) {
+function count(t: Tally, data: ProgressData, p: ProblemMeta) {
   t.total++;
   const st = statusOf(data, p.id);
   if (st === 'solved') t.solved++;
@@ -77,7 +77,7 @@ export interface SectionTally extends Tally {
   byDifficulty: Record<Difficulty, Tally>;
 }
 
-export function sectionTallies(problems: Problem[], data: ProgressData): SectionTally[] {
+export function sectionTallies(problems: ProblemMeta[], data: ProgressData): SectionTally[] {
   return SECTIONS.map((section) => {
     const row: SectionTally = {
       section,
@@ -93,7 +93,7 @@ export function sectionTallies(problems: Problem[], data: ProgressData): Section
   });
 }
 
-export function difficultyTallies(problems: Problem[], data: ProgressData): Record<Difficulty, Tally> {
+export function difficultyTallies(problems: ProblemMeta[], data: ProgressData): Record<Difficulty, Tally> {
   const out = Object.fromEntries(DIFFICULTIES.map((d) => [d, tally()])) as Record<Difficulty, Tally>;
   for (const p of problems) count(out[p.difficulty], data, p);
   return out;
@@ -108,7 +108,7 @@ export interface TopicTally extends Tally {
   unsolvedTried: number;
 }
 
-export function topicTallies(problems: Problem[], data: ProgressData): TopicTally[] {
+export function topicTallies(problems: ProblemMeta[], data: ProgressData): TopicTally[] {
   const map = new Map<string, TopicTally>();
   for (const p of problems) {
     for (const topic of p.topics) {

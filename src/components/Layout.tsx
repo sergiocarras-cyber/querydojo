@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useMatch } from 'react-router';
+import { Suspense, useEffect, useState } from 'react';
+import { NavLink, Outlet, useLocation, useMatch } from 'react-router';
+import { ErrorBoundary } from './ErrorBoundary';
 import { deadline, formatDuration, useInterview, type InterviewSession } from '../lib/interview/session';
 import { Logo } from './Logo';
 
@@ -16,6 +17,7 @@ export function Layout() {
   const inInterview = useMatch('/interview');
   const { current } = useInterview();
   const fullHeight = inProblem || (inInterview && current);
+  const { pathname } = useLocation();
   return (
     <div className="flex h-full flex-col">
       <header className="flex h-12 shrink-0 items-center gap-6 border-b border-ink-700 bg-ink-900 px-4">
@@ -44,8 +46,21 @@ export function Layout() {
         {current && !inInterview && <InterviewClock session={current} />}
       </header>
       <main className={`min-h-0 flex-1 ${fullHeight ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-        <Outlet />
+        {/* Keyed by path so an error on one page doesn't stick after navigating away. */}
+        <ErrorBoundary key={pathname}>
+          <Suspense fallback={<PageLoading />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
+    </div>
+  );
+}
+
+function PageLoading() {
+  return (
+    <div className="flex h-full items-center justify-center font-mono text-xs text-ink-500">
+      <span className="animate-pulse">cargando…</span>
     </div>
   );
 }

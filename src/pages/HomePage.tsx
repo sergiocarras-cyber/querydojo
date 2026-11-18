@@ -5,8 +5,10 @@ import { currentStreak } from '../lib/progress/stats';
 import { statusOf, useProgress } from '../lib/progress/store';
 import { problems, problemsIn } from '../lib/problems/registry';
 import { SECTIONS, SECTION_INFO } from '../lib/problems/types';
+import { useTitle } from '../hooks/useTitle';
 
 export function HomePage() {
+  useTitle();
   const daily = problemOfTheDay(problems);
   const progress = useProgress();
   const streak = currentStreak(progress.activeDays);

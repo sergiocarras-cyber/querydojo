@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { Submission, SubmissionVerdict } from '../progress/store';
-import type { Difficulty, Problem, Section } from '../problems/types';
+import type { Difficulty, ProblemMeta, Section } from '../problems/types';
 import { readJson, removeKey, writeJson } from '../storage/local';
 
 /**
@@ -81,10 +81,10 @@ export interface PickOptions {
 }
 
 export function candidates(
-  all: Problem[],
+  all: ProblemMeta[],
   opts: PickOptions,
   isSolved: (id: string) => boolean,
-): Problem[] {
+): ProblemMeta[] {
   return all.filter(
     (p) =>
       (opts.section === 'any' || p.section === opts.section) &&
@@ -94,7 +94,7 @@ export function candidates(
 }
 
 /** Random pick, avoiding the most recent interview problems when possible. */
-export function pickProblem(pool: Problem[], recent: string[], rng = Math.random): Problem | undefined {
+export function pickProblem(pool: ProblemMeta[], recent: string[], rng = Math.random): ProblemMeta | undefined {
   if (pool.length === 0) return undefined;
   const fresh = pool.filter((p) => !recent.includes(p.id));
   const from = fresh.length > 0 ? fresh : pool;
@@ -105,7 +105,7 @@ export function interviewDraftScope(sessionId: string) {
   return `interview:${sessionId}:`;
 }
 
-export function startInterview(problem: Problem, opts: PickOptions): InterviewSession {
+export function startInterview(problem: ProblemMeta, opts: PickOptions): InterviewSession {
   const session: InterviewSession = {
     id: Date.now().toString(36),
     problemId: problem.id,

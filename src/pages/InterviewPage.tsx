@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { use, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { DifficultyBadge, SECTION_TEXT, SectionBadge } from '../components/Badges';
 import { ProblemSolver } from '../components/problem/ProblemSolver';
@@ -24,17 +24,19 @@ import {
   type SectionChoice,
 } from '../lib/interview/session';
 import { getProgress, statusOf, useProgress, type Submission } from '../lib/progress/store';
+import { loadProblem } from '../lib/problems/content';
 import { getProblemById, problems } from '../lib/problems/registry';
 import { readJson, writeJson } from '../lib/storage/local';
 import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Problem } from '../lib/problems/types';
+import { useTitle } from '../hooks/useTitle';
 
 export function InterviewPage() {
+  useTitle('Entrevista');
   const { current } = useInterview();
   const [shown, setShown] = useState<InterviewSummary | null>(null);
-  const problem = current ? getProblemById(current.problemId) : undefined;
 
-  if (current && problem) {
-    return <ActiveInterview key={current.id} session={current} problem={problem} onFinished={setShown} />;
+  if (current && getProblemById(current.problemId)) {
+    return <LoadedInterview key={current.id} session={current} onFinished={setShown} />;
   }
   if (shown) return <SummaryView summary={shown} onClose={() => setShown(null)} />;
   return <Setup onShow={setShown} />;
@@ -169,6 +171,18 @@ function History({ history, onShow }: { history: InterviewSummary[]; onShow: (s:
 }
 
 /* ----------------------------------------------------------------- active */
+
+function LoadedInterview({
+  session,
+  onFinished,
+}: {
+  session: InterviewSession;
+  onFinished: (s: InterviewSummary) => void;
+}) {
+  const problem = use(loadProblem(session.problemId));
+  if (!problem) return null;
+  return <ActiveInterview session={session} problem={problem} onFinished={onFinished} />;
+}
 
 function useNow(intervalMs = 1000) {
   const [now, setNow] = useState(() => Date.now());

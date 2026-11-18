@@ -6,11 +6,15 @@ sin API keys, coste 0 €.
 
 - **SQL:** PostgreSQL real en WebAssembly ([PGlite](https://pglite.dev)) dentro de un Web Worker.
 - **Python:** [Pyodide](https://pyodide.org) (CPython en WebAssembly) en un Web Worker, cargado desde jsDelivr solo al abrir un problema de Python.
-- **Progreso:** `localStorage` del navegador.
+- **Progreso:** `localStorage` del navegador, con exportar/importar en JSON desde la página de Progreso.
+
+Además de la lista de problemas hay **rutas de estudio** (una por sección, en orden de aprendizaje),
+**modo entrevista** (problema al azar, 30 minutos, sin pistas, resumen al final), **problema del día**
+y una página de **progreso** con rachas, calendario de actividad y temas débiles.
 
 ## Arrancar
 
-Requisitos: Node 20 o superior (probado con Node 26).
+Requisitos: Node 22 o superior (probado con Node 26, el de `.nvmrc`).
 
 ```bash
 npm install
@@ -20,6 +24,7 @@ npm run verify:sql     # solo SQL (PGlite)
 npm run verify:python  # solo Python: algoritmos y pandas (Pyodide en Node)
 npm run verify:stats   # solo estadística: recalcula cada respuesta numérica
 npm run build      # build estático en dist/
+npm run preview    # sirve dist/ en local
 ```
 
 Atajos del editor: **⌘/Ctrl + Enter** ejecuta (Run) y **⌘/Ctrl + Shift + Enter** corrige (Submit).
@@ -28,13 +33,22 @@ Atajos del editor: **⌘/Ctrl + Enter** ejecuta (Run) y **⌘/Ctrl + Shift + Ent
 
 ```
 problems/<sección>/<slug>.md   ← un archivo por problema (sql, algorithms, pandas, stats)
-src/lib/problems/              ← tipos, parser y registro de problemas
+plugins/problems.ts            ← plugin de Vite: parsea los .md al compilar
+src/lib/problems/              ← tipos, parser, índice (registry) y contenido por sección (content)
 src/lib/sql/                   ← motor SQL compartido (engine.ts), worker y cliente
 src/lib/python/harness.py      ← corrector de Python (el mismo en navegador y en Node)
 src/lib/python/                ← worker de Pyodide, cliente con timeout y evaluador
+src/lib/progress/, interview/  ← progreso, estadísticas, rachas y sesiones de entrevista
+src/lib/paths.ts               ← rutas de estudio
 src/components/, src/pages/    ← interfaz (React + Tailwind)
+.github/workflows/deploy.yml   ← tests + build + publicación en GitHub Pages
 tests/                         ← Vitest: formato de problemas y verificación de soluciones
 ```
+
+Los problemas se parsean **al compilar**, no en el navegador: el plugin genera un índice ligero
+(título, sección, dificultad, temas) que carga la portada, y un módulo por sección con el contenido
+completo que se descarga al abrir el primer problema de esa sección. Un archivo mal formado rompe
+`npm run dev`/`npm run build` con un mensaje que dice qué archivo y qué campo fallan.
 
 ## Formato de un problema
 
@@ -168,6 +182,26 @@ El usuario puede responder con decimales (`0.375` o `0,375`), fracciones (`3/8`)
    Ojo con YAML: en `topics`, palabras como `NULL`, `yes` o `no` hay que escribirlas entre comillas o con más texto.
 3. Ejecuta `npm test`: el problema se valida y la solución oficial se ejecuta contra todos los datasets.
 4. `npm run dev` y ya aparece en la lista.
+
+## Publicar en GitHub Pages (gratis)
+
+GitHub Pages es gratuito para repositorios **públicos**. El workflow `.github/workflows/deploy.yml`
+se ejecuta en cada push a `main`: instala, pasa **todos los tests** (si alguno falla no se publica),
+compila y despliega.
+
+1. Crea el repositorio en GitHub y sube el código:
+   ```bash
+   gh repo create querydojo --public --source=. --push
+   ```
+2. En el repositorio: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Cada push a `main` publica una versión nueva en `https://<usuario>.github.io/querydojo/`.
+   También se puede lanzar a mano desde la pestaña **Actions** (*Run workflow*).
+
+No hace falta configurar nada más: la app usa `HashRouter` (las URLs llevan `#/`, así que los enlaces
+directos funcionan sin reescrituras del servidor) y `base: './'` (funciona bajo cualquier subruta).
+
+El progreso se guarda por origen: el de `localhost:5173` y el de `github.io` son independientes.
+Para pasarlo de uno a otro usa **Progreso → Exportar JSON** e **Importar JSON**.
 
 ## Nota sobre los tests ocultos
 

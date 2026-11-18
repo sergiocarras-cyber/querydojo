@@ -1,6 +1,6 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
-import { DIFFICULTIES, SECTIONS, type Problem } from './types';
+import { DIFFICULTIES, SECTIONS, type Problem } from './types.ts';
 
 /**
  * Problem files are Markdown with a YAML frontmatter.
