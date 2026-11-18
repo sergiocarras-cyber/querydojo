@@ -4,7 +4,13 @@ import { readFileSync } from 'node:fs';
 import { parentPort, workerData } from 'node:worker_threads';
 import { loadPyodide } from 'pyodide';
 
+// The harness captures the user's print() itself. Anything else Pyodide writes
+// (e.g. while this worker is being terminated after a timeout) would hit a
+// closed file descriptor and spam the test output with "fd" errors.
+const quiet = { batched: () => {} };
 const py = await loadPyodide();
+py.setStdout(quiet);
+py.setStderr(quiet);
 py.runPython(readFileSync(workerData.harnessPath, 'utf8'));
 
 parentPort.on('message', async ({ id, fn: name, args, packages }) => {
