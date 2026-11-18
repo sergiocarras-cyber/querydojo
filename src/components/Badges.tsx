@@ -49,9 +49,9 @@ export const STATUS_LABEL: Record<ProblemStatus, string> = {
   solved: 'Resuelto',
 };
 
-/** ✓ solved · ◐ solved after viewing the solution · ● attempted · ○ to do. */
+/** Green ● solved · ◐ solved after viewing the solution · amber ● attempted · ○ to do. */
 export function StatusIcon({ status }: { status: ProblemStatus }) {
-  if (status === 'solved') return <span title="Resuelto" className="text-jade">✓</span>;
+  if (status === 'solved') return <span title="Resuelto" className="text-jade">●</span>;
   if (status === 'assisted')
     return (
       <span title="Resuelto con ayuda: vuelve a resolverlo sin mirar la solución para que cuente" className="text-sky">

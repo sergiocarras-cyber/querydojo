@@ -207,7 +207,7 @@ function StatusBadge({ status }: { status: ReturnType<typeof statusOf> }) {
   if (status === 'assisted')
     return <span className="shrink-0 rounded-full bg-sky/15 px-2 py-0.5 font-mono text-[11px] text-sky">◐ Con ayuda</span>;
   return status === 'solved' ? (
-    <span className="shrink-0 rounded-full bg-jade/15 px-2 py-0.5 font-mono text-[11px] text-jade">✓ Resuelto</span>
+    <span className="shrink-0 rounded-full bg-jade/15 px-2 py-0.5 font-mono text-[11px] text-jade">● Resuelto</span>
   ) : (
     <span className="shrink-0 rounded-full bg-amber/15 px-2 py-0.5 font-mono text-[11px] text-amber">● Intentado</span>
   );
