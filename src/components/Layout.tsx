@@ -20,21 +20,21 @@ export function Layout() {
   const { pathname } = useLocation();
   return (
     <div className="flex h-full flex-col">
-      <header className="flex h-12 shrink-0 items-center gap-6 border-b border-ink-700 bg-ink-900 px-4">
+      <header className="flex h-12 shrink-0 items-center gap-3 border-b sm:gap-6 border-ink-700 bg-ink-900 px-4">
         <NavLink to="/" className="flex items-center gap-2" aria-label="QueryDojo, inicio">
           <Logo className="h-6 w-6" />
-          <span className="font-mono text-sm font-semibold tracking-tight text-ink-100">
+          <span className="hidden font-mono text-sm font-semibold tracking-tight text-ink-100 sm:inline">
             Query<span className="text-vermilion">Dojo</span>
           </span>
         </NavLink>
-        <nav className="flex items-center gap-1 text-sm">
+        <nav className="flex min-w-0 items-center gap-1 overflow-x-auto text-sm [scrollbar-width:none]">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `rounded-md px-2.5 py-1 transition-colors ${
+                `shrink-0 rounded-md px-2.5 py-1 transition-colors ${
                   isActive ? 'bg-ink-800 text-ink-100' : 'text-ink-400 hover:text-ink-100'
                 }`
               }
