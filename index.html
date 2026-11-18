@@ -4,8 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#0b0d10" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0a0a0c" />
+    <script>
+      // Apply the saved appearance before the first paint (see src/lib/theme.ts).
+      (function () {
+        var pref = 'system';
+        try {
+          pref = JSON.parse(localStorage.getItem('querydojo:theme')) || 'system';
+        } catch (e) {}
+        var light = pref === 'light' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: light)').matches);
+        document.documentElement.dataset.theme = light ? 'light' : 'dark';
+      })();
+    </script>
     <meta
       name="description"
       content="Practica entrevistas técnicas de SQL, algoritmos en Python, pandas y probabilidad. Todo se ejecuta en tu navegador."

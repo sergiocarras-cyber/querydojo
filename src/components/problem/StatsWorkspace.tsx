@@ -59,8 +59,8 @@ export function StatsWorkspace({ problem, scope = '', interview = false }: Props
 
   return (
     <div className="flex h-full flex-col bg-ink-950">
-      <div className="flex h-10 shrink-0 items-center gap-2 border-b border-ink-700 bg-ink-900 px-3">
-        <span className="font-mono text-xs text-violet">
+      <div className="flex h-12 shrink-0 items-center gap-2 overflow-x-auto border-b border-ink-700/70 bg-ink-900 px-4 whitespace-nowrap [scrollbar-width:none] [&>*]:shrink-0">
+        <span className="text-[13px] font-semibold text-violet">
           {problem.answerType === 'numeric' ? 'Respuesta numérica' : 'Elige una opción'}
         </span>
       </div>
@@ -81,7 +81,7 @@ export function StatsWorkspace({ problem, scope = '', interview = false }: Props
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && check()}
                 placeholder="p. ej. 0.375 · 3/8 · 37.5%"
-                className="w-64 rounded-md border border-ink-600 bg-ink-900 px-3 py-2 font-mono text-sm text-ink-100 outline-none placeholder:text-ink-500 focus:border-violet"
+                className="w-64 rounded-xl border-0 bg-ink-800 px-4 py-2.5 text-[15px] text-ink-100 tabular-nums outline-none placeholder:text-ink-500 transition-shadow focus:ring-2 focus:ring-violet/50"
               />
               <CheckButton onClick={check} />
             </div>
@@ -153,7 +153,7 @@ export function StatsWorkspace({ problem, scope = '', interview = false }: Props
                 Ver la respuesta y la explicación
               </button>
             ) : (
-              <div className="rounded-lg border border-ink-700 bg-ink-900 p-4">
+              <div className="rounded-2xl border border-ink-700/70 bg-ink-900 p-4 shadow-card">
                 <div className="mb-3 text-sm text-ink-100">
                   <span className="text-jade">Respuesta: </span>
                   {problem.answerType === 'numeric' ? (
@@ -179,7 +179,7 @@ function CheckButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="rounded-md bg-vermilion px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110"
+      className="rounded-full bg-vermilion px-4 py-2 text-sm font-medium text-white hover:brightness-110 transition duration-200 active:scale-[0.98]"
     >
       Comprobar
     </button>

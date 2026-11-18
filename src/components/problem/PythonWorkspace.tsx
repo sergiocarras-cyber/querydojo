@@ -101,27 +101,27 @@ export function PythonWorkspace({ problem, draft, interview = false }: Props) {
 
   return (
     <div className="flex h-full flex-col bg-ink-950">
-      <div className="flex h-10 shrink-0 items-center gap-2 border-b border-ink-700 bg-ink-900 px-3">
-        <span className={`font-mono text-xs ${problem.section === 'pandas' ? 'text-jade' : 'text-vermilion'}`}>
+      <div className="flex h-12 shrink-0 items-center gap-2 overflow-x-auto border-b border-ink-700/70 bg-ink-900 px-4 whitespace-nowrap [scrollbar-width:none] [&>*]:shrink-0">
+        <span className={`text-[13px] font-semibold ${problem.section === 'pandas' ? 'text-jade' : 'text-vermilion'}`}>
           {problem.section === 'pandas' ? 'Python 3 · pandas' : 'Python 3'}
         </span>
         <EngineBadge state={engine} />
         <div className="flex-1" />
         <button
           onClick={restartEngine}
-          className="rounded px-2 py-1 text-xs text-ink-400 hover:text-ink-100"
+          className="rounded-full px-3 py-1 text-[13px] text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100"
           title="Termina el proceso de Python y arranca uno limpio"
         >
           Reiniciar entorno
         </button>
-        <button onClick={draft.reset} className="rounded px-2 py-1 text-xs text-ink-400 hover:text-ink-100" title="Restaurar el código inicial">
+        <button onClick={draft.reset} className="rounded-full px-3 py-1 text-[13px] text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100" title="Restaurar el código inicial">
           Reiniciar código
         </button>
         <button
           onClick={() => execute('run')}
           disabled={running}
           title="Ejecutar con los casos visibles (⌘/Ctrl + Enter)"
-          className="rounded-md bg-ink-700 px-3 py-1 text-xs font-medium text-ink-100 hover:bg-ink-600 disabled:opacity-50"
+          className="rounded-full bg-ink-800 px-3.5 py-1 text-[13px] font-medium text-ink-100 hover:bg-ink-700 disabled:opacity-50 transition-colors duration-200"
         >
           ▶ Run
         </button>
@@ -129,7 +129,7 @@ export function PythonWorkspace({ problem, draft, interview = false }: Props) {
           onClick={() => execute('submit')}
           disabled={running}
           title="Corregir con todos los casos (⌘/Ctrl + Shift + Enter)"
-          className="rounded-md bg-vermilion px-3 py-1 text-xs font-semibold text-ink-950 hover:brightness-110 disabled:opacity-50"
+          className="rounded-full bg-vermilion px-4 py-1 text-[13px] font-medium text-white hover:brightness-110 disabled:opacity-50 transition duration-200 active:scale-[0.98]"
         >
           Submit
         </button>
@@ -158,15 +158,15 @@ export function PythonWorkspace({ problem, draft, interview = false }: Props) {
 }
 
 function EngineBadge({ state }: { state: ReturnType<typeof usePyEngine> }) {
-  if (state.status === 'ready') return <span className="font-mono text-[11px] text-jade">● listo</span>;
+  if (state.status === 'ready') return <span className="text-[12px] text-ink-500"><span className="text-jade">●</span> Listo</span>;
   if (state.status === 'error')
     return (
-      <span className="font-mono text-[11px] text-rose" title={state.message}>
+      <span className="text-[12px] text-rose" title={state.message}>
         ● error al cargar
       </span>
     );
   return (
-    <span className="flex items-center gap-1.5 font-mono text-[11px] text-ink-400">
+    <span className="flex items-center gap-1.5 text-[12px] text-ink-400">
       <span className="h-2 w-2 animate-pulse rounded-full bg-amber" />
       {state.status === 'loading' ? state.message : 'en espera'}
     </span>

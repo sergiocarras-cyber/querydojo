@@ -11,6 +11,7 @@ import { isQuiz, type Problem } from '../../lib/problems/types';
 import { readJson, writeJson } from '../../lib/storage/local';
 import { AiReviewChip, DifficultyBadge, IndustryChip, SectionBadge, TopicChip } from '../Badges';
 import { Markdown } from '../Markdown';
+import { Segment, SegmentedTrack } from '../Segmented';
 import { formatNumber } from '../../lib/stats/answer';
 import { PandasTables } from './PandasTables';
 import { SqlTables } from './SqlTables';
@@ -38,20 +39,16 @@ export function ProblemDescription({ problem, onLoadCode, tabs }: Props) {
 
   return (
     <div className="flex h-full flex-col bg-ink-900">
-      <div className="flex shrink-0 border-b border-ink-700 px-2">
-        {visible.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`-mb-px border-b-2 px-3 py-2 text-xs transition-colors ${
-              tab === t.id ? 'border-vermilion text-ink-100' : 'border-transparent text-ink-400 hover:text-ink-200'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="flex h-12 shrink-0 items-center overflow-x-auto border-b border-ink-700/70 px-4 [scrollbar-width:none]">
+        <SegmentedTrack>
+          {visible.map((t) => (
+            <Segment key={t.id} active={tab === t.id} onClick={() => setTab(t.id)}>
+              {t.label}
+            </Segment>
+          ))}
+        </SegmentedTrack>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
         {tab === 'statement' && <Statement problem={problem} />}
         {tab === 'hints' && <Hints problem={problem} />}
         {tab === 'solution' && <Solution problem={problem} />}
@@ -68,7 +65,7 @@ function Statement({ problem }: { problem: Problem }) {
   return (
     <article>
       <div className="flex items-start justify-between gap-3">
-        <h1 className="text-xl font-semibold text-ink-100">{problem.title}</h1>
+        <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.025em] text-ink-100">{problem.title}</h1>
         <StatusBadge status={status} />
       </div>
       {readyAt && (
@@ -122,8 +119,8 @@ function Hints({ problem }: { problem: Problem }) {
   return (
     <div className="space-y-3">
       {problem.hints.slice(0, shown).map((h, i) => (
-        <div key={i} className="rounded-lg border border-ink-700 bg-ink-850 p-4">
-          <div className="mb-1 font-mono text-[11px] text-amber">Pista {i + 1}</div>
+        <div key={i} className="rounded-2xl border border-ink-700/70 bg-ink-850 p-4 shadow-card">
+          <div className="mb-1 text-[12px] font-semibold text-amber">Pista {i + 1}</div>
           <Markdown>{h}</Markdown>
         </div>
       ))}
@@ -147,7 +144,7 @@ function Solution({ problem }: { problem: Problem }) {
   const solved = statusOf(progress, problem.id) === 'solved';
   if (!revealed) {
     return (
-      <div className="rounded-lg border border-ink-700 bg-ink-850 p-6 text-center">
+      <div className="rounded-2xl border border-ink-700/70 bg-ink-850 p-6 text-center shadow-card">
         <p className="text-sm text-ink-300">¿Seguro? Intentarlo un poco más es lo que más enseña.</p>
         {!solved && (
           <p className="mx-auto mt-2 max-w-sm text-xs text-ink-400">
@@ -160,7 +157,7 @@ function Solution({ problem }: { problem: Problem }) {
             markSolutionViewed(problem.id);
             setRevealed(true);
           }}
-          className="mt-4 rounded-md bg-ink-700 px-4 py-2 text-sm text-ink-100 hover:bg-ink-600"
+          className="mt-4 rounded-full bg-ink-800 px-4 py-2 text-sm text-ink-100 hover:bg-ink-700 transition-colors duration-200"
         >
           Ver solución
         </button>
@@ -186,7 +183,7 @@ function Solution({ problem }: { problem: Problem }) {
   return (
     <div>
       {problem.section === 'algorithms' && (
-        <div className="mb-4 flex flex-wrap gap-3 font-mono text-xs">
+        <div className="mb-4 flex flex-wrap gap-3 text-[13px]">
           <span className="rounded-md border border-ink-700 bg-ink-850 px-2.5 py-1.5">
             <span className="text-ink-500">Tiempo </span>
             <span className="text-amber">{problem.complexity.time}</span>
@@ -207,11 +204,11 @@ function Solution({ problem }: { problem: Problem }) {
 function StatusBadge({ status }: { status: ReturnType<typeof statusOf> }) {
   if (status === 'todo') return null;
   if (status === 'assisted')
-    return <span className="shrink-0 rounded-full bg-sky/15 px-2 py-0.5 font-mono text-[11px] text-sky">◐ Con ayuda</span>;
+    return <span className="shrink-0 rounded-full bg-sky/15 px-2.5 py-0.5 text-[12px] font-medium text-sky">◐ Con ayuda</span>;
   return status === 'solved' ? (
-    <span className="shrink-0 rounded-full bg-jade/15 px-2 py-0.5 font-mono text-[11px] text-jade">● Resuelto</span>
+    <span className="shrink-0 rounded-full bg-jade/15 px-2.5 py-0.5 text-[12px] font-medium text-jade">● Resuelto</span>
   ) : (
-    <span className="shrink-0 rounded-full bg-amber/15 px-2 py-0.5 font-mono text-[11px] text-amber">● Intentado</span>
+    <span className="shrink-0 rounded-full bg-amber/15 px-2.5 py-0.5 text-[12px] font-medium text-amber">● Intentado</span>
   );
 }
 
@@ -241,16 +238,16 @@ function Submissions({ problem, onLoadCode }: Props) {
       {subs.map((s, i) => {
         const v = VERDICT_LABEL[s.verdict];
         return (
-          <li key={s.at} className="rounded-lg border border-ink-700 bg-ink-850">
+          <li key={s.at} className="rounded-2xl border border-ink-700/70 bg-ink-850 shadow-card">
             <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-center gap-3 px-3 py-2 text-left">
               <span className={`w-24 text-sm font-medium ${s.assisted ? 'text-sky' : v.cls}`}>
                 {s.assisted ? '◐ Con ayuda' : v.text}
               </span>
-              <span className="font-mono text-xs text-ink-400">
+              <span className="text-[13px] text-ink-400 tabular-nums">
                 {s.passed}/{s.total}
                 {s.score !== undefined && s.verdict !== 'accepted' && ` · ${Math.round(s.score * 100)} %`}
               </span>
-              <span className="ml-auto font-mono text-[11px] text-ink-500">
+              <span className="ml-auto text-[12px] text-ink-500 tabular-nums">
                 {new Date(s.at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
               </span>
             </button>
@@ -261,7 +258,7 @@ function Submissions({ problem, onLoadCode }: Props) {
                 {onLoadCode && (
                   <button
                     onClick={() => onLoadCode(s.code)}
-                    className="mt-2 rounded bg-ink-700 px-2.5 py-1 text-xs text-ink-100 hover:bg-ink-600"
+                    className="mt-2 rounded-full bg-ink-800 px-2.5 py-1 text-xs text-ink-100 hover:bg-ink-700 transition-colors duration-200"
                   >
                     Cargar en el editor
                   </button>

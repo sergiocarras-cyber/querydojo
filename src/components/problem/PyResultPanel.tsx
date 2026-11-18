@@ -21,19 +21,19 @@ interface Props {
 export function PyResultPanel({ output, engineLoading }: Props) {
   return (
     <div className="flex h-full flex-col bg-ink-900">
-      <div className="shrink-0 border-b border-ink-700 px-3 py-1.5 font-mono text-[11px] tracking-wider text-ink-500 uppercase">
+      <div className="shrink-0 border-b border-ink-700/70 px-4 py-2 text-[12px] font-medium text-ink-500">
         Resultado
       </div>
-      <div className="min-h-0 flex-1 overflow-auto p-3">
+      <div className="min-h-0 flex-1 overflow-auto p-4">
         {output.kind === 'idle' && (
-          <p className="font-mono text-xs leading-relaxed text-ink-500">
+          <p className="text-[13px] leading-relaxed text-ink-500">
             Run (⌘/Ctrl + Enter) ejecuta los casos visibles y muestra tus print().
             <br />
             Submit (⌘/Ctrl + Shift + Enter) corrige con todos los casos, incluidos los ocultos y los grandes.
           </p>
         )}
         {output.kind === 'running' && (
-          <p className="font-mono text-xs text-ink-400">
+          <p className="flex items-center gap-2 text-[13px] text-ink-400"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-700 border-t-ink-400" />
             {engineLoading?.status === 'loading'
               ? engineLoading.message
               : output.mode === 'run'
@@ -100,13 +100,13 @@ function Evaluation({ ev, diagnoses, assisted }: { ev: PyEvaluation; diagnoses: 
       )}
       {shown.length > 0 && (
         <>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {shown.map((c) => (
               <button
                 key={c.index}
                 onClick={() => setSelected(c.index)}
-                className={`rounded px-2 py-0.5 font-mono text-[11px] ${
-                  current?.index === c.index ? 'bg-ink-700 text-ink-100' : 'text-ink-400 hover:text-ink-200'
+                className={`rounded-full px-3 py-1 text-[12px] font-medium transition-colors duration-200 ${
+                  current?.index === c.index ? 'bg-ink-100 text-ink-950' : 'bg-ink-800 text-ink-400 hover:text-ink-100'
                 }`}
               >
                 <span className={c.passed ? 'text-jade' : 'text-rose'}>{c.passed ? '✓' : '✗'}</span>{' '}
@@ -203,9 +203,9 @@ function CaseView({ c }: { c: PyCaseResult }) {
 
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-ink-700 bg-ink-950">
-      <div className="border-b border-ink-800 px-2.5 py-1 font-mono text-[10px] tracking-wider text-ink-500 uppercase">{label}</div>
-      <div className="px-2.5 py-2">{children}</div>
+    <div className="overflow-hidden rounded-xl bg-ink-850 ring-1 ring-ink-700/60">
+      <div className="border-b border-ink-700/60 px-3 py-1.5 text-[11px] font-medium text-ink-500">{label}</div>
+      <div className="px-3 py-2.5">{children}</div>
     </div>
   );
 }

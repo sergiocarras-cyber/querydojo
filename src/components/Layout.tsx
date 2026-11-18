@@ -1,8 +1,9 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useMatch } from 'react-router';
 import { ErrorBoundary } from './ErrorBoundary';
 import { deadline, formatDuration, useInterview, type InterviewSession } from '../lib/interview/session';
 import { Logo } from './Logo';
+import { ThemeSwitch } from './ThemeSwitch';
 
 const NAV = [
   { to: '/', label: 'Inicio', end: true },
@@ -18,24 +19,29 @@ export function Layout() {
   const { current } = useInterview();
   const fullHeight = inProblem || (inInterview && current);
   const { pathname } = useLocation();
+  const mainRef = useRef<HTMLElement>(null);
+  // A new page starts at the top, like any native app.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [pathname]);
   return (
     <div className="flex h-full flex-col">
-      <header className="flex h-12 shrink-0 items-center gap-3 border-b sm:gap-6 border-ink-700 bg-ink-900 px-4">
-        <NavLink to="/" className="flex items-center gap-2" aria-label="QueryDojo, inicio">
-          <Logo className="h-6 w-6" />
-          <span className="hidden font-mono text-sm font-semibold tracking-tight text-ink-100 sm:inline">
+      <header className="material-bar relative z-30 flex h-[52px] shrink-0 items-center gap-3 border-b border-ink-700/70 px-4 sm:gap-8 sm:px-6">
+        <NavLink to="/" className="flex shrink-0 items-center gap-2" aria-label="QueryDojo, inicio">
+          <Logo className="h-[22px] w-[22px]" />
+          <span className="hidden text-[15px] font-semibold tracking-[-0.01em] text-ink-100 sm:inline">
             Query<span className="text-vermilion">Dojo</span>
           </span>
         </NavLink>
-        <nav className="flex min-w-0 items-center gap-1 overflow-x-auto text-sm [scrollbar-width:none]">
+        <nav className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `shrink-0 rounded-md px-2.5 py-1 transition-colors ${
-                  isActive ? 'bg-ink-800 text-ink-100' : 'text-ink-400 hover:text-ink-100'
+                `shrink-0 rounded-full px-3 py-1 text-[13px] transition-colors duration-200 ${
+                  isActive ? 'bg-ink-800 font-medium text-ink-100' : 'text-ink-400 hover:text-ink-100'
                 }`
               }
             >
@@ -43,9 +49,12 @@ export function Layout() {
             </NavLink>
           ))}
         </nav>
-        {current && !inInterview && <InterviewClock session={current} />}
+        <div className="ml-auto flex shrink-0 items-center gap-3">
+          {current && !inInterview && <InterviewClock session={current} />}
+          <ThemeSwitch />
+        </div>
       </header>
-      <main className={`min-h-0 flex-1 ${fullHeight ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      <main ref={mainRef} className={`min-h-0 flex-1 ${fullHeight ? 'overflow-hidden' : 'overflow-y-auto'}`}>
         {/* Keyed by path so an error on one page doesn't stick after navigating away. */}
         <ErrorBoundary key={pathname}>
           <Suspense fallback={<PageLoading />}>
@@ -59,8 +68,8 @@ export function Layout() {
 
 function PageLoading() {
   return (
-    <div className="flex h-full items-center justify-center font-mono text-xs text-ink-500">
-      <span className="animate-pulse">cargando…</span>
+    <div className="flex h-full items-center justify-center">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-ink-700 border-t-ink-400" aria-label="Cargando" />
     </div>
   );
 }
@@ -76,7 +85,7 @@ function InterviewClock({ session }: { session: InterviewSession }) {
   return (
     <NavLink
       to="/interview"
-      className="ml-auto flex items-center gap-2 rounded-md border border-vermilion/40 px-2.5 py-1 font-mono text-xs text-vermilion hover:border-vermilion"
+      className="flex items-center gap-2 rounded-full bg-vermilion-dim px-3 py-1 text-[12px] font-medium tabular-nums text-vermilion transition-colors hover:bg-vermilion/20"
     >
       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-vermilion" />
       {left > 0 ? `Entrevista · ${formatDuration(left)}` : 'Entrevista · tiempo agotado'}

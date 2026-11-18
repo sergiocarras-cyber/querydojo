@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link, NavLink, useParams, useSearchParams } from 'react-router';
+import { SegmentedTrack, segmentClass } from '../components/Segmented';
 import { AiReviewChip, DifficultyBadge, IndustryChip, STATUS_LABEL, SectionBadge, StatusIcon, TopicChip } from '../components/Badges';
 import { statusOf, useProgress, type ProblemStatus } from '../lib/progress/store';
 import { problems } from '../lib/problems/registry';
@@ -22,7 +23,7 @@ function inTab(p: ProblemMeta, section: Section | null): boolean {
 import { useTitle } from '../hooks/useTitle';
 
 const selectCls =
-  'rounded-md border border-ink-700 bg-ink-900 px-2.5 py-1.5 text-xs text-ink-200 outline-none focus:border-ink-500';
+  'rounded-full border-0 bg-ink-800 px-3.5 py-1.5 text-[13px] text-ink-200 outline-none transition-colors hover:bg-ink-700 focus:ring-2 focus:ring-vermilion/40';
 
 export function ProblemListPage() {
   const { section } = useParams();
@@ -65,34 +66,36 @@ export function ProblemListPage() {
   const showSection = !current || current === 'judgment';
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-2xl font-semibold text-ink-100">{current ? SECTION_INFO[current].name : 'Todos los problemas'}</h1>
-        <span className="font-mono text-xs text-ink-400">
-          <span className="text-jade">{solved}</span>/{inSection.length} resueltos
+    <div className="mx-auto max-w-[1080px] px-6 py-12">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h1 className="text-[34px] leading-tight font-semibold tracking-[-0.03em] text-ink-100">
+          {current ? SECTION_INFO[current].name : 'Problemas'}
+        </h1>
+        <span className="pb-1.5 text-[13px] text-ink-500 tabular-nums">
+          <span className="font-medium text-ink-100">{solved}</span> de {inSection.length} resueltos
         </span>
       </div>
 
-      <nav className="mt-5 flex flex-wrap gap-1 border-b border-ink-700 text-sm">
-        {[null, ...SECTIONS].map((s) => (
-          <NavLink
-            key={s ?? 'all'}
-            to={{ pathname: s ? `/problems/${s}` : '/problems', search: q ? `?q=${encodeURIComponent(q)}` : '' }}
-            end
-            className={({ isActive }) =>
-              `-mb-px border-b-2 px-3 py-2 ${isActive ? 'border-vermilion text-ink-100' : 'border-transparent text-ink-400 hover:text-ink-200'}`
-            }
-          >
-            {s ? SECTION_INFO[s].short : 'Todas'}
-            <span className="ml-1.5 font-mono text-[11px] text-ink-500">
-              {problems.filter((p) => inTab(p, s)).length}
-            </span>
-          </NavLink>
-        ))}
-      </nav>
+      <div className="mt-6 overflow-x-auto [scrollbar-width:none]">
+        <SegmentedTrack>
+          {[null, ...SECTIONS].map((s) => (
+            <NavLink
+              key={s ?? 'all'}
+              to={{ pathname: s ? `/problems/${s}` : '/problems', search: q ? `?q=${encodeURIComponent(q)}` : '' }}
+              end
+              className={({ isActive }) => segmentClass(isActive)}
+            >
+              {s ? SECTION_INFO[s].short : 'Todas'}
+              <span className="ml-1.5 text-[11px] font-normal text-ink-500 tabular-nums">
+                {problems.filter((p) => inTab(p, s)).length}
+              </span>
+            </NavLink>
+          ))}
+        </SegmentedTrack>
+      </div>
 
       {current === 'judgment' && (
-        <p className="mt-4 max-w-3xl text-sm text-ink-400">
+        <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-ink-400">
           La IA ya escribe consultas y funciones en segundos. Lo que se valora es el criterio: detectar el fallo en
           código que parece correcto, elegir bien las métricas, modelar los datos y saber por qué algo va lento.
           Los ejercicios <span className="text-amber">Revisión IA</span> parten de código escrito por una IA que
@@ -100,12 +103,12 @@ export function ProblemListPage() {
         </p>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="mt-5 flex flex-wrap items-center gap-2">
         <input
           value={q}
           onChange={(e) => setParam('q', e.target.value)}
           placeholder="Buscar por título, tema, empresa o sector…"
-          className="w-72 rounded-md border border-ink-700 bg-ink-900 px-3 py-1.5 text-sm text-ink-100 outline-none placeholder:text-ink-500 focus:border-ink-500"
+          className="w-72 rounded-full border-0 bg-ink-800 px-4 py-1.5 text-[13px] text-ink-100 outline-none placeholder:text-ink-500 transition-shadow focus:ring-2 focus:ring-vermilion/40"
         />
         <select value={difficulty} onChange={(e) => setParam('difficulty', e.target.value)} className={selectCls}>
           <option value="">Dificultad</option>
@@ -140,33 +143,35 @@ export function ProblemListPage() {
           ))}
         </select>
         {filtersOn && (
-          <button onClick={() => setParams({}, { replace: true })} className="px-2 text-xs text-ink-400 hover:text-vermilion">
+          <button onClick={() => setParams({}, { replace: true })} className="px-2 text-[13px] text-vermilion hover:underline">
             Limpiar filtros
           </button>
         )}
-        <span className="ml-auto font-mono text-[11px] text-ink-500">{list.length} problema(s)</span>
+        <span className="ml-auto text-[12px] text-ink-500 tabular-nums">
+          {list.length} {list.length === 1 ? 'problema' : 'problemas'}
+        </span>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-ink-700">
+      <div className="mt-4 overflow-hidden rounded-2xl border border-ink-700/70 shadow-card bg-ink-900">
         <table className="w-full text-sm">
-          <thead className="bg-ink-900 text-left text-xs text-ink-400">
+          <thead className="text-left text-[12px] text-ink-500">
             <tr>
-              <th className="w-10 px-4 py-2 font-medium" aria-label="Estado" />
-              <th className="px-2 py-2 font-medium">Título</th>
-              {showSection && <th className="px-4 py-2 font-medium">Sección</th>}
-              <th className="px-4 py-2 font-medium">Dificultad</th>
-              <th className="px-4 py-2 font-medium">Temas</th>
-              <th className="px-4 py-2 font-medium">Sector</th>
+              <th className="w-12 px-4 py-3 font-medium" aria-label="Estado" />
+              <th className="px-2 py-3 font-medium">Título</th>
+              {showSection && <th className="px-4 py-3 font-medium">Sección</th>}
+              <th className="px-4 py-3 font-medium">Dificultad</th>
+              <th className="px-4 py-3 font-medium">Temas</th>
+              <th className="px-4 py-3 font-medium">Sector</th>
             </tr>
           </thead>
           <tbody>
             {list.map((p) => (
-              <tr key={p.id} className="border-t border-ink-800 hover:bg-ink-900">
-                <td className="px-4 py-2.5 text-center font-mono">
+              <tr key={p.id} className="border-t border-ink-700/60 transition-colors hover:bg-ink-850">
+                <td className="px-4 py-3 text-center text-[11px]">
                   <StatusIcon status={statusOf(progress, p.id)} />
                 </td>
-                <td className="px-2 py-2.5">
-                  <Link to={`/problem/${p.slug}`} className="text-ink-100 hover:text-vermilion">
+                <td className="px-2 py-3">
+                  <Link to={`/problem/${p.slug}`} className="font-medium text-ink-100 transition-colors hover:text-vermilion">
                     {p.title}
                   </Link>
                   {p.aiReview && (
@@ -176,23 +181,28 @@ export function ProblemListPage() {
                   )}
                 </td>
                 {showSection && (
-                  <td className="px-4 py-2.5">
+                  <td className="px-4 py-3">
                     <SectionBadge section={p.section} />
                   </td>
                 )}
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-3">
                   <DifficultyBadge difficulty={p.difficulty} />
                 </td>
-                <td className="px-4 py-2.5">
-                  <div className="flex flex-wrap gap-1">
-                    {p.topics.map((t) => (
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap items-center gap-1">
+                    {p.topics.slice(0, 2).map((t) => (
                       <button key={t} onClick={() => setParam('topic', t)} title={`Filtrar por ${t}`}>
                         <TopicChip topic={t} />
                       </button>
                     ))}
+                    {p.topics.length > 2 && (
+                      <span className="text-[11px] text-ink-500" title={p.topics.slice(2).join(', ')}>
+                        +{p.topics.length - 2}
+                      </span>
+                    )}
                   </div>
                 </td>
-                <td className="px-4 py-2.5">
+                <td className="px-4 py-3">
                   <button onClick={() => setParam('industry', p.industry)} title={`Filtrar por sector · ${p.company}`}>
                     <IndustryChip industry={p.industry} />
                   </button>

@@ -45,8 +45,8 @@ export function InterviewPage() {
 /* ------------------------------------------------------------------ setup */
 
 const chip = (active: boolean) =>
-  `rounded-md border px-3 py-1.5 text-sm transition-colors ${
-    active ? 'border-vermilion bg-vermilion-dim text-ink-100' : 'border-ink-700 text-ink-300 hover:border-ink-500 hover:text-ink-100'
+  `rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors duration-200 ${
+    active ? 'bg-ink-100 text-ink-950' : 'bg-ink-800 text-ink-300 hover:bg-ink-700 hover:text-ink-100'
   }`;
 
 function Setup({ onShow }: { onShow: (s: InterviewSummary) => void }) {
@@ -68,16 +68,16 @@ function Setup({ onShow }: { onShow: (s: InterviewSummary) => void }) {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-8">
-      <h1 className="text-2xl font-semibold text-ink-100">Modo entrevista</h1>
-      <p className="mt-1 max-w-2xl text-sm text-ink-400">
+    <div className="mx-auto max-w-4xl px-6 py-12">
+      <h1 className="text-[34px] leading-tight font-semibold tracking-[-0.03em] text-ink-100">Modo entrevista</h1>
+      <p className="mt-2 max-w-2xl text-[17px] leading-relaxed text-ink-400">
         Un problema al azar, {INTERVIEW_MINUTES} minutos y sin pistas ni solución. Piensa en voz alta, escribe tu
         solución y envíala antes de que se acabe el tiempo. Al final verás un resumen.
       </p>
 
-      <div className="mt-6 space-y-5 rounded-xl border border-ink-700 bg-ink-900 p-5">
+      <div className="mt-6 space-y-5 rounded-2xl border border-ink-700/70 bg-ink-900 p-5 shadow-card">
         <div>
-          <div className="mb-2 font-mono text-[11px] tracking-wider text-ink-500 uppercase">Sección</div>
+          <div className="mb-2 text-[13px] font-medium text-ink-500">Sección</div>
           <div className="flex flex-wrap gap-2">
             <button className={chip(section === 'any')} onClick={() => setSection('any')}>
               Cualquiera
@@ -90,7 +90,7 @@ function Setup({ onShow }: { onShow: (s: InterviewSummary) => void }) {
           </div>
         </div>
         <div>
-          <div className="mb-2 font-mono text-[11px] tracking-wider text-ink-500 uppercase">Dificultad</div>
+          <div className="mb-2 text-[13px] font-medium text-ink-500">Dificultad</div>
           <div className="flex flex-wrap gap-2">
             <button className={chip(difficulty === 'any')} onClick={() => setDifficulty('any')}>
               Cualquiera
@@ -115,7 +115,7 @@ function Setup({ onShow }: { onShow: (s: InterviewSummary) => void }) {
           <button
             onClick={start}
             disabled={pool.length === 0}
-            className="rounded-md bg-vermilion px-5 py-2 text-sm font-semibold text-ink-950 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-full bg-vermilion px-5 py-2 text-sm font-medium text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 transition duration-200 active:scale-[0.98]"
           >
             Empezar entrevista
           </button>
@@ -139,7 +139,7 @@ function History({ history, onShow }: { history: InterviewSummary[]; onShow: (s:
     <section className="mt-8">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-sm font-semibold text-ink-100">
-          Historial <span className="font-mono text-xs font-normal text-ink-500">{solved}/{history.length} resueltas</span>
+          Historial <span className="tabular-nums text-xs font-normal text-ink-500">{solved}/{history.length} resueltas</span>
         </h2>
         <button
           onClick={() => window.confirm('¿Borrar el historial de entrevistas?') && clearInterviewHistory()}
@@ -148,7 +148,7 @@ function History({ history, onShow }: { history: InterviewSummary[]; onShow: (s:
           Borrar historial
         </button>
       </div>
-      <ul className="divide-y divide-ink-800 rounded-lg border border-ink-700 bg-ink-900">
+      <ul className="divide-y divide-ink-800 rounded-2xl border border-ink-700/70 bg-ink-900 shadow-card">
         {history.map((h) => {
           const p = getProblemById(h.problemId);
           return (
@@ -157,7 +157,7 @@ function History({ history, onShow }: { history: InterviewSummary[]; onShow: (s:
                 <span className={h.solved ? 'text-jade' : 'text-rose'}>{h.solved ? '✓' : '✗'}</span>
                 <span className="truncate text-ink-100">{p?.title ?? h.problemId}</span>
                 {p && <SectionBadge section={p.section} />}
-                <span className="ml-auto shrink-0 font-mono text-[11px] text-ink-400">
+                <span className="ml-auto shrink-0 tabular-nums text-[11px] text-ink-400">
                   {h.solved && h.timeToSolveMs !== null ? formatDuration(h.timeToSolveMs) : '—'} ·{' '}
                   {new Date(h.startedAt).toLocaleDateString('es-ES', { dateStyle: 'short' })}
                 </span>
@@ -229,19 +229,19 @@ function ActiveInterview({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-11 shrink-0 items-center gap-4 border-b border-ink-700 bg-ink-900 px-4">
-        <span className="font-mono text-[11px] tracking-wider text-vermilion uppercase">Entrevista</span>
+        <span className="text-[13px] font-medium text-vermilion">Entrevista</span>
         <SectionBadge section={problem.section} />
         <DifficultyBadge difficulty={problem.difficulty} />
-        <span className="hidden font-mono text-[11px] text-ink-500 md:inline">
+        <span className="hidden tabular-nums text-[11px] text-ink-500 md:inline">
           {subs.length} {subs.length === 1 ? 'envío' : 'envíos'}
         </span>
         {accepted && (
-          <span className="rounded-full bg-jade/15 px-2 py-0.5 font-mono text-[11px] text-jade">
+          <span className="rounded-full bg-jade/15 px-2 py-0.5 tabular-nums text-[11px] text-jade">
             ✓ Aceptado en {formatDuration(Date.parse(accepted.at) - Date.parse(session.startedAt))}
           </span>
         )}
         <div className="ml-auto flex items-center gap-3">
-          <span className={`font-mono text-lg tabular-nums ${timerCls}`} aria-label="Tiempo restante">
+          <span className={`text-[22px] font-semibold tracking-[-0.02em] tabular-nums ${timerCls}`} aria-label="Tiempo restante">
             {formatDuration(left)}
           </span>
           <button
@@ -288,8 +288,8 @@ function SummaryView({ summary, onClose }: { summary: InterviewSummary; onClose:
   const start = Date.parse(summary.startedAt);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
-      <p className="font-mono text-[11px] tracking-wider text-vermilion uppercase">Resumen de la entrevista</p>
+    <div className="mx-auto max-w-3xl px-6 py-12">
+      <p className="text-[13px] font-medium text-vermilion">Resumen de la entrevista</p>
       <div
         className={`mt-3 rounded-xl border p-6 ${summary.solved ? 'border-jade/40 bg-jade/10' : 'border-rose/40 bg-rose/10'}`}
       >
@@ -317,10 +317,10 @@ function SummaryView({ summary, onClose }: { summary: InterviewSummary; onClose:
       {subs.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-2 text-sm font-semibold text-ink-100">Envíos durante la entrevista</h2>
-          <ol className="divide-y divide-ink-800 rounded-lg border border-ink-700 bg-ink-900">
+          <ol className="divide-y divide-ink-800 rounded-2xl border border-ink-700/70 bg-ink-900 shadow-card">
             {subs.map((s) => (
               <li key={s.at} className="flex items-center gap-3 px-3 py-2 text-sm">
-                <span className="w-12 font-mono text-xs text-ink-500">{formatDuration(Date.parse(s.at) - start)}</span>
+                <span className="w-12 tabular-nums text-xs text-ink-500">{formatDuration(Date.parse(s.at) - start)}</span>
                 <span className={s.verdict === 'accepted' ? 'text-jade' : 'text-rose'}>{VERDICT[s.verdict]}</span>
                 <span className="truncate text-xs text-ink-400">{s.detail}</span>
               </li>
@@ -340,14 +340,14 @@ function SummaryView({ summary, onClose }: { summary: InterviewSummary; onClose:
         {problem && (
           <Link
             to={`/problem/${problem.slug}`}
-            className="rounded-md border border-ink-600 px-4 py-2 text-sm text-ink-100 hover:border-ink-400"
+            className="rounded-full border border-ink-700 px-4 py-2 text-sm text-ink-100 hover:bg-ink-800 transition-colors duration-200"
           >
             Ver pistas y solución
           </Link>
         )}
         <button
           onClick={onClose}
-          className="rounded-md bg-vermilion px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110"
+          className="rounded-full bg-vermilion px-4 py-2 text-sm font-medium text-white hover:brightness-110 transition duration-200 active:scale-[0.98]"
         >
           Nueva entrevista
         </button>
@@ -359,8 +359,8 @@ function SummaryView({ summary, onClose }: { summary: InterviewSummary; onClose:
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-mono text-[11px] tracking-wider text-ink-500 uppercase">{label}</dt>
-      <dd className="mt-1 font-mono text-lg text-ink-100">{value}</dd>
+      <dt className="text-[12px] font-medium text-ink-500">{label}</dt>
+      <dd className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-ink-100 tabular-nums">{value}</dd>
     </div>
   );
 }

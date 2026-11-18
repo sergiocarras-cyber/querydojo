@@ -84,13 +84,13 @@ export function SqlWorkspace({ problem, draft, interview = false }: Props) {
 
   return (
     <div className="flex h-full flex-col bg-ink-950">
-      <div className="flex h-10 shrink-0 items-center gap-2 border-b border-ink-700 bg-ink-900 px-3">
-        <span className="font-mono text-xs text-sky">PostgreSQL</span>
-        {engineLoading && <span className="font-mono text-[11px] text-ink-500">· arrancando motor…</span>}
+      <div className="flex h-12 shrink-0 items-center gap-2 overflow-x-auto border-b border-ink-700/70 bg-ink-900 px-4 whitespace-nowrap [scrollbar-width:none] [&>*]:shrink-0">
+        <span className="text-[13px] font-semibold text-sky">PostgreSQL</span>
+        {engineLoading && <span className="text-[12px] text-ink-500">arrancando…</span>}
         <div className="flex-1" />
         <button
           onClick={draft.reset}
-          className="rounded px-2 py-1 text-xs text-ink-400 hover:text-ink-100"
+          className="rounded-full px-3 py-1 text-[13px] text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100"
           title="Restaurar el código inicial"
         >
           Reiniciar código
@@ -99,7 +99,7 @@ export function SqlWorkspace({ problem, draft, interview = false }: Props) {
           onClick={() => execute('run')}
           disabled={running}
           title="Ejecutar con los datos visibles (⌘/Ctrl + Enter)"
-          className="rounded-md bg-ink-700 px-3 py-1 text-xs font-medium text-ink-100 hover:bg-ink-600 disabled:opacity-50"
+          className="rounded-full bg-ink-800 px-3.5 py-1 text-[13px] font-medium text-ink-100 hover:bg-ink-700 disabled:opacity-50 transition-colors duration-200"
         >
           ▶ Run
         </button>
@@ -107,7 +107,7 @@ export function SqlWorkspace({ problem, draft, interview = false }: Props) {
           onClick={() => execute('submit')}
           disabled={running}
           title="Corregir con todos los datasets (⌘/Ctrl + Shift + Enter)"
-          className="rounded-md bg-vermilion px-3 py-1 text-xs font-semibold text-ink-950 hover:brightness-110 disabled:opacity-50"
+          className="rounded-full bg-vermilion px-4 py-1 text-[13px] font-medium text-white hover:brightness-110 disabled:opacity-50 transition duration-200 active:scale-[0.98]"
         >
           Submit
         </button>

@@ -17,9 +17,9 @@ export function PathsPage() {
   useTitle('Rutas de estudio');
   const progress = useProgress();
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <h1 className="text-2xl font-semibold text-ink-100">Rutas de estudio</h1>
-      <p className="mt-1 text-sm text-ink-400">
+    <div className="mx-auto max-w-[1080px] px-6 py-12">
+      <h1 className="text-[34px] leading-tight font-semibold tracking-[-0.03em] text-ink-100">Rutas de estudio</h1>
+      <p className="mt-2 text-[17px] text-ink-400">
         Recorridos ordenados por tema: de lo básico a lo que suele caer en la última ronda.
       </p>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -29,17 +29,17 @@ export function PathsPage() {
             <Link
               key={path.id}
               to={`/paths/${path.id}`}
-              className="group flex flex-col rounded-xl border border-ink-700 bg-ink-900 p-5 transition-colors hover:border-ink-500"
+              className="group flex flex-col rounded-2xl border border-ink-700/70 bg-ink-900 p-5 transition-colors hover:border-ink-500 shadow-card"
             >
               <div className="flex items-center justify-between">
                 <SectionBadge section={path.section} />
-                <span className="font-mono text-xs text-ink-500">
+                <span className="tabular-nums text-xs text-ink-500">
                   {solved}/{total}
                 </span>
               </div>
               <h2 className="mt-2 text-lg font-semibold text-ink-100">{path.title}</h2>
-              <p className="mt-1 text-sm text-ink-400">{path.description}</p>
-              <ol className="mt-3 flex flex-wrap gap-x-1.5 gap-y-1 font-mono text-[11px] text-ink-500">
+              <p className="mt-2 text-[14px] leading-relaxed text-ink-400">{path.description}</p>
+              <ol className="mt-4 flex flex-wrap gap-x-1.5 gap-y-1 text-[12px] text-ink-500">
                 {path.steps.map((s, i) => (
                   <li key={s.title}>
                     {i > 0 && <span className="mr-1.5 text-ink-700">→</span>}
@@ -76,20 +76,20 @@ export function PathDetailPage() {
   const { total, solved, next } = pathProgress(path, progress);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-8">
+    <div className="mx-auto max-w-4xl px-6 py-12">
       <Link to="/paths" className="text-xs text-ink-400 hover:text-ink-100">
         ← Rutas
       </Link>
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
           <SectionBadge section={path.section} />
-          <h1 className="mt-1 text-2xl font-semibold text-ink-100">{path.title}</h1>
-          <p className="mt-1 max-w-2xl text-sm text-ink-400">{path.description}</p>
+          <h1 className="mt-2 text-[34px] leading-tight font-semibold tracking-[-0.03em] text-ink-100">{path.title}</h1>
+          <p className="mt-2 max-w-2xl text-[17px] leading-relaxed text-ink-400">{path.description}</p>
         </div>
         {next && (
           <Link
             to={`/problem/${next.slug}`}
-            className="rounded-md bg-vermilion px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110"
+            className="rounded-full bg-vermilion px-4 py-2 text-sm font-medium text-white hover:brightness-110 transition duration-200 active:scale-[0.98]"
           >
             {solved === 0 ? 'Empezar' : 'Continuar'} →
           </Link>
@@ -99,7 +99,7 @@ export function PathDetailPage() {
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-800">
           <div className={`h-full ${SECTION_BG[path.section]}`} style={{ width: `${(solved / total) * 100}%` }} />
         </div>
-        <span className="font-mono text-xs text-ink-400">
+        <span className="tabular-nums text-xs text-ink-400">
           {solved}/{total}
         </span>
       </div>
@@ -111,7 +111,7 @@ export function PathDetailPage() {
           return (
             <li key={step.title} className="relative pl-10">
               <span
-                className={`absolute top-0 left-0 flex h-7 w-7 items-center justify-center rounded-full border font-mono text-xs ${
+                className={`absolute top-0 left-0 flex h-7 w-7 items-center justify-center rounded-full border tabular-nums text-xs ${
                   done ? `border-transparent ${SECTION_BG[path.section]} text-ink-950` : `border-ink-600 ${SECTION_TEXT[path.section]}`
                 }`}
               >
@@ -120,12 +120,12 @@ export function PathDetailPage() {
               {i < path.steps.length - 1 && <span className="absolute top-8 bottom-[-20px] left-3.5 w-px bg-ink-700" />}
               <div className="flex items-baseline justify-between gap-3">
                 <h2 className="font-semibold text-ink-100">{step.title}</h2>
-                <span className="font-mono text-[11px] text-ink-500">
+                <span className="tabular-nums text-[11px] text-ink-500">
                   {stepSolved}/{step.problems.length}
                 </span>
               </div>
               <p className="text-sm text-ink-400">{step.summary}</p>
-              <ul className="mt-2 divide-y divide-ink-800 rounded-lg border border-ink-700 bg-ink-900">
+              <ul className="mt-2 divide-y divide-ink-800 rounded-2xl border border-ink-700/70 bg-ink-900 shadow-card">
                 {step.problems.map((id) => {
                   const p = getProblemById(id);
                   if (!p) return null;
@@ -141,7 +141,7 @@ export function PathDetailPage() {
                           <StatusIcon status={st} />
                         </span>
                         <span className="text-ink-100">{p.title}</span>
-                        {isNext && <span className="font-mono text-[10px] text-vermilion uppercase">siguiente</span>}
+                        {isNext && <span className="text-[11px] font-semibold text-vermilion">siguiente</span>}
                         <span className="ml-auto">
                           <DifficultyBadge difficulty={p.difficulty} />
                         </span>

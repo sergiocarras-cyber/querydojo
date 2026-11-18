@@ -26,7 +26,7 @@ export function PandasTables({ problem }: { problem: PandasProblem }) {
 
   if (error) return <p className="font-mono text-xs text-rose">{error}</p>;
   if (!tables) {
-    return <p className="font-mono text-xs text-ink-500">Cargando Python y pandas (la primera vez tarda unos segundos)…</p>;
+    return <p className="flex items-center gap-2 text-[13px] text-ink-500"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-700 border-t-ink-400" />Cargando Python y pandas (la primera vez tarda unos segundos)…</p>;
   }
   return <TableList tables={tables} />;
 }

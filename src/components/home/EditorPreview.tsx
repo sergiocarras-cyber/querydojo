@@ -95,23 +95,23 @@ export function EditorPreview() {
   const s = SNIPPETS[active];
   return (
     <div
-      className="overflow-hidden rounded-xl border border-ink-700 bg-ink-900/95 shadow-2xl shadow-black/50"
+      className="overflow-hidden rounded-2xl bg-ink-900 shadow-float ring-1 ring-ink-700/70"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="flex items-center gap-2 border-b border-ink-700 px-4 py-2.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-ink-600" />
-        <span className="h-2.5 w-2.5 rounded-full bg-ink-600" />
-        <span className="h-2.5 w-2.5 rounded-full bg-ink-600" />
-        <div className="ml-3 flex gap-1" role="tablist" aria-label="Ejemplos">
+      <div className="flex items-center gap-2 border-b border-ink-700/70 px-4 py-3">
+        <span className="h-3 w-3 rounded-full bg-ink-700" />
+        <span className="h-3 w-3 rounded-full bg-ink-700" />
+        <span className="h-3 w-3 rounded-full bg-ink-700" />
+        <div className="ml-4 inline-flex gap-0.5 rounded-[9px] bg-ink-800 p-[2px]" role="tablist" aria-label="Ejemplos">
           {SNIPPETS.map((sn, i) => (
             <button
               key={sn.tab}
               role="tab"
               aria-selected={i === active}
               onClick={() => setActive(i)}
-              className={`rounded px-2 py-0.5 font-mono text-[11px] transition-colors ${
-                i === active ? 'bg-ink-800 text-ink-100' : 'text-ink-500 hover:text-ink-300'
+              className={`rounded-[7px] px-2.5 py-0.5 text-[12px] font-medium transition-colors duration-200 ${
+                i === active ? 'segment-on' : 'text-ink-500 hover:text-ink-200'
               }`}
             >
               {sn.tab}
@@ -120,14 +120,14 @@ export function EditorPreview() {
         </div>
         <span className="ml-auto hidden font-mono text-[11px] text-ink-500 sm:inline">{s.file}</span>
       </div>
-      <pre key={active} className="animate-fade-in min-h-[13.5rem] overflow-x-auto px-4 py-4 font-mono text-[11px] leading-6 sm:text-[12.5px] text-ink-200">
+      <pre key={active} className="animate-fade-in min-h-[13.5rem] overflow-x-auto px-5 py-5 font-mono text-[11px] leading-6 text-ink-200 sm:text-[13px]">
         <code>
           {highlight(s.code, s.lang)}
           <span className="animate-blink ml-0.5 inline-block h-4 w-[7px] translate-y-[3px] bg-ink-300" />
         </code>
       </pre>
-      <div key={`v${active}`} className="animate-fade-in flex items-center gap-2 overflow-hidden border-t whitespace-nowrap border-ink-700 bg-jade/[0.06] px-4 py-2.5 font-mono text-xs [animation-delay:0.25s]">
-        <span className="text-jade">✓ Aceptado</span>
+      <div key={`v${active}`} className="animate-fade-in flex items-center gap-2 overflow-hidden border-t whitespace-nowrap border-ink-700 bg-jade/[0.06] px-5 py-3 text-[13px] [animation-delay:0.25s]">
+        <span className="font-semibold text-jade">✓ Aceptado</span>
         <span className="text-ink-500">· {s.verdict}</span>
       </div>
     </div>

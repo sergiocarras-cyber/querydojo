@@ -6,13 +6,13 @@ export function ScoreBar({ score, label }: { score: number; label: string }) {
   const pct = Math.round(score * 100);
   const color = pct === 100 ? 'bg-jade' : pct >= 60 ? 'bg-amber' : 'bg-rose';
   return (
-    <div className="rounded-md border border-ink-700 bg-ink-950 px-3 py-2">
+    <div className="rounded-xl bg-ink-850 px-4 py-3 ring-1 ring-ink-700/60">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="font-mono text-[10px] tracking-wider text-ink-500 uppercase">Nota</span>
-        <span className="font-mono text-xs text-ink-400">{label}</span>
+        <span className="text-[12px] font-medium text-ink-500">Nota</span>
+        <span className="text-[12px] text-ink-500">{label}</span>
       </div>
       <div className="mt-1 flex items-center gap-3">
-        <span className="font-mono text-2xl font-semibold text-ink-100 tabular-nums">{pct}%</span>
+        <span className="text-[28px] font-semibold tracking-[-0.03em] text-ink-100 tabular-nums">{pct}%</span>
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-800">
           <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
         </div>
@@ -25,8 +25,8 @@ export function ScoreBar({ score, label }: { score: number; label: string }) {
 export function DiagnosisBox({ diagnoses, slow = false }: { diagnoses: Diagnosis[]; slow?: boolean }) {
   if (diagnoses.length === 0) return null;
   return (
-    <div className="rounded-md border border-violet/40 bg-violet/10 px-3 py-2.5">
-      <div className="font-mono text-[10px] tracking-wider text-violet uppercase">
+    <div className="rounded-xl bg-violet/10 px-4 py-3">
+      <div className="text-[12px] font-semibold text-violet">
         {slow ? 'Causa probable' : diagnoses.length === 1 ? 'Error típico detectado' : 'Errores típicos que encajan'}
       </div>
       {diagnoses.slice(0, 2).map((d) => (

@@ -1,5 +1,6 @@
 import Editor, { type BeforeMount, type OnMount } from '@monaco-editor/react';
 import { useRef } from 'react';
+import { useTheme } from '../lib/theme';
 
 interface Props {
   language: 'sql' | 'python';
@@ -12,35 +13,67 @@ interface Props {
 }
 
 const defineTheme: BeforeMount = (monaco) => {
-  monaco.editor.defineTheme('querydojo', {
+  monaco.editor.defineTheme('querydojo-dark', {
     base: 'vs-dark',
     inherit: true,
     rules: [
-      { token: 'comment', foreground: '5d6679', fontStyle: 'italic' },
-      { token: 'keyword', foreground: 'ff6b4a' },
-      { token: 'string', foreground: '3ddc97' },
-      { token: 'number', foreground: 'f5b84a' },
-      { token: 'operator', foreground: 'a7b0c3' },
-      { token: 'predefined', foreground: '6cb6ff' },
-      { token: 'type', foreground: 'b18cff' },
+      { token: 'comment', foreground: '6c6c74', fontStyle: 'italic' },
+      { token: 'keyword', foreground: 'ff7a5c' },
+      { token: 'string', foreground: '7ee08f' },
+      { token: 'number', foreground: 'ffb340' },
+      { token: 'operator', foreground: 'bcbcc3' },
+      { token: 'predefined', foreground: '6cb4ff' },
+      { token: 'type', foreground: 'd19bff' },
     ],
     colors: {
-      'editor.background': '#0b0d10',
-      'editor.foreground': '#e7ebf2',
-      'editorLineNumber.foreground': '#343b4b',
-      'editorLineNumber.activeForeground': '#a7b0c3',
-      'editor.lineHighlightBackground': '#151922',
-      'editor.selectionBackground': '#ff6b4a40',
+      'editor.background': '#0a0a0c',
+      'editor.foreground': '#f5f5f7',
+      'editorLineNumber.foreground': '#3d3d43',
+      'editorLineNumber.activeForeground': '#98989f',
+      'editor.lineHighlightBackground': '#16161a',
+      'editor.lineHighlightBorder': '#00000000',
+      'editor.selectionBackground': '#ff6b4a3d',
       'editorCursor.foreground': '#ff6b4a',
-      'editorIndentGuide.background1': '#1a1f29',
-      'editorWidget.background': '#11141a',
-      'editorWidget.border': '#252b38',
+      'editorIndentGuide.background1': '#1e1e22',
+      'editorWidget.background': '#1a1a1d',
+      'editorWidget.border': '#2d2d31',
+      'scrollbarSlider.background': '#ffffff14',
+      'scrollbarSlider.hoverBackground': '#ffffff24',
+    },
+  });
+  monaco.editor.defineTheme('querydojo-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [
+      { token: 'comment', foreground: '8a8a91', fontStyle: 'italic' },
+      { token: 'keyword', foreground: 'c8391a' },
+      { token: 'string', foreground: '1a7f37' },
+      { token: 'number', foreground: '9a5b00' },
+      { token: 'operator', foreground: '48484e' },
+      { token: 'predefined', foreground: '0a5fc2' },
+      { token: 'type', foreground: '7b3fb3' },
+    ],
+    colors: {
+      'editor.background': '#ffffff',
+      'editor.foreground': '#1d1d1f',
+      'editorLineNumber.foreground': '#c8c8ce',
+      'editorLineNumber.activeForeground': '#6b6b72',
+      'editor.lineHighlightBackground': '#f5f5f7',
+      'editor.lineHighlightBorder': '#00000000',
+      'editor.selectionBackground': '#ec4f2b2e',
+      'editorCursor.foreground': '#ec4f2b',
+      'editorIndentGuide.background1': '#ededf0',
+      'editorWidget.background': '#ffffff',
+      'editorWidget.border': '#dedee3',
+      'scrollbarSlider.background': '#0000001a',
+      'scrollbarSlider.hoverBackground': '#0000002b',
     },
   });
 };
 
 export function CodeEditor({ language, value, onChange, onRun, onSubmit }: Props) {
   // Keep the latest callbacks reachable from the commands registered once on mount.
+  const { resolved } = useTheme();
   const handlers = useRef({ onRun, onSubmit });
   handlers.current = { onRun, onSubmit };
 
@@ -56,20 +89,28 @@ export function CodeEditor({ language, value, onChange, onRun, onSubmit }: Props
     <Editor
       language={language}
       value={value}
-      theme="querydojo"
+      theme={resolved === 'light' ? 'querydojo-light' : 'querydojo-dark'}
       beforeMount={defineTheme}
       onMount={onMount}
       onChange={(v) => onChange(v ?? '')}
-      loading={<div className="p-4 font-mono text-xs text-ink-500">Cargando editor…</div>}
+      loading={<div className="p-5 text-[13px] text-ink-500">Cargando editor…</div>}
       options={{
-        fontFamily: "'JetBrains Mono Variable', ui-monospace, monospace",
+        fontFamily: "ui-monospace, 'SF Mono', 'JetBrains Mono Variable', Menlo, monospace",
         fontSize: 13,
-        lineHeight: 20,
+        lineHeight: 21,
+        fontLigatures: false,
+        cursorBlinking: 'smooth',
+        cursorSmoothCaretAnimation: 'on',
+        smoothScrolling: true,
+        roundedSelection: true,
+        scrollbar: { verticalScrollbarSize: 10, horizontalScrollbarSize: 10, useShadows: false },
+        overviewRulerLanes: 0,
+        hideCursorInOverviewRuler: true,
         minimap: { enabled: false },
         scrollBeyondLastLine: false,
         tabSize: language === 'python' ? 4 : 2,
         insertSpaces: true,
-        padding: { top: 12 },
+        padding: { top: 16, bottom: 16 },
         renderLineHighlight: 'line',
         automaticLayout: true,
         wordWrap: 'on',

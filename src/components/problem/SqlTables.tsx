@@ -23,13 +23,13 @@ export function SqlTables({ problem }: { problem: SqlProblem }) {
   }, [problem]);
 
   if (error) return <p className="font-mono text-xs text-rose">{error}</p>;
-  if (!tables) return <p className="font-mono text-xs text-ink-500">Cargando PostgreSQL (PGlite)…</p>;
+  if (!tables) return <p className="flex items-center gap-2 text-[13px] text-ink-500"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-700 border-t-ink-400" />Cargando PostgreSQL…</p>;
 
   return (
     <div className="space-y-5">
       {tables.map((t) => (
         <div key={t.name}>
-          <div className="mb-1.5 font-mono text-xs text-sky">{t.name}</div>
+          <div className="mb-2 font-mono text-[12px] font-semibold text-sky">{t.name}</div>
           <DataTable
             columns={t.columns.map((c) => c.name)}
             types={t.columns.map((c) => c.type)}

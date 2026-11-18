@@ -77,9 +77,9 @@ export function ProgressPage() {
   const activeToday = progress.activeDays.includes(today);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <h1 className="text-2xl font-semibold text-ink-100">Progreso</h1>
-      <p className="mt-1 text-sm text-ink-400">Solo cuentan los Submit. Todo se guarda en este navegador.</p>
+    <div className="mx-auto max-w-[1080px] px-6 py-12">
+      <h1 className="text-[34px] leading-tight font-semibold tracking-[-0.03em] text-ink-100">Progreso</h1>
+      <p className="mt-2 text-[17px] text-ink-400">Solo cuentan los Submit. Todo se guarda en este navegador.</p>
 
       <section className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Tile label="Resueltos" value={`${solved}`} sub={`de ${problems.length}`} accent="text-jade" />
@@ -99,24 +99,24 @@ export function ProgressPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-ink-100">Por sección</h2>
+          <h2 className="mb-3 text-[19px] font-semibold tracking-[-0.015em] text-ink-100">Por sección</h2>
           <div className="space-y-3">
             {bySection.map((s) => (
               <Link
                 key={s.section}
                 to={`/problems/${s.section}`}
-                className="block rounded-lg border border-ink-700 bg-ink-900 p-4 transition-colors hover:border-ink-500"
+                className="block rounded-2xl border border-ink-700/70 bg-ink-900 p-4 transition-colors hover:border-ink-500 shadow-card"
               >
                 <div className="flex items-center justify-between">
-                  <span className={`font-mono text-sm font-semibold ${SECTION_TEXT[s.section]}`}>
+                  <span className={`text-[15px] font-semibold ${SECTION_TEXT[s.section]}`}>
                     {SECTION_INFO[s.section].name}
                   </span>
-                  <span className="font-mono text-xs text-ink-400">
+                  <span className="tabular-nums text-xs text-ink-400">
                     {s.solved}/{s.total} · {pct(s)}%
                   </span>
                 </div>
                 <Bar tally={s} color={SECTION_BG[s.section]} />
-                <div className="mt-2 flex gap-4 font-mono text-[11px] text-ink-400">
+                <div className="mt-2 flex gap-4 tabular-nums text-[11px] text-ink-400">
                   {DIFFICULTIES.map((d) => (
                     <span key={d}>
                       <DifficultyBadge difficulty={d} /> {s.byDifficulty[d].solved}/{s.byDifficulty[d].total}
@@ -127,12 +127,12 @@ export function ProgressPage() {
             ))}
           </div>
 
-          <h2 className="mt-6 mb-3 text-sm font-semibold text-ink-100">Por dificultad</h2>
+          <h2 className="mt-8 mb-3 text-[19px] font-semibold tracking-[-0.015em] text-ink-100">Por dificultad</h2>
           <div className="grid grid-cols-3 gap-3">
             {DIFFICULTIES.map((d) => (
-              <div key={d} className="rounded-lg border border-ink-700 bg-ink-900 p-3">
+              <div key={d} className="rounded-2xl border border-ink-700/70 bg-ink-900 p-3 shadow-card">
                 <DifficultyBadge difficulty={d} />
-                <div className="mt-2 font-mono text-lg text-ink-100">
+                <div className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink-100 tabular-nums">
                   {byDifficulty[d].solved}
                   <span className="text-sm text-ink-500">/{byDifficulty[d].total}</span>
                 </div>
@@ -146,9 +146,9 @@ export function ProgressPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-ink-100">Temas débiles</h2>
+          <h2 className="mb-3 text-[19px] font-semibold tracking-[-0.015em] text-ink-100">Temas débiles</h2>
           {weak.length === 0 ? (
-            <p className="rounded-lg border border-ink-700 bg-ink-900 p-4 text-sm text-ink-400">
+            <p className="rounded-2xl border border-ink-700/70 bg-ink-900 p-4 text-sm text-ink-400 shadow-card">
               Aún no hay datos. Aparecerán los temas en los que fallas más envíos o dejas problemas sin resolver.
             </p>
           ) : (
@@ -157,11 +157,11 @@ export function ProgressPage() {
                 <li key={`${t.sections[0]}:${t.topic}`}>
                   <Link
                     to={`/problems/${t.sections[0]}?topic=${encodeURIComponent(t.topic)}`}
-                    className="flex items-center gap-3 rounded-lg border border-ink-700 bg-ink-900 px-3 py-2.5 transition-colors hover:border-rose/60"
+                    className="flex items-center gap-3 rounded-2xl border border-ink-700/70 bg-ink-900 px-3 py-2.5 transition-colors hover:border-rose/60 shadow-card"
                   >
                     <SectionBadge section={t.sections[0]} />
                     <span className="text-sm text-ink-100">{t.topic}</span>
-                    <span className="ml-auto text-right font-mono text-[11px] text-ink-400">
+                    <span className="ml-auto text-right tabular-nums text-[11px] text-ink-400">
                       <span className="text-rose">{Math.round((t.failures / t.attempts) * 100)}% fallos</span>
                       <br />
                       {t.solved}/{t.total} resueltos
@@ -179,7 +179,7 @@ export function ProgressPage() {
               <p className="mb-3 text-xs text-ink-500">
                 Los resolviste después de ver la solución. Resuélvelos sin mirar cuando toque para que cuenten.
               </p>
-              <ul className="divide-y divide-ink-800 rounded-lg border border-ink-700 bg-ink-900">
+              <ul className="divide-y divide-ink-800 rounded-2xl border border-ink-700/70 bg-ink-900 shadow-card">
                 {review.map(({ meta, ready }) => {
                   const due = !ready || ready.getTime() <= Date.now();
                   return (
@@ -187,7 +187,7 @@ export function ProgressPage() {
                       <Link to={`/problem/${meta!.slug}`} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-ink-850">
                         <span className="text-sky">◐</span>
                         <span className="truncate text-ink-200">{meta!.title}</span>
-                        <span className={`ml-auto shrink-0 font-mono text-[11px] ${due ? 'text-jade' : 'text-ink-500'}`}>
+                        <span className={`ml-auto shrink-0 tabular-nums text-[11px] ${due ? 'text-jade' : 'text-ink-500'}`}>
                           {due
                             ? 'ya puedes'
                             : `desde el ${ready!.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`}
@@ -200,11 +200,11 @@ export function ProgressPage() {
             </>
           )}
 
-          <h2 className="mt-6 mb-3 text-sm font-semibold text-ink-100">Últimos envíos</h2>
+          <h2 className="mt-8 mb-3 text-[19px] font-semibold tracking-[-0.015em] text-ink-100">Últimos envíos</h2>
           {recent.length === 0 ? (
             <p className="text-sm text-ink-500">Todavía no hay envíos.</p>
           ) : (
-            <ul className="divide-y divide-ink-800 rounded-lg border border-ink-700 bg-ink-900">
+            <ul className="divide-y divide-ink-800 rounded-2xl border border-ink-700/70 bg-ink-900 shadow-card">
               {recent.map((s) => {
                 const p = getProblemById(s.problemId);
                 return (
@@ -219,7 +219,7 @@ export function ProgressPage() {
                     ) : (
                       <span className="text-ink-500">{s.problemId}</span>
                     )}
-                    <span className="ml-auto shrink-0 font-mono text-[11px] text-ink-500">
+                    <span className="ml-auto shrink-0 tabular-nums text-[11px] text-ink-500">
                       {new Date(s.at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
                     </span>
                   </li>
@@ -231,7 +231,7 @@ export function ProgressPage() {
       </div>
 
       <section className="mt-8">
-        <h2 className="mb-3 text-sm font-semibold text-ink-100">Por tema</h2>
+        <h2 className="mb-3 text-[19px] font-semibold tracking-[-0.015em] text-ink-100">Por tema</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {topicsBySection.map(({ section, topics }) => (
             <TopicTable key={section} section={section} topics={topics} />
@@ -246,8 +246,8 @@ export function ProgressPage() {
 
 function Tile({ label, value, sub, accent = 'text-ink-100' }: { label: string; value: string; sub: string; accent?: string }) {
   return (
-    <div className="rounded-lg border border-ink-700 bg-ink-900 p-4">
-      <div className="font-mono text-[11px] tracking-wider text-ink-500 uppercase">{label}</div>
+    <div className="rounded-2xl border border-ink-700/70 bg-ink-900 p-4 shadow-card">
+      <div className="text-[12px] font-medium text-ink-500">{label}</div>
       <div className={`mt-1 text-2xl font-semibold ${accent}`}>{value}</div>
       <div className="mt-0.5 text-xs text-ink-500">{sub}</div>
     </div>
@@ -293,10 +293,10 @@ function Heatmap({ perDay, today }: { perDay: Record<string, number>; today: str
     .filter(([k]) => k >= start && k <= today)
     .reduce((n, [, v]) => n + v, 0);
   return (
-    <section className="mt-6 rounded-lg border border-ink-700 bg-ink-900 p-4">
+    <section className="mt-6 rounded-2xl border border-ink-700/70 bg-ink-900 p-4 shadow-card">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-ink-100">
-          Actividad <span className="font-mono text-xs font-normal text-ink-500">{total} {total === 1 ? 'envío' : 'envíos'} en 6 meses</span>
+          Actividad <span className="tabular-nums text-xs font-normal text-ink-500">{total} {total === 1 ? 'envío' : 'envíos'} en 6 meses</span>
         </h2>
         <div className="flex items-center gap-1 text-[11px] text-ink-500">
           menos
@@ -307,7 +307,7 @@ function Heatmap({ perDay, today }: { perDay: Record<string, number>; today: str
         </div>
       </div>
       <div className="flex gap-2 overflow-x-auto">
-        <div className="flex flex-col gap-[3px] pt-4 font-mono text-[10px] leading-[14px] text-ink-500">
+        <div className="flex flex-col gap-[3px] pt-4 tabular-nums text-[10px] leading-[14px] text-ink-500">
           {DAY_LABELS.map((d, i) => (
             <span key={i} className="h-3.5">
               {d}
@@ -322,7 +322,7 @@ function Heatmap({ perDay, today }: { perDay: Record<string, number>; today: str
             const showMonth = i === 0 ? m(1) === m(0) && m(2) === m(0) : m(i) !== m(i - 1);
             return (
               <div key={i} className="flex flex-col gap-[3px]">
-                <span className="h-3.5 w-3.5 overflow-visible font-mono text-[10px] leading-[14px] whitespace-nowrap text-ink-500">
+                <span className="h-3.5 w-3.5 overflow-visible tabular-nums text-[10px] leading-[14px] whitespace-nowrap text-ink-500">
                   {showMonth ? MONTHS[month] : ''}
                 </span>
                 {col.map((c) => (
@@ -345,8 +345,8 @@ function Heatmap({ perDay, today }: { perDay: Record<string, number>; today: str
 
 function TopicTable({ section, topics }: { section: Section; topics: ReturnType<typeof topicTallies> }) {
   return (
-    <div className="rounded-lg border border-ink-700 bg-ink-900">
-      <div className={`border-b border-ink-700 px-4 py-2 font-mono text-xs font-semibold ${SECTION_TEXT[section]}`}>
+    <div className="rounded-2xl border border-ink-700/70 bg-ink-900 shadow-card">
+      <div className={`border-b border-ink-700 px-4 py-2 tabular-nums text-xs font-semibold ${SECTION_TEXT[section]}`}>
         {SECTION_INFO[section].name}
       </div>
       <ul className="max-h-72 overflow-y-auto px-4 py-2">
@@ -360,7 +360,7 @@ function TopicTable({ section, topics }: { section: Section; topics: ReturnType<
               <span className="flex h-1 flex-1 overflow-hidden rounded-full bg-ink-800">
                 <span className={SECTION_BG[section]} style={{ width: `${pct(t)}%` }} />
               </span>
-              <span className="w-10 shrink-0 text-right font-mono text-ink-500">
+              <span className="w-10 shrink-0 text-right tabular-nums text-ink-500">
                 {t.solved}/{t.total}
               </span>
             </Link>
@@ -411,7 +411,7 @@ function DataControls() {
 
   const btn = 'rounded-md border border-ink-600 px-3 py-1.5 text-sm text-ink-200 hover:border-ink-400 hover:text-ink-100';
   return (
-    <section className="mt-8 rounded-lg border border-ink-700 bg-ink-900 p-4">
+    <section className="mt-8 rounded-2xl border border-ink-700/70 bg-ink-900 p-4 shadow-card">
       <h2 className="text-sm font-semibold text-ink-100">Tus datos</h2>
       <p className="mt-1 text-xs text-ink-400">
         El progreso vive en el localStorage de este navegador. Expórtalo para hacer copia o pasarlo a otro equipo.

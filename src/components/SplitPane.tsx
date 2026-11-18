@@ -55,12 +55,17 @@ export function SplitPane({ left, right, storageKey, initial = 45, direction = '
         role="separator"
         aria-orientation={horizontal ? 'vertical' : 'horizontal'}
         onPointerDown={onPointerDown}
-        className={`group relative shrink-0 bg-ink-700 hover:bg-vermilion/60 ${
+        className={`group relative z-10 shrink-0 bg-ink-700/70 transition-colors duration-200 hover:bg-vermilion/50 ${
           horizontal ? 'w-px cursor-col-resize' : 'h-px cursor-row-resize'
         }`}
       >
-        {/* Wider invisible hit area */}
+        {/* Wider invisible hit area, plus a grabber pill that appears on hover */}
         <div className={`absolute ${horizontal ? 'inset-y-0 -left-1.5 w-3' : 'inset-x-0 -top-1.5 h-3'}`} />
+        <div
+          className={`pointer-events-none absolute rounded-full bg-ink-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
+            horizontal ? 'top-1/2 left-1/2 h-8 w-1 -translate-x-1/2 -translate-y-1/2' : 'top-1/2 left-1/2 h-1 w-8 -translate-x-1/2 -translate-y-1/2'
+          }`}
+        />
       </div>
       <div className="min-h-0 min-w-0 flex-1 overflow-hidden">{right}</div>
     </div>

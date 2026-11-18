@@ -3,6 +3,7 @@ import type { Cell } from '../../lib/sql/engine';
 import type { CaseOutcome, SqlEvaluation } from '../../lib/sql/evaluate';
 import type { Diagnosis } from '../../lib/problems/types';
 import { DataTable } from '../DataTable';
+import { Segment, SegmentedTrack } from '../Segmented';
 import { Banner } from './Banner';
 import { AssistedNote, DiagnosisBox, ScoreBar } from './Feedback';
 
@@ -15,19 +16,19 @@ export type SqlOutput =
 export function SqlResultPanel({ output }: { output: SqlOutput }) {
   return (
     <div className="flex h-full flex-col bg-ink-900">
-      <div className="shrink-0 border-b border-ink-700 px-3 py-1.5 font-mono text-[11px] tracking-wider text-ink-500 uppercase">
+      <div className="shrink-0 border-b border-ink-700/70 px-4 py-2 text-[12px] font-medium text-ink-500">
         Resultado
       </div>
-      <div className="min-h-0 flex-1 overflow-auto p-3">
+      <div className="min-h-0 flex-1 overflow-auto p-4">
         {output.kind === 'idle' && (
-          <p className="font-mono text-xs leading-relaxed text-ink-500">
+          <p className="text-[13px] leading-relaxed text-ink-500">
             Run (⌘/Ctrl + Enter) ejecuta con los datos de ejemplo.
             <br />
             Submit (⌘/Ctrl + Shift + Enter) corrige con los datos de ejemplo y los ocultos.
           </p>
         )}
         {output.kind === 'running' && (
-          <p className="font-mono text-xs text-ink-400">{output.mode === 'run' ? 'Ejecutando…' : 'Corrigiendo…'}</p>
+          <p className="flex items-center gap-2 text-[13px] text-ink-400"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-700 border-t-ink-400" />{output.mode === 'run' ? 'Ejecutando…' : 'Corrigiendo…'}</p>
         )}
         {output.kind === 'failure' && (
           <Banner tone="error" title={output.timeout ? 'Tiempo límite superado' : 'Error'}>
@@ -134,7 +135,7 @@ function CaseDetails({ outcome }: { outcome: CaseOutcome }) {
 function DiffView({ columns, missing, extra }: { columns: string[]; missing: Cell[][]; extra: Cell[][] }) {
   const fmt = (row: Cell[]) => row.map((c) => (c === null ? 'NULL' : String(c))).join(' | ');
   return (
-    <div className="rounded-md border border-ink-700 bg-ink-950 font-mono text-xs">
+    <div className="overflow-hidden rounded-xl bg-ink-850 font-mono text-xs ring-1 ring-ink-700/60">
       <div className="border-b border-ink-700 px-3 py-1.5 text-ink-400">
         diff · <span className="text-ink-500">({columns.join(' | ')})</span>
       </div>
@@ -169,24 +170,22 @@ function ResultTabs({
   const shown = tab === 'yours' ? actual : expected;
   return (
     <div>
-      <div className="mb-2 flex items-center gap-1 text-xs">
-        {(['yours', 'expected'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`rounded px-2 py-0.5 ${tab === t ? 'bg-ink-700 text-ink-100' : 'text-ink-400 hover:text-ink-200'}`}
-          >
-            {t === 'yours' ? 'Tu resultado' : 'Resultado esperado'}
-          </button>
-        ))}
-        <span className="ml-auto font-mono text-[11px] text-ink-500">
+      <div className="mb-3 flex items-center gap-2">
+        <SegmentedTrack>
+          {(['yours', 'expected'] as const).map((t) => (
+            <Segment key={t} active={tab === t} onClick={() => setTab(t)}>
+              {t === 'yours' ? 'Tu resultado' : 'Resultado esperado'}
+            </Segment>
+          ))}
+        </SegmentedTrack>
+        <span className="ml-auto text-[12px] text-ink-500 tabular-nums">
           {shown ? `${shown.rows.length} fila(s)` : ''} {tab === 'yours' ? `· ${ms.toFixed(1)} ms` : ''}
         </span>
       </div>
       {shown ? (
         <DataTable columns={shown.columns} rows={shown.rows} maxHeight="none" highlightRow={highlightRow} />
       ) : (
-        <p className="font-mono text-xs text-ink-400">Tu consulta no devolvió filas (¿falta un SELECT final?).</p>
+        <p className="flex items-center gap-2 text-[13px] text-ink-400"><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-700 border-t-ink-400" />Tu consulta no devolvió filas (¿falta un SELECT final?).</p>
       )}
     </div>
   );

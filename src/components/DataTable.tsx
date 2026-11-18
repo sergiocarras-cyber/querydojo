@@ -19,23 +19,23 @@ function renderCell(value: Cell) {
 
 export function DataTable({ columns, rows, types, maxHeight = '18rem', highlightRow }: Props) {
   return (
-    <div className="overflow-auto rounded-md border border-ink-700" style={{ maxHeight }}>
-      <table className="w-full border-collapse font-mono text-xs">
-        <thead className="sticky top-0 bg-ink-800">
+    <div className="overflow-auto rounded-xl bg-ink-900 ring-1 ring-ink-700/70" style={{ maxHeight }}>
+      <table className="w-full border-collapse font-mono text-[12px]">
+        <thead className="sticky top-0 bg-ink-850">
           <tr>
             {columns.map((c, i) => (
-              <th key={i} className="border-b border-ink-700 px-3 py-1.5 text-left font-medium whitespace-nowrap text-ink-100">
+              <th key={i} className="border-b border-ink-700/70 px-3 py-2 text-left font-semibold whitespace-nowrap text-ink-100">
                 {c}
-                {types?.[i] && <div className="text-[10px] font-normal text-ink-500">{types[i]}</div>}
+                {types?.[i] && <div className="font-sans text-[10px] font-normal text-ink-500">{types[i]}</div>}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, r) => (
-            <tr key={r} className={r === highlightRow ? 'bg-rose/15' : 'odd:bg-ink-900 even:bg-ink-850'}>
+            <tr key={r} className={r === highlightRow ? 'bg-rose/15' : 'even:bg-ink-850'}>
               {row.map((cell, c) => (
-                <td key={c} className="border-b border-ink-800 px-3 py-1 whitespace-nowrap text-ink-200">
+                <td key={c} className="border-b border-ink-700/40 px-3 py-1.5 whitespace-nowrap text-ink-200">
                   {renderCell(cell)}
                 </td>
               ))}
