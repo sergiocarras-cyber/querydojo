@@ -108,10 +108,18 @@ Pitfalls:
 
 ## Wrong Answers
 
+### MAX(status) is alphabetical
+
+`MAX(status)` returns the alphabetically last status, not the most recent one. Pick the latest event per order (for example `DISTINCT ON` with `ORDER BY created_at DESC`).
+
 ```sql
 WITH latest AS (SELECT order_id, MAX(status) AS status FROM order_events GROUP BY order_id)
 SELECT status, COUNT(*) AS orders FROM latest GROUP BY status ORDER BY orders DESC, status;
 ```
+
+### Ties on the latest timestamp
+
+When two events share the latest `created_at`, both survive and the order is counted twice. Break the tie with `event_id`.
 
 ```sql
 WITH last_ts AS (SELECT order_id, MAX(created_at) AS ts FROM order_events GROUP BY order_id),

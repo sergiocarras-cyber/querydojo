@@ -119,6 +119,10 @@ and a `LEFT JOIN`.)
 
 ## Wrong Answers
 
+### Missing the 2025 filter
+
+Orders from every year are counted, so customers end up in the wrong bucket. Filter `placed_at` to 2025 before counting per customer.
+
 ```sql
 WITH per_customer AS (
   SELECT customer_id, COUNT(*) AS orders_placed FROM orders GROUP BY customer_id
@@ -126,6 +130,10 @@ WITH per_customer AS (
 SELECT orders_placed, COUNT(*) AS num_customers
 FROM per_customer GROUP BY orders_placed ORDER BY orders_placed;
 ```
+
+### BETWEEN with timestamps
+
+`BETWEEN '2025-01-01' AND '2025-12-31'` ends at midnight, dropping orders placed during December 31. Use `< '2026-01-01'`.
 
 ```sql
 WITH per_customer AS (

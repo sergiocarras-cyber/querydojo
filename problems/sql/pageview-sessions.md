@@ -132,6 +132,10 @@ another: 2 sessions, (3 + 1) / 2 = 2.00 pages.
 
 ## Wrong Answers
 
+### Exactly 30 minutes starts a new session
+
+A gap of exactly 30 minutes stays in the same session. Only a gap strictly greater than 30 minutes (`>`) starts a new one.
+
 ```sql
 WITH flagged AS (
   SELECT user_id, viewed_at,
@@ -146,6 +150,10 @@ WITH flagged AS (
 SELECT user_id, COUNT(*) AS sessions, ROUND(AVG(pages), 2) AS avg_pages
 FROM per_session GROUP BY user_id ORDER BY user_id;
 ```
+
+### Ordering by insertion id instead of time
+
+Rows are not inserted in time order. `LAG` and the running sum must be ordered by `viewed_at`, not `view_id`.
 
 ```sql
 WITH flagged AS (

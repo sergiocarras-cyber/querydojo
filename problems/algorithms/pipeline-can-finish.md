@@ -210,11 +210,19 @@ chain). A DFS with white/grey/black colouring is the other standard approach.
 
 ## Wrong Answers
 
+### Only two-job cycles detected
+
+Looking for `a -> b` and `b -> a` misses longer cycles like `0 -> 1 -> 2 -> 0`. Use topological sort (Kahn) or DFS with colours.
+
 ```python
 def can_finish(n, deps):
     pairs = {(a, b) for a, b in deps}
     return not any((b, a) in pairs for a, b in deps)
 ```
+
+### Recursive DFS on a long chain
+
+A long chain of dependencies exceeds Python's recursion limit. Use Kahn's algorithm with a queue.
 
 ```python
 def can_finish(n, deps):

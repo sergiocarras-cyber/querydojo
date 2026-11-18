@@ -193,6 +193,10 @@ optimise.
 
 ## Wrong Answers
 
+### Quadratic DP
+
+Comparing each price with every earlier one is O(n²): correct, but too slow for the large hidden inputs. Keep the smallest tail of each length and binary-search it (O(n log n)).
+
 ```python
 def longest_rising(prices):
     if not prices:
@@ -204,6 +208,10 @@ def longest_rising(prices):
                 best[i] = best[j] + 1
     return max(best)
 ```
+
+### `bisect_right` allows equal prices
+
+The trend must be strictly rising. `bisect_right` lets an equal price extend a sequence; use `bisect_left`.
 
 ```python
 from bisect import bisect_right

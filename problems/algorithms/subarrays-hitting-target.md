@@ -183,6 +183,10 @@ positive; with negatives the window sum isn't monotonic.
 
 ## Wrong Answers
 
+### Every subarray, one by one
+
+Two nested loops are O(n²): correct, but too slow for the large hidden inputs. Count prefix sums in a dict: each earlier prefix equal to `prefix - target` closes one subarray.
+
 ```python
 def count_subarrays(amounts, target):
     count = 0
@@ -194,6 +198,10 @@ def count_subarrays(amounts, target):
                 count += 1
     return count
 ```
+
+### Sliding window with negative amounts
+
+Shrinking the window when the sum is too big only works if all numbers are non-negative. With negatives, use prefix sums and a dict.
 
 ```python
 def count_subarrays(amounts, target):

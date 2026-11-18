@@ -105,6 +105,10 @@ need no special handling.
 
 ## Wrong Answers
 
+### shift without groupby
+
+`shift(1)` on the whole column takes the previous row even when it belongs to another ticker. Use `groupby('ticker')['close'].shift(1)`.
+
 ```python
 import pandas as pd
 
@@ -116,6 +120,10 @@ def daily_change(prices):
     df = df[prev.notna()]
     return df[["ticker", "date", "change", "pct_change"]]
 ```
+
+### Not sorted by date before shifting
+
+`shift` uses row order. If the rows are not in date order, the 'previous' close is wrong. Sort by ticker and date first.
 
 ```python
 import pandas as pd

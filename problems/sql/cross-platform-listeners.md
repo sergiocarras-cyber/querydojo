@@ -94,11 +94,19 @@ Alternatives: `INTERSECT` of the ios users and the android users, or two `EXISTS
 
 ## Wrong Answers
 
+### Any two platforms count
+
+Without `WHERE platform IN ('ios', 'android')`, a user on web and iOS also qualifies.
+
 ```sql
 SELECT user_id FROM sessions
 GROUP BY user_id HAVING COUNT(DISTINCT platform) >= 2
 ORDER BY user_id;
 ```
+
+### Counting sessions instead of platforms
+
+`COUNT(*) >= 2` is true for two iOS sessions. Count distinct platforms: `COUNT(DISTINCT platform) = 2`.
 
 ```sql
 SELECT user_id FROM sessions

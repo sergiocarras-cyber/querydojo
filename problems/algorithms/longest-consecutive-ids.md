@@ -165,6 +165,10 @@ Sorting and scanning is `O(n log n)` and also acceptable, but duplicates must no
 
 ## Wrong Answers
 
+### Duplicates break the run
+
+After sorting, a repeated id (`2, 2`) resets the counter even though the run continues. Skip duplicates, or use a set and start counting only where `x - 1` is missing.
+
 ```python
 def longest_run(ids):
     if not ids:

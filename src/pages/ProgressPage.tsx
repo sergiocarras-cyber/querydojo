@@ -13,7 +13,14 @@ import {
   weakTopics,
   type Tally,
 } from '../lib/progress/stats';
-import { exportProgress, importProgress, resetProgress, useProgress, type Submission } from '../lib/progress/store';
+import {
+  assistReadyAt,
+  exportProgress,
+  importProgress,
+  resetProgress,
+  useProgress,
+  type Submission,
+} from '../lib/progress/store';
 import { getProblemById, problems, problemsIn } from '../lib/problems/registry';
 import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Section } from '../lib/problems/types';
 import { useTitle } from '../hooks/useTitle';
@@ -52,7 +59,17 @@ export function ProgressPage() {
     return all.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 8);
   }, [progress]);
 
+  const review = useMemo(
+    () =>
+      Object.entries(progress.problems)
+        .filter(([, pp]) => pp.status === 'assisted')
+        .map(([id, pp]) => ({ meta: getProblemById(id), ready: assistReadyAt(pp) }))
+        .filter((r) => r.meta)
+        .sort((a, b) => (a.ready?.getTime() ?? 0) - (b.ready?.getTime() ?? 0)),
+    [progress],
+  );
   const solved = bySection.reduce((n, s) => n + s.solved, 0);
+  const assisted = bySection.reduce((n, s) => n + s.assisted, 0);
   const attempted = bySection.reduce((n, s) => n + s.attempted, 0);
   const totalSubs = Object.values(progress.submissions).reduce((n, s) => n + s.length, 0);
   const streak = currentStreak(progress.activeDays, today);
@@ -64,8 +81,9 @@ export function ProgressPage() {
       <h1 className="text-2xl font-semibold text-ink-100">Progreso</h1>
       <p className="mt-1 text-sm text-ink-400">Solo cuentan los Submit. Todo se guarda en este navegador.</p>
 
-      <section className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-5">
+      <section className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Tile label="Resueltos" value={`${solved}`} sub={`de ${problems.length}`} accent="text-jade" />
+        <Tile label="Con ayuda" value={`${assisted}`} sub="tras ver la solución" accent="text-sky" />
         <Tile label="Intentados" value={`${attempted}`} sub="sin resolver aún" accent="text-amber" />
         <Tile
           label="Racha actual"
@@ -155,6 +173,33 @@ export function ProgressPage() {
             </ul>
           )}
 
+          {review.length > 0 && (
+            <>
+              <h2 className="mt-6 mb-1 text-sm font-semibold text-ink-100">Para repasar</h2>
+              <p className="mb-3 text-xs text-ink-500">
+                Los resolviste después de ver la solución. Resuélvelos sin mirar cuando toque para que cuenten.
+              </p>
+              <ul className="divide-y divide-ink-800 rounded-lg border border-ink-700 bg-ink-900">
+                {review.map(({ meta, ready }) => {
+                  const due = !ready || ready.getTime() <= Date.now();
+                  return (
+                    <li key={meta!.id}>
+                      <Link to={`/problem/${meta!.slug}`} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-ink-850">
+                        <span className="text-sky">◐</span>
+                        <span className="truncate text-ink-200">{meta!.title}</span>
+                        <span className={`ml-auto shrink-0 font-mono text-[11px] ${due ? 'text-jade' : 'text-ink-500'}`}>
+                          {due
+                            ? 'ya puedes'
+                            : `desde el ${ready!.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+
           <h2 className="mt-6 mb-3 text-sm font-semibold text-ink-100">Últimos envíos</h2>
           {recent.length === 0 ? (
             <p className="text-sm text-ink-500">Todavía no hay envíos.</p>
@@ -164,8 +209,8 @@ export function ProgressPage() {
                 const p = getProblemById(s.problemId);
                 return (
                   <li key={`${s.problemId}:${s.at}`} className="flex items-center gap-3 px-3 py-2 text-sm">
-                    <span className={s.verdict === 'accepted' ? 'text-jade' : 'text-rose'}>
-                      {s.verdict === 'accepted' ? '✓' : '✗'}
+                    <span className={s.assisted ? 'text-sky' : s.verdict === 'accepted' ? 'text-jade' : 'text-rose'}>
+                      {s.assisted ? '◐' : s.verdict === 'accepted' ? '✓' : '✗'}
                     </span>
                     {p ? (
                       <Link to={`/problem/${p.slug}`} className="truncate text-ink-200 hover:text-ink-100 hover:underline">
@@ -213,8 +258,12 @@ function Bar({ tally, color }: { tally: Tally; color: string }) {
   const solved = tally.total ? (tally.solved / tally.total) * 100 : 0;
   const tried = tally.total ? (tally.attempted / tally.total) * 100 : 0;
   return (
-    <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-ink-800" title={`${tally.solved} resueltos, ${tally.attempted} intentados`}>
+    <div
+      className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-ink-800"
+      title={`${tally.solved} resueltos, ${tally.assisted} con ayuda, ${tally.attempted} intentados`}
+    >
       <div className={color} style={{ width: `${solved}%` }} />
+      <div className="bg-sky/50" style={{ width: `${tally.total ? (tally.assisted / tally.total) * 100 : 0}%` }} />
       <div className="bg-ink-600" style={{ width: `${tried}%` }} />
     </div>
   );

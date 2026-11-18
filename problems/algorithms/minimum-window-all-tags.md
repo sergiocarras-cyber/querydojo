@@ -184,6 +184,10 @@ every substring is `O(n²)` or worse.
 
 ## Wrong Answers
 
+### Required tags as a set
+
+A set ignores repeated required tags: if `required` has two `a`, the window needs two. Count them with a `Counter`.
+
 ```python
 def min_window(feed, required):
     need = set(required)
@@ -199,6 +203,10 @@ def min_window(feed, required):
                 break
     return best
 ```
+
+### Every start position
+
+Restarting from each index is O(n²): correct, but too slow for the large hidden inputs. Use a sliding window that tracks how many required tags are still missing.
 
 ```python
 from collections import Counter

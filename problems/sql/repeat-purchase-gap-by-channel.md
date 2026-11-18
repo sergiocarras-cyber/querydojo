@@ -137,6 +137,10 @@ customer 1).
 
 ## Wrong Answers
 
+### First-to-last instead of first-to-second
+
+`MAX - MIN` measures until the last order, which differs for customers with three or more orders. Use the gap between the first and second order only.
+
 ```sql
 WITH spans AS (
   SELECT customer_id, MAX(ordered_at) - MIN(ordered_at) AS days
@@ -146,6 +150,10 @@ SELECT c.channel, COUNT(*) AS repeat_customers, ROUND(AVG(s.days), 1) AS avg_day
 FROM spans s JOIN customers c ON c.customer_id = s.customer_id
 GROUP BY c.channel ORDER BY c.channel;
 ```
+
+### Averaging every gap
+
+`LAG` over all orders also includes the gap between the 2nd and 3rd order, and so on. Keep only each customer's first gap.
 
 ```sql
 WITH numbered AS (

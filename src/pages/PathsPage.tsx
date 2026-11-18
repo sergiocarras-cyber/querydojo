@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router';
-import { DifficultyBadge, SECTION_BG, SECTION_TEXT, SectionBadge } from '../components/Badges';
+import { DifficultyBadge, SECTION_BG, SECTION_TEXT, SectionBadge, StatusIcon } from '../components/Badges';
 import { STUDY_PATHS, getPath, pathProblemIds, type StudyPath } from '../lib/paths';
 import { statusOf, useProgress, type ProgressData } from '../lib/progress/store';
 import { getProblemById } from '../lib/problems/registry';
@@ -138,13 +138,7 @@ export function PathDetailPage() {
                         className={`flex items-center gap-3 px-3 py-2 text-sm hover:bg-ink-850 ${isNext ? 'bg-vermilion-dim' : ''}`}
                       >
                         <span className="w-4 text-center">
-                          {st === 'solved' ? (
-                            <span className="text-jade">✓</span>
-                          ) : st === 'attempted' ? (
-                            <span className="text-amber">●</span>
-                          ) : (
-                            <span className="text-ink-600">○</span>
-                          )}
+                          <StatusIcon status={st} />
                         </span>
                         <span className="text-ink-100">{p.title}</span>
                         {isNext && <span className="font-mono text-[10px] text-vermilion uppercase">siguiente</span>}

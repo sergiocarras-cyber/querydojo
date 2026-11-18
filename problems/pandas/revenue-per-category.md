@@ -100,6 +100,10 @@ def revenue_per_category(products: pd.DataFrame, sales: pd.DataFrame) -> pd.Data
 
 ## Wrong Answers
 
+### Summing prices instead of revenue
+
+Revenue is `price * quantity` per sale. Summing `price` ignores how many units were sold.
+
 ```python
 import pandas as pd
 
@@ -108,6 +112,10 @@ def revenue_per_category(products, sales):
     out = df.groupby("category", as_index=False)["price"].sum().rename(columns={"price": "revenue"})
     return out.sort_values(["revenue", "category"], ascending=[False, True])
 ```
+
+### Categories without sales appear
+
+Starting from `products` with a left merge adds categories with revenue 0. Only categories with sales belong in the result: start from `sales`.
 
 ```python
 import pandas as pd

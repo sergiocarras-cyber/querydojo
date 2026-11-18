@@ -126,6 +126,10 @@ In the example, user 1 has sessions 10:00–10:25 (25 min) and 11:30–11:40 (10
 
 ## Wrong Answers
 
+### Exactly 30 minutes starts a new session
+
+A gap of exactly 30 minutes stays in the same session. Only a gap strictly greater than 30 minutes (`>`) starts a new one.
+
 ```python
 import pandas as pd
 
@@ -140,6 +144,10 @@ def session_stats(clicks):
     out["avg_session_minutes"] = out["avg_session_minutes"].round(1)
     return out
 ```
+
+### Clicks not sorted by time
+
+`diff` uses row order. If clicks are not sorted by user and timestamp, the gaps are wrong. Sort by `user_id` and `ts` first.
 
 ```python
 import pandas as pd

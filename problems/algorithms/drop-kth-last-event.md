@@ -187,6 +187,10 @@ The **dummy** node handles `k = length` (removing the head) without special case
 
 ## Wrong Answers
 
+### Counting from the front
+
+Walking `k - 1` steps from the head removes the k-th event from the start. The k-th last needs two pointers `k` apart (or the list length).
+
 ```python
 def drop_kth_last(head, k):
     dummy = ListNode(0, head)
@@ -196,6 +200,10 @@ def drop_kth_last(head, k):
     node.next = node.next.next
     return dummy.next
 ```
+
+### Removing the first event fails
+
+Without a dummy node, when `k` equals the length the head itself must go, and this code removes the second event instead. Start both pointers at a dummy before the head.
 
 ```python
 def drop_kth_last(head, k):

@@ -222,6 +222,10 @@ back-to-back sessions.
 
 ## Wrong Answers
 
+### A free station is not reused at the same minute
+
+A station whose session ends at time `t` can serve one starting at `t`. Use `<=` when checking `busy_until[0]`.
+
 ```python
 import heapq
 
@@ -234,6 +238,10 @@ def min_stations(sessions):
             heapq.heappush(heap, e)
     return len(heap)
 ```
+
+### Counting overlaps for every session
+
+Comparing every pair of sessions is O(n²): correct, but too slow for the large hidden inputs. Sort by start and keep a min-heap of end times.
 
 ```python
 def min_stations(sessions):

@@ -102,12 +102,20 @@ In January the totals are 40, 60, 80, 2400: the median is (60 + 80) / 2 = 70 whi
 
 ## Wrong Answers
 
+### PERCENTILE_DISC picks a real value
+
+With an even number of orders the median is the average of the two middle values. `PERCENTILE_DISC` returns one of them; `PERCENTILE_CONT(0.5)` interpolates.
+
 ```sql
 SELECT DATE_TRUNC('month', ordered_at)::date AS month,
        ROUND((PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY total))::numeric, 2) AS median_total,
        ROUND(AVG(total), 2) AS mean_total
 FROM orders GROUP BY 1 ORDER BY 1;
 ```
+
+### The mean is not the median
+
+`AVG` is pulled by large orders. The median needs `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY total)`.
 
 ```sql
 SELECT DATE_TRUNC('month', ordered_at)::date AS month,

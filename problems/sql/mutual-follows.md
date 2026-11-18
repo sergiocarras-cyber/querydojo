@@ -131,6 +131,10 @@ ORDER BY mutual_since, handle_a;
 
 ## Wrong Answers
 
+### Pair ordered by id instead of handle
+
+`follower_id < followee_id` keeps one row per pair, but `handle_a` must be the alphabetically smaller handle. When ids and handles disagree, the two columns come out swapped.
+
 ```sql
 SELECT ua.handle AS handle_a, ub.handle AS handle_b,
        GREATEST(f1.followed_at, f2.followed_at) AS mutual_since
@@ -141,6 +145,10 @@ JOIN users ub ON ub.user_id = f1.followee_id
 WHERE f1.follower_id < f1.followee_id
 ORDER BY mutual_since, handle_a;
 ```
+
+### LEAST instead of GREATEST
+
+The pair becomes mutual when the second follow happens, which is the later of the two dates: `GREATEST`.
 
 ```sql
 SELECT ua.handle AS handle_a, ub.handle AS handle_b,

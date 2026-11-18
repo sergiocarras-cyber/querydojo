@@ -138,6 +138,10 @@ node; with 40 000 nodes it hits Python's recursion limit (~1000), so iterate.
 
 ## Wrong Answers
 
+### Recursion on long feeds
+
+One recursive call per node exceeds Python's recursion limit (about 1000) on long feeds. Merge iteratively with a dummy head.
+
 ```python
 def merge_feeds(a, b):
     if not a or not b:
@@ -148,6 +152,10 @@ def merge_feeds(a, b):
     b.next = merge_feeds(a, b.next)
     return b
 ```
+
+### Leftover nodes dropped
+
+When one feed runs out, the rest of the other is never attached. Finish with `tail.next = a or b`.
 
 ```python
 def merge_feeds(a, b):

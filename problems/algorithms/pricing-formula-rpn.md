@@ -208,6 +208,10 @@ At the end the stack holds the result. Two classic bugs:
 
 ## Wrong Answers
 
+### Floor division with negatives
+
+`//` rounds toward minus infinity: `-7 // 2 == -4`. The formula truncates toward zero: `int(a / b)` gives -3.
+
 ```python
 def eval_formula(tokens):
     stack = []
@@ -219,6 +223,10 @@ def eval_formula(tokens):
             stack.append(int(t))
     return stack[0]
 ```
+
+### Operands popped in the wrong order
+
+The first pop is the right operand. `a, b = pop(), pop()` swaps them, so `-` and `/` give the wrong result.
 
 ```python
 def eval_formula(tokens):

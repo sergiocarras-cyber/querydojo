@@ -97,11 +97,19 @@ drops every Sunday.
 
 ## Wrong Answers
 
+### DOW numbers Sunday as 0
+
+`EXTRACT(DOW ...)` returns 0 for Sunday and 6 for Saturday, so `IN (6, 7)` misses Sundays. Use `ISODOW` (Saturday 6, Sunday 7) or `DOW IN (0, 6)`.
+
 ```sql
 SELECT city, COUNT(*) AS total_rides,
        ROUND(100.0 * COUNT(*) FILTER (WHERE EXTRACT(DOW FROM started_at) IN (6, 7)) / COUNT(*), 1) AS weekend_pct
 FROM rides GROUP BY city ORDER BY city;
 ```
+
+### Integer division
+
+`100 * COUNT(*) / COUNT(*)` divides integers in PostgreSQL and truncates before `ROUND`. Use `100.0` to get decimals.
 
 ```sql
 SELECT city, COUNT(*) AS total_rides,

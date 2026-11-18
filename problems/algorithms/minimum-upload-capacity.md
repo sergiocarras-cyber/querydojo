@@ -140,6 +140,10 @@ condition becomes true; it is worth memorising.
 
 ## Wrong Answers
 
+### Trying every capacity
+
+Increasing the capacity one by one can take millions of steps: correct, but too slow for the large hidden inputs. Binary-search the capacity between `max(sizes)` and `sum(sizes)`.
+
 ```python
 def min_daily_capacity(sizes, days):
     capacity = max(sizes)
@@ -154,6 +158,10 @@ def min_daily_capacity(sizes, days):
             return capacity
         capacity += 1
 ```
+
+### Average-based formula
+
+`ceil(total / days)` assumes files can be split across days. Whole files must fit in a day, so the answer can be larger: simulate the greedy packing for each candidate.
 
 ```python
 def min_daily_capacity(sizes, days):

@@ -7,6 +7,7 @@ Entry point: run_suite(user_code: str, spec_json: str) -> str (JSON).
 
 import contextlib
 import copy
+import hashlib
 import io
 import json
 import math
@@ -17,6 +18,10 @@ import typing
 
 MAX_REPR = 400
 MAX_STDOUT = 4000
+# On Submit every case runs (to compute a score), but once the user's code has
+# used this much time, or hit a per-case time limit, the rest are skipped:
+# a slow solution would otherwise hit the worker's global timeout.
+SUBMIT_BUDGET_S = 6.0
 
 
 # --------------------------------------------------------------------------
@@ -190,6 +195,52 @@ def _strict_eq(a, b):
 
 
 # --------------------------------------------------------------------------
+# Fingerprints: how a submission behaves on each case, so a failing submission
+# can be matched against the problem's known wrong answers (see diagnosis.ts).
+#   ok | tle | skip | err:<ExceptionType> | out:<hash of the normalised output>
+# --------------------------------------------------------------------------
+
+
+def _round_floats(v):
+    if isinstance(v, float):
+        return v if math.isnan(v) or math.isinf(v) else round(v, 6)
+    if isinstance(v, list):
+        return [_round_floats(x) for x in v]
+    if isinstance(v, dict):
+        return {k: _round_floats(x) for k, x in v.items()}
+    return v
+
+
+def _digest(text):
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
+
+
+def _output_fp(got, comparator):
+    v = _round_floats(_norm(got))
+    if isinstance(v, list) and comparator in ("unordered", "unordered_deep"):
+        if comparator == "unordered_deep":
+            v = [sorted(x, key=_canon_key) if isinstance(x, list) else x for x in v]
+        v = sorted(v, key=_canon_key)
+    return "out:" + _digest(json.dumps(v, sort_keys=True, default=repr))
+
+
+def _frame_fp(got, order_matters):
+    import pandas as pd
+
+    if not isinstance(got, pd.DataFrame):
+        return "type:" + type(got).__name__
+    df = got.reset_index(drop=True)
+    df.columns = [str(c) for c in df.columns]
+    if not order_matters:
+        try:
+            df = _sort_frame(df)
+        except Exception:
+            pass
+    df = df.round(6)
+    return "out:" + _digest(df.to_csv(index=False))
+
+
+# --------------------------------------------------------------------------
 # Helpers
 # --------------------------------------------------------------------------
 
@@ -257,7 +308,7 @@ def run_suite(user_code, spec_json):
     arg_types = spec.get("arg_types")
     return_type = spec.get("return_type")
     time_limit = spec.get("time_limit_ms", 2000) / 1000
-    stop_on_fail = spec.get("mode") == "submit"
+    submit = spec.get("mode") == "submit"
     cases = list(spec["cases"])
 
     # Reference namespace: official solution, optional generator and checker.
@@ -284,8 +335,16 @@ def run_suite(user_code, spec_json):
         return json.dumps({"status": "error", "error": error, "cases": [], "passed": 0, "total": len(cases)})
 
     results = []
+    used = 0.0
+    skipping = False
     for index, case in enumerate(cases):
         args = case["args"]
+        if skipping:
+            results.append(
+                {"index": index, "hidden": bool(case.get("hidden")), "input": _short(args), "expected": "—",
+                 "passed": False, "skipped": True, "fp": "skip"}
+            )
+            continue
         expected = case.get("expected")
         if case.get("generated") or "expected" not in case:
             # Expected value comes from the official solution (large generated cases).
@@ -310,20 +369,25 @@ def run_suite(user_code, spec_json):
             if elapsed > time_limit:
                 entry["passed"] = False
                 entry["tle"] = True
+                entry["fp"] = "tle"
             else:
                 entry["passed"] = _equal(got, expected, comparator, tol, checker, copy.deepcopy(args))
+                entry["fp"] = "ok" if entry["passed"] else _output_fp(got, comparator)
         except RecursionError as exc:
             entry.update(passed=False, ms=round((time.perf_counter() - start) * 1000, 2), error=_user_traceback(exc)[-1500:])
+            entry["fp"] = "err:RecursionError"
         except BaseException as exc:  # includes SystemExit from exit()
             entry.update(passed=False, ms=round((time.perf_counter() - start) * 1000, 2), error=_user_traceback(exc))
+            entry["fp"] = "err:" + type(exc).__name__
+        used += time.perf_counter() - start
         got = None
         _release_nodes()
         stdout = out.getvalue()
         if stdout:
             entry["stdout"] = stdout[:MAX_STDOUT] + ("\n… (salida truncada)" if len(stdout) > MAX_STDOUT else "")
         results.append(entry)
-        if stop_on_fail and not entry["passed"]:
-            break
+        if submit and (entry.get("tle") or used > SUBMIT_BUDGET_S):
+            skipping = True
 
     passed = sum(1 for r in results if r["passed"])
     return json.dumps(
@@ -480,7 +544,12 @@ def run_pandas_suite(user_code, spec_json):
         return json.dumps({"status": "error", "error": error, "cases": [], "passed": 0, "total": len(cases)})
 
     results = []
+    used = 0.0
+    skipping = False
     for index, (args, hidden) in enumerate(cases):
+        if skipping:
+            results.append({"index": index, "hidden": hidden, "input": "—", "expected": "—", "passed": False, "skipped": True, "fp": "skip"})
+            continue
         expected = reference(*_copy_args(args))
         entry = {
             "index": index,
@@ -502,20 +571,23 @@ def run_pandas_suite(user_code, spec_json):
             else:
                 entry["got"] = _short(got)
             if elapsed > time_limit:
-                entry.update(passed=False, tle=True)
+                entry.update(passed=False, tle=True, fp="tle")
             else:
                 ok, message = _compare_frames(got, expected, order_matters, check_dtype, tol)
                 entry["passed"] = ok
+                entry["fp"] = "ok" if ok else _frame_fp(got, order_matters)
                 if message:
                     entry["message"] = message[:2000]
         except BaseException as exc:
             entry.update(passed=False, ms=round((time.perf_counter() - start) * 1000, 2), error=_user_traceback(exc))
+            entry["fp"] = "err:" + type(exc).__name__
+        used += time.perf_counter() - start
         stdout = out.getvalue()
         if stdout:
             entry["stdout"] = stdout[:MAX_STDOUT]
         results.append(entry)
-        if submit and not entry["passed"]:
-            break
+        if submit and (entry.get("tle") or used > SUBMIT_BUDGET_S):
+            skipping = True
 
     return json.dumps(
         {

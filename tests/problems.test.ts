@@ -23,4 +23,14 @@ describe('problem files', () => {
     expect(file.endsWith(`/${p.slug}.md`)).toBe(true);
     expect(p.id.startsWith(ID_PREFIX[p.section])).toBe(true);
   });
+
+  it('every wrong answer has a title and an explanation (used for diagnosis)', () => {
+    for (const p of problems) {
+      if (!('wrongAnswers' in p)) continue;
+      for (const w of p.wrongAnswers) {
+        expect(w.title, `${p.id}: wrong answer without "### Title"`).not.toBe('');
+        expect(w.explanation.length, `${p.id} "${w.title}": missing explanation`).toBeGreaterThan(20);
+      }
+    }
+  });
 });

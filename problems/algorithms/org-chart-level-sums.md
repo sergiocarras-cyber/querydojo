@@ -160,6 +160,10 @@ such limit.
 
 ## Wrong Answers
 
+### Recursion on a deep chart
+
+Recursive DFS hits Python's recursion limit on very deep org charts. Use an iterative BFS (or an explicit stack).
+
 ```python
 def level_sums(root):
     sums = []
@@ -174,6 +178,10 @@ def level_sums(root):
     dfs(root, 0)
     return sums
 ```
+
+### One value per node instead of per level
+
+Appending every node's value gives a list of nodes, not levels. Process the queue one level at a time (`for _ in range(len(queue))`) and sum it.
 
 ```python
 from collections import deque

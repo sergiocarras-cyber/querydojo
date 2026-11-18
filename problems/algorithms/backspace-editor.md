@@ -160,10 +160,18 @@ counting pending backspaces.
 
 ## Wrong Answers
 
+### Removing the # without applying it
+
+Deleting the `#` characters ignores what they do. Each `#` erases the previous character: simulate it with a stack.
+
 ```python
 def same_after_edits(a, b):
     return a.replace("#", "") == b.replace("#", "")
 ```
+
+### Each # erases two characters
+
+`text[:-2]` removes two characters per backspace. One `#` erases exactly one (and does nothing on empty text).
 
 ```python
 def same_after_edits(a, b):

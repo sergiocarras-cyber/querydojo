@@ -167,6 +167,10 @@ Each index is processed once: `O(n)`. Restarting the window from scratch at the 
 
 ## Wrong Answers
 
+### Restarting at the repeated song
+
+On a repeat, the window must restart just after the previous occurrence, not at the current song. `a b c b d` gives `c b d` (length 3), not `b d`.
+
 ```python
 def longest_unique(tracks):
     seen, left, best = set(), 0, 0
@@ -179,6 +183,10 @@ def longest_unique(tracks):
         best = max(best, right - left + 1)
     return best
 ```
+
+### Re-scanning from every start
+
+Starting a new scan at every index is O(n²): correct, but too slow for the large hidden inputs. Keep the last index of each song and move the left edge forward.
 
 ```python
 def longest_unique(tracks):

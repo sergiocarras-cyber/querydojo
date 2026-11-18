@@ -135,6 +135,10 @@ This pattern matters whenever you combine two one-to-many relationships of the s
 
 ## Wrong Answers
 
+### Fan-out from joining two child tables
+
+Joining payments and refunds in the same query produces every payment × refund combination, so both sums are inflated. Aggregate each table per customer first, then join.
+
 ```sql
 SELECT c.name, COALESCE(SUM(p.amount), 0) - COALESCE(SUM(r.amount), 0) AS net_spend
 FROM customers c
@@ -143,6 +147,10 @@ LEFT JOIN refunds  r ON r.customer_id = c.customer_id
 GROUP BY c.customer_id, c.name
 ORDER BY net_spend DESC, c.name;
 ```
+
+### Customers without payments disappear
+
+The inner `JOIN paid` drops customers who never paid. Use `LEFT JOIN` and `COALESCE(..., 0)` on both totals.
 
 ```sql
 WITH paid AS (SELECT customer_id, SUM(amount) AS total FROM payments GROUP BY customer_id),

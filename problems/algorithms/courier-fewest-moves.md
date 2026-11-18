@@ -180,6 +180,10 @@ different move costs you'd switch to Dijkstra.
 
 ## Wrong Answers
 
+### DFS does not find the shortest path
+
+A stack explores one path deep first, so the first time it reaches E is not the fewest moves. Use BFS with a queue.
+
 ```python
 def fewest_moves(grid):
     rows, cols = len(grid), len(grid[0])

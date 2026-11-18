@@ -30,9 +30,9 @@ function CodeSolver({ problem, scope = '', interview = false }: Props & { proble
   const draft = useDraft(problem.id, problem.starter, scope);
   const workspace =
     problem.section === 'sql' ? (
-      <SqlWorkspace problem={problem} draft={draft} />
+      <SqlWorkspace problem={problem} draft={draft} interview={interview} />
     ) : (
-      <PythonWorkspace problem={problem} draft={draft} />
+      <PythonWorkspace problem={problem} draft={draft} interview={interview} />
     );
   return (
     <SplitPane

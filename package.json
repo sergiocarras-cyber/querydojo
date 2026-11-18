@@ -11,7 +11,8 @@
     "typecheck": "tsc",
     "verify:python": "vitest run tests/harness.test.ts tests/algorithms.test.ts tests/pandas.test.ts",
     "verify:sql": "vitest run tests/sql.test.ts tests/grade.test.ts",
-    "verify:stats": "vitest run tests/stats.test.ts tests/statsAnswer.test.ts"
+    "verify:stats": "vitest run tests/stats.test.ts tests/statsAnswer.test.ts",
+    "fingerprints": "UPDATE_FINGERPRINTS=1 vitest run tests/sql.test.ts tests/algorithms.test.ts tests/pandas.test.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.16",

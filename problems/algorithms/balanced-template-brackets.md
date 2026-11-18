@@ -127,10 +127,18 @@ Time `O(n)`; space `O(n)` in the worst case (`"(((((..."`).
 
 ## Wrong Answers
 
+### Counting instead of matching
+
+Equal counts of opening and closing brackets do not mean balanced: `)(` or `([)]` have equal counts. Use a stack to check the order.
+
 ```python
 def is_balanced(template):
     return all(template.count(o) == template.count(c) for o, c in ["()", "[]", "{}"])
 ```
+
+### Unclosed brackets ignored
+
+The loop rejects a wrong closer, but brackets that are never closed stay on the stack. Return `not stack` at the end, not `True`.
 
 ```python
 def is_balanced(template):

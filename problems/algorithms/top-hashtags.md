@@ -177,12 +177,20 @@ wrong answers.
 
 ## Wrong Answers
 
+### Ties broken by first appearance
+
+`most_common` breaks ties by insertion order. Equal counts must be ordered alphabetically: sort by `(-count, tag)`.
+
 ```python
 from collections import Counter
 
 def top_hashtags(tags, k):
     return [t for t, _ in Counter(tags).most_common(k)]
 ```
+
+### Reverse alphabetical ties
+
+`reverse=True` on `(count, tag)` also reverses the tie-break, giving `z` before `a`. Sort by `(-count, tag)` without reversing.
 
 ```python
 from collections import Counter

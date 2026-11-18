@@ -171,10 +171,18 @@ Two strings are anagrams iff their **character counts** are equal.
 
 ## Wrong Answers
 
+### Sets ignore letter counts
+
+`set('aab') == set('abb')`, but they are not anagrams. Compare letter counts (`Counter`) or sorted strings.
+
 ```python
 def same_letters(a, b):
     return set(a) == set(b)
 ```
+
+### Same length, same letters, different counts
+
+Equal length plus equal sets still accepts `'aab'` vs `'abb'`. Compare the counts of each letter.
 
 ```python
 def same_letters(a, b):

@@ -134,11 +134,19 @@ the trade-off.
 
 ## Wrong Answers
 
+### Digits dropped
+
+`isalpha()` throws away digits, but they are part of the code. Keep alphanumeric characters (`isalnum()`).
+
 ```python
 def is_clean_palindrome(code):
     s = [c.lower() for c in code if c.isalpha()]
     return s == s[::-1]
 ```
+
+### Case-sensitive comparison
+
+`'A'` and `'a'` must match. Lower-case the characters before comparing.
 
 ```python
 def is_clean_palindrome(code):

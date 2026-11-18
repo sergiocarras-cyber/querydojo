@@ -195,6 +195,10 @@ that check, but 6 sits in 10's right subtree.
 
 ## Wrong Answers
 
+### Only parent and child compared
+
+Each node must be within the bounds set by all its ancestors, not just its parent: a right grandchild can still be smaller than the root. Carry `(low, high)` bounds down the tree.
+
 ```python
 def is_valid_index(root):
     stack = [root] if root else []
@@ -210,6 +214,10 @@ def is_valid_index(root):
             stack.append(node.right)
     return True
 ```
+
+### Recursion on a deep tree
+
+A deep, chain-like index exceeds Python's recursion limit. Use an explicit stack of `(node, low, high)`.
 
 ```python
 def is_valid_index(root):

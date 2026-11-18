@@ -169,6 +169,10 @@ Each day is pushed and popped at most once: `O(n)`. The brute force scans forwar
 
 ## Wrong Answers
 
+### Scanning ahead from every day
+
+Looking ahead from each day is O(n²) on falling prices: correct, but too slow for the large hidden inputs. Keep a stack of days still waiting for a higher price.
+
 ```python
 def days_until_higher(prices):
     out = []
@@ -179,6 +183,10 @@ def days_until_higher(prices):
         out.append(j - i if j < len(prices) else 0)
     return out
 ```
+
+### An equal price is not higher
+
+`<=` pops days when the price is merely equal. Only a strictly higher price (`<`) answers a waiting day.
 
 ```python
 def days_until_higher(prices):

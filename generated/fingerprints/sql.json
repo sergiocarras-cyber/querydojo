@@ -1,0 +1,418 @@
+{
+ "sql-001": {
+  "hash": "387431f3c7a8f664",
+  "wrong": [
+   [
+    "ok",
+    "out:767c7ac1c868",
+    "ok"
+   ],
+   [
+    "out:9b4aa7af9c24",
+    "out:4e204a68ce67",
+    "ok"
+   ],
+   [
+    "ok",
+    "out:a16d05154cdf",
+    "ok"
+   ]
+  ]
+ },
+ "sql-002": {
+  "hash": "ab9c7cce2b39300b",
+  "wrong": [
+   [
+    "ok",
+    "out:ccf19a88e359"
+   ],
+   [
+    "out:0c35708d4844",
+    "out:e3d73a8f5aae"
+   ]
+  ]
+ },
+ "sql-003": {
+  "hash": "92985fd645605a0e",
+  "wrong": [
+   [
+    "ok",
+    "out:6bd4379f748e"
+   ],
+   [
+    "ok",
+    "out:53e699f3d1e5"
+   ],
+   [
+    "out:23cd63fed76f",
+    "out:12934be2d742"
+   ]
+  ]
+ },
+ "sql-004": {
+  "hash": "a8388911fd499956",
+  "wrong": [
+   [
+    "out:2861ca5d9ab2",
+    "out:08e0bf813320"
+   ],
+   [
+    "ok",
+    "out:be932991cb54"
+   ]
+  ]
+ },
+ "sql-005": {
+  "hash": "0db7dfc662501ab6",
+  "wrong": [
+   [
+    "out:ccfb6e94a6af",
+    "out:c9365054b9ae"
+   ],
+   [
+    "ok",
+    "out:4822b67f4f1c"
+   ]
+  ]
+ },
+ "sql-006": {
+  "hash": "13db37d5c7ad77bd",
+  "wrong": [
+   [
+    "out:54ad60f973a9",
+    "out:df3ac3c934d6"
+   ],
+   [
+    "out:251251d3135a",
+    "out:2a0ee3f1874a"
+   ],
+   [
+    "out:34cb3e2ba272",
+    "out:0ebbf041d843"
+   ]
+  ]
+ },
+ "sql-007": {
+  "hash": "3250bbb01c496c5e",
+  "wrong": [
+   [
+    "ok",
+    "out:ae0281159851"
+   ],
+   [
+    "out:1271f3138e51",
+    "out:f61a208f9283"
+   ]
+  ]
+ },
+ "sql-008": {
+  "hash": "015a5007709415a9",
+  "wrong": [
+   [
+    "ok",
+    "out:df15cb19d454"
+   ],
+   [
+    "out:35eb053b55ee",
+    "out:c44b8c2d7cd5"
+   ]
+  ]
+ },
+ "sql-009": {
+  "hash": "19b93ea86afda97d",
+  "wrong": [
+   [
+    "ok",
+    "out:2ebaae29d5c6",
+    "ok"
+   ],
+   [
+    "ok",
+    "ok",
+    "out:8528acb87621"
+   ]
+  ]
+ },
+ "sql-010": {
+  "hash": "04721e8d0df19c5a",
+  "wrong": [
+   [
+    "out:080eea6c85f6",
+    "out:f3209d9d2ed9",
+    "ok"
+   ],
+   [
+    "out:889e72a41b31",
+    "ok",
+    "out:d2ab96cf1686"
+   ],
+   [
+    "out:ca50b3861b6f",
+    "out:3f3ed8f26862",
+    "ok"
+   ]
+  ]
+ },
+ "sql-011": {
+  "hash": "ecd4667e549701e7",
+  "wrong": [
+   [
+    "out:2a867e61d5b1",
+    "ok",
+    "out:dbeddff8b747"
+   ],
+   [
+    "out:bb5b728bc060",
+    "ok",
+    "out:f15de7d8d0fa"
+   ]
+  ]
+ },
+ "sql-012": {
+  "hash": "0e54307c4c1fdc93",
+  "wrong": [
+   [
+    "out:1d835c7b2ae1",
+    "out:e02eb0b6e472"
+   ],
+   [
+    "out:644198c87e5a",
+    "out:ca2eacdd3173"
+   ]
+  ]
+ },
+ "sql-013": {
+  "hash": "1972946008f82e3d",
+  "wrong": [
+   [
+    "out:13cf2b2d91de",
+    "out:900e947054bf"
+   ],
+   [
+    "out:312001d6dbe7",
+    "out:d5e96921638f"
+   ]
+  ]
+ },
+ "sql-014": {
+  "hash": "c0964ff9c2c202f2",
+  "wrong": [
+   [
+    "out:52de0d9bcbd7",
+    "out:e2d43868dcff"
+   ],
+   [
+    "out:28ddf42991fa",
+    "ok"
+   ]
+  ]
+ },
+ "sql-015": {
+  "hash": "17b150d928b4f3e5",
+  "wrong": [
+   [
+    "out:60e3fc225e4e",
+    "out:a774b7bf833c"
+   ],
+   [
+    "ok",
+    "out:f2bf0c022838"
+   ]
+  ]
+ },
+ "sql-016": {
+  "hash": "ec229b75125f4700",
+  "wrong": [
+   [
+    "out:8fb6a6103b7c",
+    "out:8f3d2947f783"
+   ],
+   [
+    "out:74772e862a94",
+    "out:f7642685190c"
+   ]
+  ]
+ },
+ "sql-017": {
+  "hash": "99e0c57b89ae78f8",
+  "wrong": [
+   [
+    "out:fd84144f9bd8",
+    "out:c0727efe9ccd"
+   ],
+   [
+    "out:a73e9cc23aeb",
+    "out:ed704b689db5"
+   ]
+  ]
+ },
+ "sql-018": {
+  "hash": "9385c79fff05b1cd",
+  "wrong": [
+   [
+    "out:cd0dc57df45d",
+    "out:4846c42ffd6c"
+   ],
+   [
+    "out:a7825360bd5d",
+    "out:be895f27ab9a"
+   ]
+  ]
+ },
+ "sql-019": {
+  "hash": "065233e3881585b5",
+  "wrong": [
+   [
+    "out:c2538e226db1",
+    "out:04eb678cb88a"
+   ],
+   [
+    "ok",
+    "out:04eb678cb88a"
+   ]
+  ]
+ },
+ "sql-020": {
+  "hash": "ec51d068b3953c1a",
+  "wrong": [
+   [
+    "out:ae354e9ab9e6",
+    "out:636a660320da"
+   ],
+   [
+    "out:df4df2458902",
+    "out:251880c7f339"
+   ]
+  ]
+ },
+ "sql-021": {
+  "hash": "a30ca0cccb78efb3",
+  "wrong": [
+   [
+    "out:71751cda9bd9",
+    "out:e31f0a979b9f"
+   ],
+   [
+    "out:907b2136de29",
+    "out:ec08c08162b6"
+   ]
+  ]
+ },
+ "sql-022": {
+  "hash": "fcc3daa4a8230372",
+  "wrong": [
+   [
+    "out:6577ecbc3e43",
+    "out:7467c74ea1f8"
+   ],
+   [
+    "out:b346c40cb7a2",
+    "out:1ea580d0a43b"
+   ]
+  ]
+ },
+ "sql-023": {
+  "hash": "20cb3e6cbfeefbb9",
+  "wrong": [
+   [
+    "ok",
+    "out:f0ad176b59b7"
+   ],
+   [
+    "out:5be8440a53ff",
+    "out:5760a2105848"
+   ]
+  ]
+ },
+ "sql-024": {
+  "hash": "07ec5160df7a5b32",
+  "wrong": [
+   [
+    "out:a50da797d205",
+    "out:6b7e00cfcdd5"
+   ],
+   [
+    "ok",
+    "out:6b7e00cfcdd5"
+   ]
+  ]
+ },
+ "sql-025": {
+  "hash": "e58027fd1fa9bdbd",
+  "wrong": [
+   [
+    "out:30460219cfec",
+    "out:76abd258b9fd"
+   ],
+   [
+    "ok",
+    "out:3ddf15f8189d"
+   ]
+  ]
+ },
+ "sql-026": {
+  "hash": "a71053a4c570ab65",
+  "wrong": [
+   [
+    "ok",
+    "out:716c90591f2c"
+   ],
+   [
+    "ok",
+    "out:b09caf818fba"
+   ]
+  ]
+ },
+ "sql-027": {
+  "hash": "bcf2c38c59dad4eb",
+  "wrong": [
+   [
+    "out:9347d323b00f",
+    "out:da86fe3388ea"
+   ],
+   [
+    "ok",
+    "out:e9ec53173190"
+   ]
+  ]
+ },
+ "sql-028": {
+  "hash": "30b6e627e2eeec86",
+  "wrong": [
+   [
+    "out:8f1533b43b57",
+    "out:14ed0e79d81c"
+   ],
+   [
+    "ok",
+    "out:f5c80386a71d"
+   ]
+  ]
+ },
+ "sql-029": {
+  "hash": "d0b71988f9e66ca3",
+  "wrong": [
+   [
+    "out:99fd7f40ff6a",
+    "out:7e07bf4edec1"
+   ],
+   [
+    "ok",
+    "out:7e07bf4edec1"
+   ]
+  ]
+ },
+ "sql-030": {
+  "hash": "0ddaf2ebc6c5f905",
+  "wrong": [
+   [
+    "out:062778654bae",
+    "out:ff57466ec922"
+   ],
+   [
+    "out:a8fea663a02a",
+    "out:adf4d2d85543"
+   ]
+  ]
+ }
+}

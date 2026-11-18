@@ -1,22 +1,10 @@
 import { useMemo } from 'react';
 import { Link, NavLink, useParams, useSearchParams } from 'react-router';
-import { DifficultyBadge, SectionBadge, TopicChip } from '../components/Badges';
+import { DifficultyBadge, STATUS_LABEL, SectionBadge, StatusIcon, TopicChip } from '../components/Badges';
 import { statusOf, useProgress, type ProblemStatus } from '../lib/progress/store';
 import { problems } from '../lib/problems/registry';
 import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Section } from '../lib/problems/types';
 import { useTitle } from '../hooks/useTitle';
-
-const STATUS_LABEL: Record<ProblemStatus, string> = {
-  todo: 'Sin empezar',
-  attempted: 'Intentado',
-  solved: 'Resuelto',
-};
-
-function StatusIcon({ status }: { status: ProblemStatus }) {
-  if (status === 'solved') return <span title="Resuelto" className="text-jade">✓</span>;
-  if (status === 'attempted') return <span title="Intentado" className="text-amber">●</span>;
-  return <span title="Sin empezar" className="text-ink-600">○</span>;
-}
 
 const selectCls =
   'rounded-md border border-ink-700 bg-ink-900 px-2.5 py-1.5 text-xs text-ink-200 outline-none focus:border-ink-500';

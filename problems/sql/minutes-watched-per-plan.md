@@ -149,6 +149,10 @@ drops everything after midnight on the 31st.
 
 ## Wrong Answers
 
+### BETWEEN cuts off the last day
+
+`BETWEEN '2025-10-01' AND '2025-10-31'` stops at midnight on October 31, so sessions started later that day are lost. Use a half-open range: `>= '2025-10-01' AND < '2025-11-01'`.
+
 ```sql
 -- BETWEEN on dates drops the last day after midnight
 SELECT a.plan, COUNT(DISTINCT a.account_id) AS viewers, SUM(s.minutes) AS total_minutes
@@ -157,6 +161,10 @@ WHERE s.started_at BETWEEN '2025-10-01' AND '2025-10-31'
 GROUP BY a.plan ORDER BY total_minutes DESC, a.plan;
 ```
 
+### Counting sessions instead of viewers
+
+`COUNT(*)` counts viewing sessions. A viewer with several sessions must be counted once: `COUNT(DISTINCT account_id)`.
+
 ```sql
 -- Counts sessions instead of distinct viewers
 SELECT a.plan, COUNT(*) AS viewers, SUM(s.minutes) AS total_minutes
@@ -164,6 +172,10 @@ FROM viewing_sessions s JOIN accounts a ON a.account_id = s.account_id
 WHERE s.started_at >= '2025-10-01' AND s.started_at < '2025-11-01'
 GROUP BY a.plan ORDER BY total_minutes DESC, a.plan;
 ```
+
+### Tie-breaker in the wrong direction
+
+When two plans have the same `total_minutes`, they must be sorted by `plan` ascending; `plan DESC` flips them.
 
 ```sql
 -- Missing the tie-breaker on plan

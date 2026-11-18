@@ -97,6 +97,10 @@ In the example, Q2 total is 300, so garden (180) is 60.0 %, kitchen 26.7 %, toys
 
 ## Wrong Answers
 
+### Share of the all-time total
+
+The subquery sums every order, not just Q2, so the percentages are too small. Use `SUM(SUM(amount)) OVER ()` on the filtered rows.
+
 ```sql
 SELECT category, SUM(amount) AS revenue,
        ROUND(100 * SUM(amount) / (SELECT SUM(amount) FROM order_items), 1) AS pct_of_total
@@ -104,6 +108,10 @@ FROM order_items
 WHERE sold_at >= '2025-04-01' AND sold_at < '2025-07-01'
 GROUP BY category ORDER BY revenue DESC, category;
 ```
+
+### Fraction instead of percentage
+
+`revenue / total` gives 0.42, not 42. Multiply by 100.
 
 ```sql
 SELECT category, SUM(amount) AS revenue,

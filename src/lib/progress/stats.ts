@@ -60,15 +60,18 @@ export function submissionsPerDay(data: ProgressData): Record<string, number> {
 export interface Tally {
   total: number;
   solved: number;
+  /** Accepted only after viewing the solution: not counted as solved yet. */
+  assisted: number;
   attempted: number;
 }
 
-const tally = (): Tally => ({ total: 0, solved: 0, attempted: 0 });
+const tally = (): Tally => ({ total: 0, solved: 0, assisted: 0, attempted: 0 });
 
 function count(t: Tally, data: ProgressData, p: ProblemMeta) {
   t.total++;
   const st = statusOf(data, p.id);
   if (st === 'solved') t.solved++;
+  else if (st === 'assisted') t.assisted++;
   else if (st === 'attempted') t.attempted++;
 }
 

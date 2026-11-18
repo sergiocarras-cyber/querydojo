@@ -3,7 +3,8 @@ import type { useDraft } from '../../hooks/useDraft';
 import { usePyEngine } from '../../hooks/usePyEngine';
 import { PY_RUN_TIMEOUT_MS, PY_SUBMIT_TIMEOUT_MS, PyTimeoutError, pyClient } from '../../lib/python/client';
 import { PANDAS_PACKAGES, evaluateCode, type PyEvaluation } from '../../lib/python/evaluate';
-import { recordSubmission } from '../../lib/progress/store';
+import { KILLED, diagnose } from '../../lib/diagnosis';
+import { recordSubmission, wouldBeAssisted } from '../../lib/progress/store';
 import type { AlgorithmsProblem, PandasProblem } from '../../lib/problems/types';
 import { CodeEditor } from '../CodeEditor';
 import { SplitPane } from '../SplitPane';
@@ -12,6 +13,8 @@ import { PyResultPanel, type PyOutput } from './PyResultPanel';
 interface Props {
   problem: AlgorithmsProblem | PandasProblem;
   draft: ReturnType<typeof useDraft>;
+  /** Interview mode: no diagnosis of typical mistakes (it works as a hint). */
+  interview?: boolean;
 }
 
 const NO_PACKAGES: string[] = [];
@@ -24,11 +27,12 @@ function summarize(ev: PyEvaluation): string {
   if (!failed) return `${output.passed}/${output.total} casos`;
   const where = failed.hidden ? `caso oculto #${failed.index + 1}` : `caso #${failed.index + 1}`;
   if (failed.tle) return `Tiempo límite en ${where} (${failed.ms} ms)`;
+  if (failed.skipped) return 'Tiempo total de Submit superado';
   if (failed.error) return `Excepción en ${where}: ${failed.error.split('\n').slice(-1)[0]}`;
   return `Respuesta incorrecta en ${where}`;
 }
 
-export function PythonWorkspace({ problem, draft }: Props) {
+export function PythonWorkspace({ problem, draft, interview = false }: Props) {
   const [output, setOutput] = useState<PyOutput>({ kind: 'idle' });
   const busy = useRef(false);
   const packages = problem.section === 'pandas' ? PANDAS_PACKAGES : NO_PACKAGES;
@@ -48,8 +52,11 @@ export function PythonWorkspace({ problem, draft }: Props) {
     try {
       const ev = await evaluateCode(problem, code, mode, (fn, args, pkgs) =>
         pyClient.call(fn, args, pkgs, mode === 'run' ? PY_RUN_TIMEOUT_MS : PY_SUBMIT_TIMEOUT_MS),);
-      setOutput({ kind: 'evaluated', evaluation: ev });
-      if (mode === 'submit') {
+      const submit = mode === 'submit';
+      const diagnoses = submit && ev.status !== 'accepted' && !interview ? diagnose(ev.fingerprint, problem.diagnoses) : [];
+      const assisted = submit && ev.status === 'accepted' && wouldBeAssisted(problem.id);
+      setOutput({ kind: 'evaluated', evaluation: ev, diagnoses, assisted });
+      if (submit) {
         recordSubmission(problem.id, {
           verdict: ev.status,
           passed: ev.output.passed,
@@ -57,11 +64,15 @@ export function PythonWorkspace({ problem, draft }: Props) {
           ms: ev.output.cases.reduce((t, c) => t + (c.ms ?? 0), 0),
           code,
           detail: summarize(ev),
+          score: ev.score,
+          diagnosis: diagnoses[0]?.title,
         });
       }
     } catch (e) {
       const timeout = e instanceof PyTimeoutError;
-      setOutput({ kind: 'failure', message: (e as Error).message, timeout });
+      // Killed by the global time limit: the slow typical mistakes are the likely cause.
+      const diagnoses = mode === 'submit' && timeout && !interview ? diagnose(KILLED, problem.diagnoses) : [];
+      setOutput({ kind: 'failure', message: (e as Error).message, timeout, diagnoses });
       if (mode === 'submit') {
         recordSubmission(problem.id, {
           verdict: timeout ? 'timeout' : 'error',
@@ -70,6 +81,8 @@ export function PythonWorkspace({ problem, draft }: Props) {
           ms: 0,
           code,
           detail: timeout ? 'Tiempo límite superado' : (e as Error).message,
+          score: 0,
+          diagnosis: diagnoses[0]?.title,
         });
       }
     } finally {

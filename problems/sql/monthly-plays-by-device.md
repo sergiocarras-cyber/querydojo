@@ -104,6 +104,10 @@ A classic bug is `COUNT(device = 'mobile')`: `COUNT(expr)` counts non-`NULL` val
 
 ## Wrong Answers
 
+### COUNT(condition) counts every row
+
+`COUNT` counts non-NULL values, and `device = 'mobile'` is `false` (not `NULL`) for other devices, so every play is counted. Use `COUNT(*) FILTER (WHERE ...)` or `SUM(CASE ...)`.
+
 ```sql
 SELECT DATE_TRUNC('month', played_at)::date AS month,
        COUNT(device = 'mobile') AS mobile,
@@ -111,6 +115,10 @@ SELECT DATE_TRUNC('month', played_at)::date AS month,
        COUNT(device = 'smart_tv') AS smart_tv
 FROM plays GROUP BY 1 ORDER BY 1;
 ```
+
+### Month number merges years
+
+`EXTRACT(MONTH ...)` returns 1..12, merging January 2025 with January 2026. Use `DATE_TRUNC('month', played_at)::date`.
 
 ```sql
 SELECT EXTRACT(MONTH FROM played_at) AS month,

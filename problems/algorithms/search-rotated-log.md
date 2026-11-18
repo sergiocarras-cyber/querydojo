@@ -223,6 +223,10 @@ is on. Alternatives: first binary-search the rotation point, then search the rig
 
 ## Wrong Answers
 
+### Ordinary binary search on a rotated list
+
+The rotated log is not globally sorted, so plain binary search goes the wrong way. At each step, detect which half is sorted and check whether the target lies in it.
+
 ```python
 def find_rotated(log, queries):
     def find(t):
@@ -238,6 +242,10 @@ def find_rotated(log, queries):
         return -1
     return [find(q) for q in queries]
 ```
+
+### `in` and `index` for every query
+
+Each `q in log` and `log.index(q)` is a linear scan: correct, but too slow for the large hidden inputs. Use a modified binary search.
 
 ```python
 def find_rotated(log, queries):

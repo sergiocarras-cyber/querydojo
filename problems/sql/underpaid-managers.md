@@ -107,6 +107,10 @@ Indirect reports (reports of reports) would need a recursive CTE.
 
 ## Wrong Answers
 
+### Equal salary is not underpaid
+
+A manager earning exactly the team average is not underpaid: use `<`, not `<=`.
+
 ```sql
 SELECT m.name AS manager, m.salary AS manager_salary, ROUND(AVG(r.salary), 2) AS avg_report_salary
 FROM employees m JOIN employees r ON r.manager_id = m.employee_id
@@ -114,6 +118,10 @@ GROUP BY m.employee_id, m.name, m.salary
 HAVING m.salary <= AVG(r.salary)
 ORDER BY m.name;
 ```
+
+### Join in the wrong direction
+
+`m.manager_id = r.employee_id` pairs each employee with their own manager. The reports of `m` are the rows where `r.manager_id = m.employee_id`.
 
 ```sql
 SELECT m.name AS manager, m.salary AS manager_salary, ROUND(AVG(r.salary), 2) AS avg_report_salary

@@ -153,6 +153,10 @@ tables avoid both issues.
 
 ## Wrong Answers
 
+### Plain recursion
+
+The recursion recomputes the same subproblems exponentially many times. Fill a DP table (or memoize) for O(len(a) × len(b)).
+
 ```python
 def typo_distance(a, b):
     if not a or not b:
@@ -161,6 +165,10 @@ def typo_distance(a, b):
         return typo_distance(a[:-1], b[:-1])
     return 1 + min(typo_distance(a[:-1], b), typo_distance(a, b[:-1]), typo_distance(a[:-1], b[:-1]))
 ```
+
+### LCS is not edit distance
+
+`max(n, m) - LCS` ignores that a replacement fixes one character in each string at once. Use the edit-distance recurrence with insert, delete and replace.
 
 ```python
 def typo_distance(a, b):

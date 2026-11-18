@@ -1,3 +1,4 @@
+import type { ProblemStatus } from '../lib/progress/store';
 import { SECTION_INFO, type Difficulty, type Section } from '../lib/problems/types';
 
 const DIFFICULTY_CLASS: Record<Difficulty, string> = {
@@ -39,4 +40,24 @@ export function SectionBadge({ section }: { section: Section }) {
 
 export function TopicChip({ topic }: { topic: string }) {
   return <span className="rounded bg-ink-800 px-1.5 py-0.5 text-[11px] text-ink-300">{topic}</span>;
+}
+
+export const STATUS_LABEL: Record<ProblemStatus, string> = {
+  todo: 'Sin empezar',
+  attempted: 'Intentado',
+  assisted: 'Con ayuda',
+  solved: 'Resuelto',
+};
+
+/** ✓ solved · ◐ solved after viewing the solution · ● attempted · ○ to do. */
+export function StatusIcon({ status }: { status: ProblemStatus }) {
+  if (status === 'solved') return <span title="Resuelto" className="text-jade">✓</span>;
+  if (status === 'assisted')
+    return (
+      <span title="Resuelto con ayuda: vuelve a resolverlo sin mirar la solución para que cuente" className="text-sky">
+        ◐
+      </span>
+    );
+  if (status === 'attempted') return <span title="Intentado" className="text-amber">●</span>;
+  return <span title="Sin empezar" className="text-ink-600">○</span>;
 }

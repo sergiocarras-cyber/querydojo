@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import type { PyEngineState } from '../../lib/python/client';
 import type { PyCaseResult, PyEvaluation } from '../../lib/python/evaluate';
+import type { Diagnosis } from '../../lib/problems/types';
 import { Banner } from './Banner';
+import { AssistedNote, DiagnosisBox, ScoreBar } from './Feedback';
 import { PandasTable } from './PandasTables';
 
 export type PyOutput =
   | { kind: 'idle' }
   | { kind: 'running'; mode: 'run' | 'submit' }
-  | { kind: 'evaluated'; evaluation: PyEvaluation }
-  | { kind: 'failure'; message: string; timeout: boolean };
+  | { kind: 'evaluated'; evaluation: PyEvaluation; diagnoses: Diagnosis[]; assisted: boolean }
+  | { kind: 'failure'; message: string; timeout: boolean; diagnoses?: Diagnosis[] };
 
 interface Props {
   output: PyOutput;
@@ -40,19 +42,24 @@ export function PyResultPanel({ output, engineLoading }: Props) {
           </p>
         )}
         {output.kind === 'failure' && (
-          <Banner tone={output.timeout ? 'bad' : 'error'} title={output.timeout ? '⏱ Tiempo límite superado' : 'Error'}>
-            <p className="text-xs whitespace-pre-wrap">{output.message}</p>
-          </Banner>
+          <div className="space-y-3">
+            <Banner tone={output.timeout ? 'bad' : 'error'} title={output.timeout ? '⏱ Tiempo límite superado' : 'Error'}>
+              <p className="text-xs whitespace-pre-wrap">{output.message}</p>
+            </Banner>
+            {output.timeout && <DiagnosisBox diagnoses={output.diagnoses ?? []} slow />}
+          </div>
         )}
-        {output.kind === 'evaluated' && <Evaluation ev={output.evaluation} />}
+        {output.kind === 'evaluated' && (
+          <Evaluation ev={output.evaluation} diagnoses={output.diagnoses} assisted={output.assisted} />
+        )}
       </div>
     </div>
   );
 }
 
-function Evaluation({ ev }: { ev: PyEvaluation }) {
+function Evaluation({ ev, diagnoses, assisted }: { ev: PyEvaluation; diagnoses: Diagnosis[]; assisted: boolean }) {
   const { output } = ev;
-  const firstFailed = output.cases.findIndex((c) => !c.passed);
+  const firstFailed = output.cases.findIndex((c) => !c.passed && !c.skipped);
   const [selected, setSelected] = useState(Math.max(0, firstFailed));
 
   if (output.status === 'error') {
@@ -64,13 +71,28 @@ function Evaluation({ ev }: { ev: PyEvaluation }) {
   }
 
   const failed = firstFailed >= 0 ? output.cases[firstFailed] : null;
-  // In Submit we only list visible cases plus the first failing one (hidden or not).
-  const shown = ev.mode === 'run' ? output.cases : output.cases.filter((c) => !c.hidden || !c.passed);
+  const skipped = output.cases.filter((c) => c.skipped).length;
+  // In Submit we list the visible cases plus the failing hidden ones (up to 8).
+  const shown =
+    ev.mode === 'run'
+      ? output.cases
+      : [
+          ...output.cases.filter((c) => !c.hidden && !c.skipped),
+          ...output.cases.filter((c) => c.hidden && !c.passed && !c.skipped).slice(0, 8),
+        ];
   const current = shown.find((c) => c.index === selected) ?? shown[0];
+  const failedSubmit = ev.mode === 'submit' && ev.status !== 'accepted';
 
   return (
     <div className="space-y-3">
-      <VerdictBanner ev={ev} failed={failed} />
+      <VerdictBanner ev={ev} failed={failed} skipped={skipped} assisted={assisted} />
+      {failedSubmit && (
+        <ScoreBar
+          score={ev.score}
+          label={`${output.passed}/${output.total} casos${skipped ? ` · ${skipped} sin ejecutar por tiempo` : ''}`}
+        />
+      )}
+      <DiagnosisBox diagnoses={diagnoses} />
       {output.setup_stdout && (
         <Block label="Salida al cargar el módulo">
           <pre className="font-mono text-xs whitespace-pre-wrap text-ink-200">{output.setup_stdout}</pre>
@@ -99,13 +121,35 @@ function Evaluation({ ev }: { ev: PyEvaluation }) {
   );
 }
 
-function VerdictBanner({ ev, failed }: { ev: PyEvaluation; failed: PyCaseResult | null }) {
+function VerdictBanner({
+  ev,
+  failed,
+  skipped,
+  assisted,
+}: {
+  ev: PyEvaluation;
+  failed: PyCaseResult | null;
+  skipped: number;
+  assisted: boolean;
+}) {
   const { output } = ev;
   const totalMs = output.cases.reduce((t, c) => t + (c.ms ?? 0), 0);
+  if (!failed && skipped > 0) {
+    return (
+      <Banner tone="bad" title="⏱ Demasiado lento en total">
+        <p className="text-xs">
+          Todos los casos ejecutados son correctos, pero tu función agotó el tiempo de Submit y {skipped}{' '}
+          {skipped === 1 ? 'caso quedó' : 'casos quedaron'} sin ejecutar. Probablemente necesitas un algoritmo más
+          eficiente.
+        </p>
+      </Banner>
+    );
+  }
   if (!failed) {
     return ev.mode === 'submit' ? (
       <Banner tone="ok" title={`✓ Aceptado · ${output.passed}/${output.total} casos`}>
         <p className="text-xs">Tiempo total de tu función: {totalMs.toFixed(1)} ms.</p>
+        {assisted && <AssistedNote />}
       </Banner>
     ) : (
       <Banner tone="ok" title={`Casos visibles superados · ${output.passed}/${output.total}`}>
@@ -122,8 +166,7 @@ function VerdictBanner({ ev, failed }: { ev: PyEvaluation; failed: PyCaseResult 
   return (
     <Banner tone={failed.error ? 'error' : 'bad'} title={title}>
       <p className="text-xs">
-        {output.passed}/{output.total} casos superados
-        {ev.mode === 'submit' && output.cases.length < output.total ? ' (la corrección se detiene en el primer fallo)' : ''}.
+        {output.passed}/{output.total} casos superados.
         {failed.tle && ` Tu función tardó ${failed.ms} ms: probablemente necesitas un algoritmo más eficiente.`}
       </p>
     </Banner>

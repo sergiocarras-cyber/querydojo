@@ -117,12 +117,20 @@ In the example, 2025-07-03 has 0 posts and its average is (2 + 1 + 0) / 3 = 1.00
 
 ## Wrong Answers
 
+### Days without posts are missing
+
+Grouping the posts only yields days that have posts, so the 3-day window spans more than three calendar days. Build the full calendar with `generate_series` and `LEFT JOIN` the posts.
+
 ```sql
 WITH daily AS (SELECT posted_at::date AS day, COUNT(*) AS posts FROM posts GROUP BY 1)
 SELECT day, posts,
        ROUND(AVG(posts) OVER (ORDER BY day ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS avg_3d
 FROM daily ORDER BY day;
 ```
+
+### Cumulative average instead of 3 days
+
+`AVG(...) OVER (ORDER BY day)` averages everything up to the current day. Limit the frame: `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW`.
 
 ```sql
 WITH days AS (

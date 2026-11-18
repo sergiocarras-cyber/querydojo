@@ -150,10 +150,18 @@ Alternatives: `sorted(drivers, key=...)[:k]` is `O(n log n)` and perfectly fine 
 
 ## Wrong Answers
 
+### Manhattan distance
+
+Closeness is straight-line distance: compare `x² + y²`, not `|x| + |y|`.
+
 ```python
 def closest_drivers(drivers, k):
     return sorted(drivers, key=lambda p: abs(p[0]) + abs(p[1]))[:k]
 ```
+
+### Duplicates removed
+
+Two drivers at the same position are different drivers. Converting to a set drops one of them.
 
 ```python
 def closest_drivers(drivers, k):

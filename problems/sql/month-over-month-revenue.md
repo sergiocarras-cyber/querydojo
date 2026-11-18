@@ -135,6 +135,10 @@ CASE WHEN LAG(month) OVER (ORDER BY month) = (month - INTERVAL '1 month')::date
 
 ## Wrong Answers
 
+### LAG skips over missing months
+
+`LAG` returns the previous row, not the previous calendar month. If a month has no orders, growth is computed against two months back (it should be `NULL`). Join each month with `month - INTERVAL '1 month'`.
+
 ```sql
 WITH monthly AS (
   SELECT DATE_TRUNC('month', ordered_at)::date AS month, SUM(total) AS revenue
@@ -144,6 +148,10 @@ SELECT month, revenue, LAG(revenue) OVER (ORDER BY month) AS prev_revenue,
        ROUND((revenue - LAG(revenue) OVER (ORDER BY month)) * 100 / LAG(revenue) OVER (ORDER BY month), 1) AS growth_pct
 FROM monthly ORDER BY month;
 ```
+
+### Growth not rounded
+
+`growth_pct` must be rounded to one decimal with `ROUND(..., 1)`.
 
 ```sql
 WITH monthly AS (

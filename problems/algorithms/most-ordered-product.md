@@ -165,12 +165,20 @@ Pitfalls:
 
 ## Wrong Answers
 
+### most_common breaks ties by first appearance
+
+On a tie, `most_common` returns the id that appeared first, not the smallest id. Pick the minimum of `(-count, id)`.
+
 ```python
 from collections import Counter
 
 def most_ordered(ids):
     return Counter(ids).most_common(1)[0][0]
 ```
+
+### `list.count` inside a loop
+
+Calling `ids.count(x)` for every element is O(n²): correct, but too slow for the large hidden inputs. Count once with a `Counter`.
 
 ```python
 def most_ordered(ids):

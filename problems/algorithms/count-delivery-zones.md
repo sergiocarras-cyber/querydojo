@@ -153,6 +153,10 @@ raises `RecursionError` in Python. An explicit `deque` (BFS) or list (DFS) avoid
 
 ## Wrong Answers
 
+### Recursive flood fill
+
+Recursive filling of a big zone exceeds Python's recursion limit. Use BFS with a queue or an explicit stack.
+
 ```python
 def count_zones(grid):
     rows = len(grid)
@@ -171,6 +175,10 @@ def count_zones(grid):
                 fill(r, c)
     return zones
 ```
+
+### Counting top-left corners
+
+Counting cells with no `#` above or to the left fails for zones shaped like a U or an L, which have several such corners. Flood-fill each zone and count fills.
 
 ```python
 def count_zones(grid):

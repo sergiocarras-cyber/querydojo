@@ -88,7 +88,7 @@ order_matters: true      # solo SQL: true si el enunciado exige un ORDER BY conc
 | `## Hidden Data` | Uno o más bloques ` ```sql `; cada bloque es un dataset **oculto** completo (casos límite: NULLs, empates, bordes de fechas, grupos vacíos). Solo se usan en Submit. |
 | `## Starter` | Un bloque ` ```sql ` con el código inicial del editor. |
 | `## Solution` | Un bloque ` ```sql ` con la consulta oficial. Es la referencia con la que se compara tu resultado. |
-| `## Wrong Answers` | *(Opcional, recomendado)* Uno o más bloques ` ```sql ` con errores típicos. No se muestran en la web: `npm test` comprueba que **todos** se rechazan en Submit, lo que demuestra que los datos ocultos cubren esos casos límite. |
+| `## Wrong Answers` | *(Recomendado)* Errores típicos, cada uno como `### Título`, una explicación corta y un bloque ` ```sql `. `npm test` comprueba que **todos** se rechazan en Submit (prueba de que los datos ocultos cubren esos casos límite). El código no llega al navegador; el título y la explicación se muestran como diagnóstico cuando un envío falla igual (ver más abajo). |
 
 ### Cómo se corrige un problema SQL
 
@@ -120,7 +120,7 @@ complexity: { time: "O(n)", space: "O(n)" }
 | `## Generator` | *(Opcional)* Python con `def cases():` que hace `yield [args...]`. Sirve para casos grandes; el esperado se calcula con la solución oficial. Usa `random.Random(semilla)` para que sea determinista. |
 | `## Checker` | *(Solo `comparator: custom`)* Python con `def check(got, expected, *args) -> bool`. |
 | `## Solution` | Solución oficial en Python. |
-| `## Wrong Answers` | *(Opcional, recomendado)* Soluciones incorrectas o lentas que los tests deben rechazar. |
+| `## Wrong Answers` | *(Recomendado)* Soluciones incorrectas o lentas que los tests deben rechazar, con `### Título` y explicación como en SQL. |
 
 Comparadores: `exact` (igualdad; las tuplas cuentan como listas y `True` ≠ `1`),
 `unordered` (ignora el orden de la lista), `unordered_deep` (también el de cada sublista),
@@ -152,7 +152,7 @@ ordenadas), `check_dtype` (por defecto `false`: `1` y `1.0` son iguales) y `tole
 | `## Data` | Python con `def cases():` que hace `yield [df1, df2, ...]` (los argumentos visibles). El primer caso se muestra en el enunciado. |
 | `## Hidden Data` | Igual, con casos límite. Solo en Submit. |
 | `## Solution` | Solución oficial: su resultado es el esperado. |
-| `## Wrong Answers` | *(Opcional, recomendado)* Soluciones incorrectas que deben fallar. |
+| `## Wrong Answers` | *(Recomendado)* Soluciones incorrectas que deben fallar, con `### Título` y explicación como en SQL. |
 
 La corrección usa `pandas.testing.assert_frame_equal` después de comprobar columnas (nombres y
 orden) y número de filas; el índice siempre se ignora. Con pandas 3, usa un formato de fecha
@@ -175,13 +175,37 @@ tolerance: 0.002          # margen absoluto (solo numeric; por defecto 0.001)
 El usuario puede responder con decimales (`0.375` o `0,375`), fracciones (`3/8`) o porcentajes
 (`37.5%`).
 
+### Nota y diagnóstico de errores típicos
+
+- **Nota:** Submit ejecuta todos los casos (no se para en el primer fallo) y da un porcentaje. En Python
+  es la fracción de casos superados; en SQL cada dataset puntúa por filas que coinciden (las filas
+  correctas en otro orden valen 0,75). Tras un tiempo límite, o si tu código consume más de 6 s en
+  total, los casos restantes se marcan como no ejecutados.
+- **Huella:** cada Submit produce una huella por caso: `ok`, `tle`, `skip`, `err:<Excepción>` o
+  `out:<hash del resultado normalizado>`. `npm run fingerprints` ejecuta cada error típico y guarda su
+  huella en `generated/fingerprints/<sección>.json`.
+- **Diagnóstico:** si tu huella coincide con la de un error típico (mismos casos fallados, mismo
+  resultado), la web muestra su título y explicación. Los tiempos se comparan con margen, porque un
+  algoritmo lento puede pasarse de tiempo un caso antes o después según la máquina. No se muestra en
+  el modo entrevista.
+- `npm test` falla si una huella está desactualizada (cambiaste datos, tests, solución o el código de un
+  error típico): vuelve a ejecutar `npm run fingerprints` (unos 4 minutos) y haz commit del JSON.
+
+### Resuelto con ayuda
+
+Si abres la solución (o la explicación en estadística) y luego envías una respuesta aceptada en los
+3 días siguientes, el problema queda como **◐ resuelto con ayuda**: no cuenta como resuelto en los
+totales. Para que cuente, vuelve a resolverlo pasados esos 3 días sin volver a mirar.
+
 ### Añadir un problema
 
 1. Copia un archivo existente de la misma sección y cambia `id`, `slug` y el nombre del archivo.
-2. Escribe el enunciado, los datos, la solución y algunas respuestas incorrectas típicas.
+2. Escribe el enunciado, los datos, la solución y algunos errores típicos (`### Título`, explicación, código).
    Ojo con YAML: en `topics`, palabras como `NULL`, `yes` o `no` hay que escribirlas entre comillas o con más texto.
-3. Ejecuta `npm test`: el problema se valida y la solución oficial se ejecuta contra todos los datasets.
-4. `npm run dev` y ya aparece en la lista.
+3. `npm run fingerprints` para generar las huellas de los errores típicos.
+4. Ejecuta `npm test`: el problema se valida, la solución oficial se ejecuta contra todos los datasets
+   y cada error típico debe ser rechazado.
+5. `npm run dev` y ya aparece en la lista.
 
 ## Publicar en GitHub Pages (gratis)
 

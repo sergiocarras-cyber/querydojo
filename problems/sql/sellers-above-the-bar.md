@@ -149,6 +149,10 @@ ORDER BY revenue DESC, s.shop_name;
 
 ## Wrong Answers
 
+### `> 500` and grouping by shop name
+
+Sellers with exactly 500 in revenue qualify (`>= 500`), and grouping only by `shop_name` merges two different sellers that share a name. Group by `seller_id` too.
+
 ```sql
 SELECT s.shop_name, COUNT(*) AS delivered_orders, SUM(o.amount) AS revenue
 FROM orders o JOIN sellers s ON s.seller_id = o.seller_id
@@ -157,6 +161,10 @@ GROUP BY s.shop_name
 HAVING COUNT(*) >= 3 AND SUM(o.amount) > 500
 ORDER BY revenue DESC, s.shop_name;
 ```
+
+### Non-delivered orders still counted
+
+Moving the status check into a `CASE` fixes the revenue but `COUNT(*)` still counts cancelled and pending orders. Filter `status = 'delivered'` in the `WHERE` clause.
 
 ```sql
 SELECT s.shop_name, COUNT(*) AS delivered_orders,
@@ -167,6 +175,10 @@ GROUP BY s.shop_name
 HAVING COUNT(*) >= 3 AND SUM(CASE WHEN o.status = 'delivered' THEN o.amount ELSE 0 END) >= 500
 ORDER BY revenue DESC, s.shop_name;
 ```
+
+### No date filter
+
+Orders from every year are counted. Restrict to 2025 with `ordered_at >= '2025-01-01' AND ordered_at < '2026-01-01'`.
 
 ```sql
 SELECT s.shop_name, COUNT(*) AS delivered_orders, SUM(o.amount) AS revenue

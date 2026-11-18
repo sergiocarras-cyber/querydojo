@@ -124,3 +124,36 @@ export function compareResults(expected: ResultSet, actual: ResultSet | null, or
   }
   return { pass: true };
 }
+
+/**
+ * Partial credit for one dataset, 0..1: matching rows over the larger of the
+ * two row counts; right rows in the wrong order are worth 0.75.
+ */
+export function caseScore(verdict: Verdict, expected: ResultSet, actual: ResultSet | null): number {
+  if (verdict.pass) return 1;
+  if (!actual || verdict.kind === 'no-result' || verdict.kind === 'columns') return 0;
+  if (verdict.kind === 'order') return 0.75;
+  const missing = verdict.diff?.missing.length ?? expected.rows.length;
+  const denom = Math.max(expected.rows.length, actual.rows.length);
+  return denom ? Math.max(0, expected.rows.length - missing) / denom : 0;
+}
+
+/** Small stable hash (FNV-1a, 2×32 bits) for fingerprints. */
+export function shortHash(text: string): string {
+  let h1 = 0x811c9dc5;
+  let h2 = 0x01000193;
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193);
+    h2 = Math.imul(h2 ^ c, 0x5bd1e995);
+  }
+  return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(4, '0').slice(0, 4);
+}
+
+/** Fingerprint of a wrong result: same columns and rows (order-insensitive unless required) give the same token. */
+export function resultFingerprint(actual: ResultSet | null, orderMatters: boolean): string {
+  if (!actual) return 'none';
+  const keys = normalizeRows(actual).map(rowKey);
+  if (!orderMatters) keys.sort();
+  return 'out:' + shortHash(JSON.stringify([actual.columns.map((c) => c.toLowerCase()), keys]));
+}

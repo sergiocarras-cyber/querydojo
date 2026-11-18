@@ -190,6 +190,10 @@ Comparing every pair of tags is `O(n²)`. Using `frozenset(tag)` as the key is w
 
 ## Wrong Answers
 
+### Sets ignore letter counts
+
+`frozenset('aab') == frozenset('ab')`, so tags with different letter counts land in the same group. Use the sorted string as the key.
+
 ```python
 from collections import defaultdict
 
@@ -199,6 +203,10 @@ def group_tags(tags):
         groups[frozenset(t)].append(t)
     return list(groups.values())
 ```
+
+### Only the first tag of each group
+
+`setdefault` keeps only the first tag per key and every group comes out with one element. Append every tag to its group.
 
 ```python
 def group_tags(tags):

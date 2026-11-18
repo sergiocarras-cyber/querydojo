@@ -82,11 +82,32 @@ describe('harness.py', () => {
     expect(out.cases[1]).toMatchObject({ passed: false, tle: true, hidden: true });
   });
 
-  it('stops at the first failure in submit mode only', async () => {
-    const spec = { function: 'f', cases: [{ args: [1], expected: 0 }, { args: [2], expected: 2 }] };
-    expect((await suite('def f(x):\n    return x', spec)).cases).toHaveLength(1);
-    const runOut: PyRunOutput = JSON.parse(await run('run_suite', ['def f(x):\n    return x', JSON.stringify({ ...spec, mode: 'run' })], []));
-    expect(runOut.cases).toHaveLength(2);
+  it('runs every case on submit and fingerprints each one', async () => {
+    const spec = {
+      function: 'f',
+      cases: [
+        { args: [1], expected: 0 },
+        { args: [2], expected: 2 },
+        { args: [0], expected: 1 },
+      ],
+    };
+    const out = await suite('def f(x):\n    return 1 // x if x == 0 else x', spec);
+    expect(out.cases).toHaveLength(3);
+    expect(out.passed).toBe(1);
+    expect(out.cases.map((c) => c.fp)).toEqual([expect.stringMatching(/^out:/), 'ok', 'err:ZeroDivisionError']);
+    // Same wrong output, same fingerprint, whatever code produced it.
+    const again = await suite('def f(x):\n    return [x][0] if x else 1 // 0', spec);
+    expect(again.cases[0].fp).toBe(out.cases[0].fp);
+  });
+
+  it('skips the remaining cases after a time limit on submit', async () => {
+    const out = await suite('import time\ndef f(x):\n    time.sleep(0.2)\n    return x', {
+      function: 'f',
+      time_limit_ms: 100,
+      cases: [{ args: [1], expected: 1 }, { args: [2], expected: 2 }, { args: [3], expected: 3 }],
+    });
+    expect(out.cases.map((c) => c.fp)).toEqual(['tle', 'skip', 'skip']);
+    expect(out.cases[1].skipped).toBe(true);
   });
 
   it('uses a custom checker', async () => {

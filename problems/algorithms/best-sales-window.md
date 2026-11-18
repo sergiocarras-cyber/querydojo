@@ -176,10 +176,18 @@ Total `O(n)` time and `O(1)` space; recomputing `sum(sales[i:i+k])` for every wi
 
 ## Wrong Answers
 
+### Re-summing every window
+
+Summing each window from scratch is O(n·k): correct, but too slow for the large hidden inputs. Slide the window by adding the new day and subtracting the one that leaves.
+
 ```python
 def best_window(sales, k):
     return max(sum(sales[i:i + k]) for i in range(len(sales) - k + 1))
 ```
+
+### Best starts at 0
+
+If every window sums to a negative number, `best = 0` is wrong. Start from the first window's sum.
 
 ```python
 def best_window(sales, k):

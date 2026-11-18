@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import type { Cell } from '../../lib/sql/engine';
 import type { CaseOutcome, SqlEvaluation } from '../../lib/sql/evaluate';
+import type { Diagnosis } from '../../lib/problems/types';
 import { DataTable } from '../DataTable';
 import { Banner } from './Banner';
+import { AssistedNote, DiagnosisBox, ScoreBar } from './Feedback';
 
 export type SqlOutput =
   | { kind: 'idle' }
   | { kind: 'running'; mode: 'run' | 'submit' }
-  | { kind: 'evaluated'; evaluation: SqlEvaluation }
+  | { kind: 'evaluated'; evaluation: SqlEvaluation; diagnoses: Diagnosis[]; assisted: boolean }
   | { kind: 'failure'; message: string; timeout: boolean };
 
 export function SqlResultPanel({ output }: { output: SqlOutput }) {
@@ -32,20 +34,31 @@ export function SqlResultPanel({ output }: { output: SqlOutput }) {
             <pre className="font-mono text-xs whitespace-pre-wrap">{output.message}</pre>
           </Banner>
         )}
-        {output.kind === 'evaluated' && <Evaluation ev={output.evaluation} />}
+        {output.kind === 'evaluated' && (
+          <Evaluation ev={output.evaluation} diagnoses={output.diagnoses} assisted={output.assisted} />
+        )}
       </div>
     </div>
   );
 }
 
-function Evaluation({ ev }: { ev: SqlEvaluation }) {
+function Evaluation({ ev, diagnoses, assisted }: { ev: SqlEvaluation; diagnoses: Diagnosis[]; assisted: boolean }) {
   const failed = ev.cases.find((c) => c.kind === 'error' || !c.verdict.pass);
   const visible = ev.cases[0];
 
   return (
     <div className="space-y-4">
       {ev.mode === 'submit' ? (
-        <SubmitBanner ev={ev} failed={failed} />
+        <>
+          <SubmitBanner ev={ev} failed={failed} assisted={assisted} />
+          {failed && (
+            <ScoreBar
+              score={ev.score}
+              label={`${ev.passed}/${ev.total} datasets correctos · se puntúan las filas que coinciden`}
+            />
+          )}
+          <DiagnosisBox diagnoses={diagnoses} />
+        </>
       ) : failed ? (
         <Banner
           tone={failed.kind === 'error' ? 'error' : 'bad'}
@@ -69,11 +82,12 @@ function Evaluation({ ev }: { ev: SqlEvaluation }) {
   );
 }
 
-function SubmitBanner({ ev, failed }: { ev: SqlEvaluation; failed: CaseOutcome | undefined }) {
+function SubmitBanner({ ev, failed, assisted }: { ev: SqlEvaluation; failed: CaseOutcome | undefined; assisted: boolean }) {
   if (!failed) {
     return (
       <Banner tone="ok" title={`✓ Aceptado · ${ev.passed}/${ev.total} casos`}>
         <p className="text-xs">Tiempo total de tus consultas: {ev.ms.toFixed(1)} ms.</p>
+        {assisted && <AssistedNote />}
       </Banner>
     );
   }

@@ -166,12 +166,20 @@ level, which overflows Python's ~1000-frame limit on a 4 000-node chain.
 
 ## Wrong Answers
 
+### Recursion on a deep tree
+
+A very deep (chain-like) category tree exceeds Python's recursion limit. Use iterative BFS by levels.
+
 ```python
 def max_depth(root):
     if root is None:
         return 0
     return 1 + max(max_depth(root.left), max_depth(root.right))
 ```
+
+### Counting nodes instead of levels
+
+Incrementing once per node counts nodes. Increment once per level: process the queue level by level.
 
 ```python
 from collections import deque

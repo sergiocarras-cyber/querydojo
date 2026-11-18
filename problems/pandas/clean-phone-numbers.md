@@ -96,6 +96,10 @@ Vectorised `str` methods are much faster than `apply` with a Python function on 
 
 ## Wrong Answers
 
+### Country code not removed
+
+Numbers written with the leading `1` have 11 digits and get filtered out. Drop the first digit when there are 11 digits starting with `1`.
+
 ```python
 import pandas as pd
 
@@ -104,6 +108,10 @@ def clean_phones(contacts):
     out = contacts.assign(phone=digits)
     return out[out["phone"].str.len() == 10][["contact_id", "phone"]]
 ```
+
+### `lstrip('1')` removes too much
+
+`lstrip` removes every leading `1`, so a 10-digit number starting with 1 loses a digit too. Remove exactly one leading `1`, and only from 11-digit numbers.
 
 ```python
 import pandas as pd

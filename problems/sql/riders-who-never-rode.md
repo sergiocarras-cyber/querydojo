@@ -134,11 +134,19 @@ ORDER BY r.rider_id;
 
 ## Wrong Answers
 
+### NOT IN with a NULL in the subquery
+
+If any trip has a `NULL` `rider_id`, `x NOT IN (..., NULL)` is never true and the query returns nothing. `NOT EXISTS` does not have this trap.
+
 ```sql
 SELECT rider_id, full_name FROM riders
 WHERE rider_id NOT IN (SELECT rider_id FROM trips WHERE status = 'completed')
 ORDER BY rider_id;
 ```
+
+### Anti-join that ignores the trip status
+
+`LEFT JOIN trips ... WHERE t.trip_id IS NULL` only finds riders with no trips at all. Riders whose trips were all cancelled never completed one either: filter `status = 'completed'` inside the join or the `NOT EXISTS`.
 
 ```sql
 SELECT r.rider_id, r.full_name FROM riders r

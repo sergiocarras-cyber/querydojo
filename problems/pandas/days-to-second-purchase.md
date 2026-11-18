@@ -102,6 +102,10 @@ has three orders.
 
 ## Wrong Answers
 
+### First to last order
+
+`max - min` measures until the last order, which differs for customers with three or more orders. Use the second order.
+
 ```python
 import pandas as pd
 
@@ -110,6 +114,10 @@ def days_to_second(orders):
     g = g[g["count"] >= 2]
     return pd.DataFrame({"customer_id": g.index, "days_between": (g["max"] - g["min"]).dt.days.to_numpy()})
 ```
+
+### Not sorted before cumcount
+
+`cumcount` numbers rows in their current order, so 'first' and 'second' depend on how the data was stored. Sort by customer, date and order id first.
 
 ```python
 import pandas as pd

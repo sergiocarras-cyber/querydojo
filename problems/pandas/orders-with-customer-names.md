@@ -101,6 +101,10 @@ The SQL equivalent is a `LEFT JOIN` with `COALESCE(name, 'Unknown')`. With `how=
 
 ## Wrong Answers
 
+### Inner merge drops unknown customers
+
+`merge` defaults to an inner join, so orders whose customer is missing disappear. Use `how='left'` and fill the name with `'Unknown'`.
+
 ```python
 import pandas as pd
 

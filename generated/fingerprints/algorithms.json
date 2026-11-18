@@ -1,0 +1,871 @@
+{
+ "algo-001": {
+  "hash": "3f4d7750a4ebe562",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "ok",
+    "out:f3a9491ca3ba",
+    "ok",
+    "out:f3a9491ca3ba",
+    "out:f3a9491ca3ba",
+    "ok",
+    "ok",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-002": {
+  "hash": "18eebbfe1e41a461",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "ok"
+   ],
+   [
+    "out:7cb6efb98ba5",
+    "out:7cb6efb98ba5",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-003": {
+  "hash": "166ee647446ae22f",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "out:5ffe533b830f"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-004": {
+  "hash": "c16b0bc70e15d79a",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError",
+    "err:RecursionError"
+   ],
+   [
+    "out:762df0cdb9a3",
+    "out:97d170e1550e",
+    "ok",
+    "out:97d170e1550e",
+    "out:a01eda32e4e0",
+    "out:a01eda32e4e0",
+    "out:9f28346a7d38",
+    "out:07547ee8022a",
+    "out:6cbb32be168a",
+    "out:9a37f3751223"
+   ]
+  ]
+ },
+ "algo-005": {
+  "hash": "3efc7c4f586f7f80",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "err:IndexError",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:KeyError",
+    "err:IndexError",
+    "err:IndexError",
+    "err:KeyError",
+    "err:KeyError",
+    "err:KeyError",
+    "ok"
+   ]
+  ]
+ },
+ "algo-006": {
+  "hash": "7b3f36cb16c16bc0",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "out:0ade7c2cf97f",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:902ba3cda188",
+    "out:7e6743be5de0",
+    "out:8a12a315082a",
+    "out:28bf809373d3"
+   ]
+  ]
+ },
+ "algo-007": {
+  "hash": "52b52a32f43a2c5a",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError"
+   ],
+   [
+    "out:51cc675cfac6",
+    "ok",
+    "ok",
+    "out:64e6943792ed",
+    "ok",
+    "out:ae36d6de1f9b",
+    "ok",
+    "out:89c78a46bf10",
+    "ok"
+   ]
+  ]
+ },
+ "algo-008": {
+  "hash": "e33781d1bec560ce",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError",
+    "ok",
+    "err:RecursionError"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:da4bb577ce14",
+    "out:b7eb6c689c03"
+   ]
+  ]
+ },
+ "algo-009": {
+  "hash": "80657384715628b3",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:9fd7943f5c9c",
+    "out:4de2bea2042e",
+    "ok"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:a25f659f4722",
+    "ok",
+    "ok",
+    "out:e22f1ddd178a",
+    "out:22a777060ba1",
+    "out:3a9d1dbed5b8"
+   ]
+  ]
+ },
+ "algo-010": {
+  "hash": "0097e68671545bdf",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError",
+    "err:RecursionError",
+    "err:RecursionError"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:356a192b7913",
+    "ok",
+    "out:1b6453892473",
+    "ok",
+    "out:06cb3f00aa09",
+    "out:5dd8b53aacfc",
+    "ok"
+   ]
+  ]
+ },
+ "algo-011": {
+  "hash": "1ed7861cdd1fc2e1",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-012": {
+  "hash": "8113f2616213f81d",
+  "wrong": [
+   [
+    "ok",
+    "out:ac3478d69a3c",
+    "ok",
+    "out:da4b9237bacc",
+    "ok",
+    "out:0ade7c2cf97f",
+    "ok",
+    "out:a0849622401e"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-013": {
+  "hash": "0543ae10bf2ed700",
+  "wrong": [
+   [
+    "out:9e5cb8529ae8",
+    "out:fd45a86a8559",
+    "out:bd3f8212e3c3",
+    "ok",
+    "ok",
+    "ok",
+    "out:811147e70254"
+   ]
+  ]
+ },
+ "algo-014": {
+  "hash": "36c8e3bfdca37250",
+  "wrong": [
+   [
+    "ok",
+    "out:45f4d4ea4d1c",
+    "ok",
+    "out:4d137a2b8af1",
+    "ok",
+    "out:ffeef76b2a5f",
+    "out:6c4f4baa1935",
+    "out:2a0a717919f8"
+   ],
+   [
+    "out:64c884f03355",
+    "out:4157d26ff234",
+    "out:a1b01e6864d9",
+    "ok",
+    "ok",
+    "out:ffeef76b2a5f",
+    "out:a49ad1005b6a",
+    "out:377bec8bacc4"
+   ]
+  ]
+ },
+ "algo-015": {
+  "hash": "9e32617c58cdd9ac",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "ok",
+    "out:b6589fc6ab0d",
+    "out:b6589fc6ab0d",
+    "out:b6589fc6ab0d",
+    "out:b6589fc6ab0d",
+    "ok",
+    "out:b6589fc6ab0d",
+    "ok"
+   ]
+  ]
+ },
+ "algo-016": {
+  "hash": "c7da5a1962d459a5",
+  "wrong": [
+   [
+    "out:7cb6efb98ba5",
+    "out:7cb6efb98ba5",
+    "out:5ffe533b830f",
+    "ok",
+    "out:7cb6efb98ba5",
+    "out:7cb6efb98ba5",
+    "ok",
+    "out:7cb6efb98ba5",
+    "out:7cb6efb98ba5"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:7cb6efb98ba5",
+    "ok",
+    "ok",
+    "out:7cb6efb98ba5"
+   ]
+  ]
+ },
+ "algo-017": {
+  "hash": "2d693aea3321b023",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "out:ad5bddb5540a",
+    "out:b8970ddfabe3",
+    "out:c510d175664f",
+    "out:69bd19ed93c6",
+    "out:16547ef3fd43"
+   ]
+  ]
+ },
+ "algo-018": {
+  "hash": "7cb51a13388010ae",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "out:356a192b7913",
+    "ok",
+    "out:b6589fc6ab0d",
+    "ok",
+    "ok",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-019": {
+  "hash": "36f441a055ad0d86",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError"
+   ],
+   [
+    "out:75516477933f",
+    "out:97d170e1550e",
+    "ok",
+    "out:f629ae44b7b3",
+    "out:2e990af4a967",
+    "out:9403216a4378"
+   ]
+  ]
+ },
+ "algo-020": {
+  "hash": "0738bbc93873f3b2",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError",
+    "ok"
+   ],
+   [
+    "out:ac3478d69a3c",
+    "ok",
+    "ok",
+    "ok",
+    "out:ac3478d69a3c",
+    "ok",
+    "out:4c347a9fa2a1"
+   ]
+  ]
+ },
+ "algo-021": {
+  "hash": "bbf234b6bebb82bb",
+  "wrong": [
+   [
+    "out:d515cc73feb6",
+    "ok",
+    "ok",
+    "ok",
+    "out:05076aa2428f",
+    "ok",
+    "out:00342b1be484"
+   ]
+  ]
+ },
+ "algo-022": {
+  "hash": "c98cb0570366ee06",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "out:b6560467cad1",
+    "out:c199488755ee",
+    "out:f419bad32772"
+   ],
+   [
+    "out:03bf9d7a9890",
+    "ok",
+    "ok",
+    "out:f60dfa0a8ff5",
+    "out:484c1d7442db",
+    "out:25fbec06f1a5"
+   ]
+  ]
+ },
+ "algo-023": {
+  "hash": "7723d8aa41db6901",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "out:da4b9237bacc",
+    "ok",
+    "ok",
+    "out:5acf27976d67"
+   ]
+  ]
+ },
+ "algo-024": {
+  "hash": "babbf80667d4b7ab",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "ok",
+    "out:da4b9237bacc",
+    "ok",
+    "out:77de68daecd8",
+    "out:da4b9237bacc",
+    "ok",
+    "out:356a192b7913",
+    "out:fd93751649ac"
+   ]
+  ]
+ },
+ "algo-025": {
+  "hash": "0d8c92c5bb4aa340",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-026": {
+  "hash": "0ca5ba26d1bce49d",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "out:77de68daecd8",
+    "out:77de68daecd8",
+    "ok",
+    "ok",
+    "out:5c8f5ac0b7ad"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-027": {
+  "hash": "aab2620367fbcc3c",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "ok",
+    "ok",
+    "out:c69b17f8deba",
+    "ok",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-028": {
+  "hash": "705e0edc335b5d89",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "out:30a9640853b1",
+    "ok",
+    "ok",
+    "out:30a9640853b1",
+    "ok",
+    "ok",
+    "ok"
+   ],
+   [
+    "ok",
+    "out:b6589fc6ab0d",
+    "out:b6589fc6ab0d",
+    "ok",
+    "out:565e8bd101bd",
+    "out:b6589fc6ab0d",
+    "out:1b6453892473",
+    "out:3fb5be2cbed9",
+    "out:b6589fc6ab0d"
+   ]
+  ]
+ },
+ "algo-029": {
+  "hash": "07f3a2755fe6cef6",
+  "wrong": [
+   [
+    "out:6815caacd3f3",
+    "ok",
+    "ok",
+    "out:bfdfdce12217",
+    "out:7f31151563c6",
+    "out:2cc46b730d89"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-030": {
+  "hash": "9915f56f5c5e7805",
+  "wrong": [
+   [
+    "out:89c939ac479b",
+    "ok",
+    "out:f629ae44b7b3",
+    "out:2499831338ca",
+    "out:17d423cc149a",
+    "ok",
+    "out:6b83f3737e8f",
+    "out:5617c0e7b4d4",
+    "out:e67dad6c53c5"
+   ],
+   [
+    "ok",
+    "out:f629ae44b7b3",
+    "out:f629ae44b7b3",
+    "ok",
+    "out:5b5f35b58868",
+    "ok",
+    "out:688e2186ece8",
+    "ok",
+    "ok"
+   ]
+  ]
+ },
+ "algo-031": {
+  "hash": "516b2dd708c1eb70",
+  "wrong": [
+   [
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError",
+    "err:RecursionError"
+   ]
+  ]
+ },
+ "algo-032": {
+  "hash": "310fe09b57682ffc",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:5ffe533b830f",
+    "ok",
+    "ok",
+    "out:5ffe533b830f"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "err:RecursionError",
+    "err:RecursionError"
+   ]
+  ]
+ },
+ "algo-033": {
+  "hash": "f9f727119d2b0f5d",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:f3b24cdd53c1",
+    "out:1e408b83bd36"
+   ]
+  ]
+ },
+ "algo-034": {
+  "hash": "b3863ab6be404c60",
+  "wrong": [
+   [
+    "ok",
+    "out:237f20299a87",
+    "out:32821e11066d",
+    "ok",
+    "ok",
+    "out:6b06fabd4dd3"
+   ],
+   [
+    "ok",
+    "out:237f20299a87",
+    "out:32821e11066d",
+    "ok",
+    "out:b6487bcdde91",
+    "out:a54a2239bce0"
+   ]
+  ]
+ },
+ "algo-035": {
+  "hash": "9d4349899fb878b8",
+  "wrong": [
+   [
+    "ok",
+    "out:da4b9237bacc",
+    "ok",
+    "ok",
+    "ok",
+    "out:77de68daecd8",
+    "ok"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-036": {
+  "hash": "97a16e6aeef2d828",
+  "wrong": [
+   [
+    "out:77de68daecd8",
+    "ok",
+    "ok",
+    "out:7984b0a0e139",
+    "ok",
+    "out:c1dfd96eea8c",
+    "ok",
+    "out:7984b0a0e139",
+    "out:7984b0a0e139"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-037": {
+  "hash": "f92fbcc48992f0dc",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "tle",
+    "skip"
+   ]
+  ]
+ },
+ "algo-038": {
+  "hash": "4cb8a8820296db14",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-039": {
+  "hash": "f974bab7ba079d49",
+  "wrong": [
+   [
+    "ok",
+    "ok",
+    "ok",
+    "out:f6e1126cedeb",
+    "ok",
+    "out:b1d5781111d8",
+    "out:bf64e500ca8f",
+    "ok"
+   ],
+   [
+    "killed"
+   ]
+  ]
+ },
+ "algo-040": {
+  "hash": "12dc46620826ed17",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "ok",
+    "out:77de68daecd8",
+    "ok",
+    "ok",
+    "ok",
+    "ok",
+    "out:1b6453892473",
+    "ok",
+    "out:b1b16491e495"
+   ]
+  ]
+ }
+}

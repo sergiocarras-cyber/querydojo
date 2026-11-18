@@ -194,6 +194,10 @@ the cost of `O(n)` memory.)
 
 ## Wrong Answers
 
+### Linear search per query
+
+Scanning the list for every query is O(n·q): correct, but too slow for the large hidden inputs. The prices are sorted: binary-search each query.
+
 ```python
 def locate_prices(prices, queries):
     out = []
@@ -201,6 +205,10 @@ def locate_prices(prices, queries):
         out.append(next((i for i, p in enumerate(prices) if p == q), -1))
     return out
 ```
+
+### `lo < hi` misses the last candidate
+
+With `while lo < hi` the loop stops when one element is left without checking it. Use `while lo <= hi`.
 
 ```python
 def locate_prices(prices, queries):

@@ -143,6 +143,10 @@ This is the classic **gaps-and-islands** technique.
 
 ## Wrong Answers
 
+### Several logins on the same day
+
+Without de-duplicating days first, `ROW_NUMBER` keeps increasing within a day and breaks the `day - row_number` trick. Take `DISTINCT user_id, login_at::date` first.
+
 ```sql
 WITH islands AS (
   SELECT user_id, login_at::date AS day,
@@ -154,6 +158,10 @@ WITH islands AS (
 SELECT DISTINCT ON (user_id) user_id, streak_len AS longest_streak, streak_start
 FROM streaks ORDER BY user_id, streak_len DESC, streak_start;
 ```
+
+### Wrong streak among equals
+
+When two streaks have the same length, the earliest one wins: order by `streak_start` ascending.
 
 ```sql
 WITH days AS (SELECT DISTINCT user_id, login_at::date AS day FROM logins),

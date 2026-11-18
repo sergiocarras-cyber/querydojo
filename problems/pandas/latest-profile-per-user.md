@@ -101,6 +101,10 @@ Equivalent alternatives: `updates.loc[updates.groupby("user_id")["updated_at"].i
 
 ## Wrong Answers
 
+### Not sorted before keeping the last
+
+`drop_duplicates(keep='last')` keeps the last row in the current order, which is not necessarily the latest update. Sort by `updated_at` first.
+
 ```python
 import pandas as pd
 
@@ -108,6 +112,10 @@ def latest_profiles(updates):
     latest = updates.drop_duplicates("user_id", keep="last")
     return latest[["user_id", "email", "plan"]]
 ```
+
+### Ties on the timestamp
+
+Two updates can share `updated_at`. Break the tie with `update_id` when sorting.
 
 ```python
 import pandas as pd

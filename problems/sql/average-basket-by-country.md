@@ -110,11 +110,19 @@ Example: Spain has three delivered orders (42.10 + 18.00 + 75.50) / 3 = 45.20.
 
 ## Wrong Answers
 
+### Non-delivered orders included
+
+Only delivered orders count: add `status = 'delivered'`.
+
 ```sql
 SELECT c.country, COUNT(*) AS orders, ROUND(AVG(o.total), 2) AS avg_basket
 FROM orders o JOIN customers c ON c.customer_id = o.customer_id
 GROUP BY c.country ORDER BY avg_basket DESC, c.country;
 ```
+
+### Tie-breaker in the wrong direction
+
+Countries with the same average must be sorted by name ascending; `country DESC` flips them.
 
 ```sql
 SELECT c.country, COUNT(*) AS orders, ROUND(AVG(o.total), 2) AS avg_basket

@@ -121,11 +121,19 @@ Example: 4 users viewed, 3 added to cart (75.0 %), 2 reached checkout (66.7 %), 
 
 ## Wrong Answers
 
+### Counting events and ordering by event id
+
+`COUNT(*)` counts events, not distinct users, steps nobody reached disappear, and the order comes from event ids instead of the funnel. Start from a fixed list of steps and count `DISTINCT user_id`.
+
 ```sql
 SELECT event_type AS step, COUNT(*) AS users,
        ROUND(100.0 * COUNT(*) / LAG(COUNT(*)) OVER (ORDER BY MIN(event_id)), 1) AS pct_of_previous
 FROM events GROUP BY event_type ORDER BY MIN(event_id);
 ```
+
+### Steps with zero users disappear
+
+The inner join drops steps that nobody reached, and dividing by a zero count fails. `LEFT JOIN` from the list of steps and protect the division with `NULLIF(..., 0)`.
 
 ```sql
 WITH steps(step, pos) AS (VALUES ('view', 1), ('cart', 2), ('checkout', 3), ('purchase', 4)),

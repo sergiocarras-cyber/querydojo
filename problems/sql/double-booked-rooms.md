@@ -114,6 +114,10 @@ exclusion constraint can prevent double bookings at insert time.
 
 ## Wrong Answers
 
+### Back-to-back stays counted as overlaps
+
+If one guest checks out the day the next checks in, the room is not double-booked. Use strict comparisons: `a.check_in < b.check_out AND b.check_in < a.check_out`.
+
 ```sql
 SELECT a.room_id, a.booking_id AS booking_a, b.booking_id AS booking_b,
        LEAST(a.check_out, b.check_out) - GREATEST(a.check_in, b.check_in) AS overlap_nights
@@ -122,6 +126,10 @@ FROM bookings a JOIN bookings b
  AND a.check_in <= b.check_out AND b.check_in <= a.check_out
 ORDER BY a.room_id, booking_a, booking_b;
 ```
+
+### Overlap checked in one direction only
+
+Requiring `b.check_in >= a.check_in` misses the case where the booking with the higher id starts first. The symmetric test `a.check_in < b.check_out AND b.check_in < a.check_out` covers both.
 
 ```sql
 SELECT a.room_id, a.booking_id AS booking_a, b.booking_id AS booking_b,

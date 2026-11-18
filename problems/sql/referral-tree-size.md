@@ -129,11 +129,19 @@ stop the recursion.
 
 ## Wrong Answers
 
+### Only direct referrals
+
+Counting `referred_by = r.user_id` finds direct referrals only. The tree includes referrals of referrals at any depth: use `WITH RECURSIVE`.
+
 ```sql
 SELECT r.name, COUNT(*) AS total_referred, 1 AS depth
 FROM users u JOIN users r ON r.user_id = u.referred_by
 GROUP BY r.user_id, r.name ORDER BY total_referred DESC, r.name;
 ```
+
+### Fixed depth of two levels
+
+Two self-joins reach grandchildren but miss deeper chains. A recursive CTE follows the tree to any depth.
 
 ```sql
 SELECT r.name,

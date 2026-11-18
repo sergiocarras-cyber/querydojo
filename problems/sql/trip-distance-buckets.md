@@ -112,12 +112,20 @@ ORDER BY MIN(distance_km);
 
 ## Wrong Answers
 
+### Buckets sorted alphabetically
+
+`ORDER BY bucket` gives long, medium, short. The buckets must follow the distance order (for example `ORDER BY MIN(distance_km)`).
+
 ```sql
 SELECT CASE WHEN distance_km < 3 THEN 'short' WHEN distance_km < 10 THEN 'medium' ELSE 'long' END AS bucket,
        COUNT(*) AS trips
 FROM trips WHERE status = 'completed'
 GROUP BY 1 ORDER BY bucket;
 ```
+
+### Boundaries in the wrong bucket
+
+A trip of exactly 3 km is medium and one of exactly 10 km is long. `<= 3` and `<= 10` put the boundaries one bucket too low; use `<`.
 
 ```sql
 SELECT CASE WHEN distance_km <= 3 THEN 'short' WHEN distance_km <= 10 THEN 'medium' ELSE 'long' END AS bucket,

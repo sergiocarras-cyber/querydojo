@@ -138,6 +138,10 @@ pattern: trade memory for speed.
 
 ## Wrong Answers
 
+### Brute force over every pair
+
+Checking all pairs is O(n²): correct, but too slow for the large hidden inputs. Store each price's index in a dict and look up `budget - price` in O(1).
+
 ```python
 def gift_card_pair(prices, budget):
     for i in range(len(prices)):
@@ -145,6 +149,10 @@ def gift_card_pair(prices, budget):
             if prices[i] + prices[j] == budget:
                 return [i, j]
 ```
+
+### An item paired with itself
+
+Storing the price before checking lets an item match itself when `budget == 2 * price`. Check for the complement first, then store.
 
 ```python
 def gift_card_pair(prices, budget):

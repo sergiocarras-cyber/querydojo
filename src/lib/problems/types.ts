@@ -49,6 +49,24 @@ export const SECTION_INFO: Record<Section, SectionInfo> = {
   },
 };
 
+/** A typical mistake: kept to prove the hidden data rejects it, and to explain it. */
+export interface WrongAnswer {
+  title: string;
+  /** Markdown shown when a submission fails exactly like this one. */
+  explanation: string;
+  code: string;
+}
+
+/**
+ * What the browser gets instead of the wrong answers' code: the explanation
+ * plus a fingerprint of how that wrong answer fails on Submit (see diagnosis.ts).
+ */
+export interface Diagnosis {
+  title: string;
+  explanation: string;
+  fingerprint: string[] | null;
+}
+
 interface BaseProblem {
   id: string;
   slug: string;
@@ -87,7 +105,9 @@ export interface SqlProblem extends BaseProblem {
    * Plausible wrong queries (never shown in the UI). The test suite checks
    * that each one is rejected on Submit, proving the hidden data has teeth.
    */
-  wrongAnswers: string[];
+  wrongAnswers: WrongAnswer[];
+  /** Filled in by the build (plugins/problems.ts); empty when parsed directly. */
+  diagnoses?: Diagnosis[];
 }
 
 export type Comparator = 'exact' | 'unordered' | 'unordered_deep' | 'float' | 'custom';
@@ -120,7 +140,9 @@ export interface AlgorithmsProblem extends BaseProblem {
   /** Python defining check(got, expected, *args) -> bool for comparator "custom". */
   checker: string | null;
   /** Plausible wrong/slow solutions the tests must reject. */
-  wrongAnswers: string[];
+  wrongAnswers: WrongAnswer[];
+  /** Filled in by the build (plugins/problems.ts); empty when parsed directly. */
+  diagnoses?: Diagnosis[];
 }
 
 export interface PandasProblem extends BaseProblem {
@@ -136,7 +158,9 @@ export interface PandasProblem extends BaseProblem {
   dataCode: string;
   /** Python defining cases() -> hidden argument lists. */
   hiddenDataCode: string | null;
-  wrongAnswers: string[];
+  wrongAnswers: WrongAnswer[];
+  /** Filled in by the build (plugins/problems.ts); empty when parsed directly. */
+  diagnoses?: Diagnosis[];
 }
 
 export interface StatsProblem extends BaseProblem {

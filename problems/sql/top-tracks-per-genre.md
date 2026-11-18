@@ -173,6 +173,10 @@ The statement asks for shared ranks without gaps, so `DENSE_RANK` is the right t
 
 ## Wrong Answers
 
+### RANK instead of DENSE_RANK
+
+After a tie, `RANK` skips numbers (1, 1, 3), so the tracks with the second-highest play count get rank 3 and are filtered out. `DENSE_RANK` gives 1, 1, 2.
+
 ```sql
 WITH november AS (
   SELECT t.genre, t.title, COUNT(*) AS plays
@@ -186,6 +190,10 @@ WITH november AS (
 SELECT genre, title, plays, genre_rank FROM ranked WHERE genre_rank <= 2
 ORDER BY genre, genre_rank, title;
 ```
+
+### ROW_NUMBER drops tied tracks
+
+Tied tracks must share a rank and all appear. `ROW_NUMBER` gives them different numbers and keeps exactly two rows per genre.
 
 ```sql
 WITH november AS (
@@ -201,6 +209,10 @@ WITH november AS (
 SELECT genre, title, plays, genre_rank FROM ranked WHERE genre_rank <= 2
 ORDER BY genre, genre_rank, title;
 ```
+
+### Plays from every month
+
+The ranking must use November plays only. Filter `played_at` before counting.
 
 ```sql
 WITH totals AS (

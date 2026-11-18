@@ -13,6 +13,10 @@ export interface PyCaseResult {
   ms?: number;
   passed: boolean;
   tle?: boolean;
+  /** Not run: an earlier case hit the time limit or the Submit time budget ran out. */
+  skipped?: boolean;
+  /** Behaviour fingerprint for diagnosis (see harness.py / diagnosis.ts). */
+  fp?: string;
   /** pandas only */
   expected_table?: PyTable;
   got_table?: PyTable;
@@ -46,6 +50,21 @@ export interface PyEvaluation {
   mode: 'run' | 'submit';
   status: PyStatus;
   output: PyRunOutput;
+  /** Share of cases passed, 0..1. */
+  score: number;
+  /** One token per case; null when the code did not even load. */
+  fingerprint: string[] | null;
+}
+
+function finish(mode: 'run' | 'submit', output: PyRunOutput): PyEvaluation {
+  const ok = output.status === 'ok';
+  return {
+    mode,
+    status: statusOf(output),
+    output,
+    score: ok && output.total ? output.passed / output.total : 0,
+    fingerprint: ok ? output.cases.map((c) => c.fp ?? (c.passed ? 'ok' : 'skip')) : null,
+  };
 }
 
 export function buildSpec(problem: AlgorithmsProblem, mode: 'run' | 'submit'): string {
@@ -68,8 +87,8 @@ export function buildSpec(problem: AlgorithmsProblem, mode: 'run' | 'submit'): s
 
 export function statusOf(output: PyRunOutput): PyStatus {
   if (output.status === 'error') return 'error';
-  const failed = output.cases.find((c) => !c.passed);
-  if (!failed) return output.passed === output.total ? 'accepted' : 'wrong';
+  const failed = output.cases.find((c) => !c.passed && !c.skipped);
+  if (!failed) return output.passed === output.total ? 'accepted' : output.cases.some((c) => c.skipped) ? 'timeout' : 'wrong';
   if (failed.tle) return 'timeout';
   if (failed.error) return 'error';
   return 'wrong';
@@ -82,8 +101,7 @@ export async function evaluatePython(
   run: PyRunner,
 ): Promise<PyEvaluation> {
   const raw = await run('run_suite', [code, buildSpec(problem, mode)], []);
-  const output = JSON.parse(raw) as PyRunOutput;
-  return { mode, status: statusOf(output), output };
+  return finish(mode, JSON.parse(raw) as PyRunOutput);
 }
 
 export const PANDAS_PACKAGES = ['pandas'];
@@ -108,8 +126,7 @@ export async function evaluatePandas(
   run: PyRunner,
 ): Promise<PyEvaluation> {
   const raw = await run('run_pandas_suite', [code, buildPandasSpec(problem, mode)], PANDAS_PACKAGES);
-  const output = JSON.parse(raw) as PyRunOutput;
-  return { mode, status: statusOf(output), output };
+  return finish(mode, JSON.parse(raw) as PyRunOutput);
 }
 
 /** Grades a Python-based problem (algorithms or pandas). */

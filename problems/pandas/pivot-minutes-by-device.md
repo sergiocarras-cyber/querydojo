@@ -115,6 +115,10 @@ The inverse operation (wide → long) is `melt`.
 
 ## Wrong Answers
 
+### Missing devices show NaN
+
+Without `fill_value=0`, users who never used a device get `NaN` instead of 0 minutes. Pass `fill_value=0` to `pivot_table`.
+
 ```python
 import pandas as pd
 
@@ -125,6 +129,10 @@ def minutes_by_device(plays):
     wide.columns.name = None
     return wide
 ```
+
+### max instead of sum
+
+`aggfunc='max'` keeps the longest single play. The table needs total minutes: `aggfunc='sum'`.
 
 ```python
 import pandas as pd

@@ -112,11 +112,19 @@ customer's e-reader row behind.
 
 ## Wrong Answers
 
+### A row-level filter cannot see other rows
+
+`category = 'ereader' AND category <> 'ebook'` is checked one purchase at a time, so it returns every e-reader buyer. Decide per customer: aggregate with `bool_or` or use `NOT EXISTS` over all their purchases.
+
 ```sql
 SELECT DISTINCT customer_id FROM purchases
 WHERE category = 'ereader' AND category <> 'ebook'
 ORDER BY customer_id;
 ```
+
+### Only later e-books are excluded
+
+The `NOT EXISTS` only looks for e-books bought after the e-reader; customers who bought an e-book earlier slip through. Exclude any e-book purchase.
 
 ```sql
 SELECT DISTINCT p.customer_id FROM purchases p

@@ -139,6 +139,10 @@ and 3 in March (66.7 %) and user 1 in April (33.3 %).
 
 ## Wrong Answers
 
+### Month offset from days / 30
+
+Calendar months are not 30-day blocks: Jan 31 to Feb 1 is month offset 1. Compute `year * 12 + month` for both dates and subtract.
+
 ```sql
 WITH cohorts AS (
   SELECT user_id, signed_up_at, DATE_TRUNC('month', signed_up_at)::date AS cohort_month FROM users
@@ -153,6 +157,10 @@ SELECT c.cohort_month, COUNT(DISTINCT c.user_id) AS cohort_size,
 FROM cohorts c LEFT JOIN offsets o ON o.user_id = c.user_id
 GROUP BY c.cohort_month ORDER BY c.cohort_month;
 ```
+
+### Cohorts built from active users only
+
+Starting from the activity table drops users who were never active, which shrinks `cohort_size` and inflates the rates. Start from all users and `LEFT JOIN` the activity.
 
 ```sql
 WITH cohorts AS (

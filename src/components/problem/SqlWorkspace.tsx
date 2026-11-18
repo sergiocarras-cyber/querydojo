@@ -3,7 +3,8 @@ import { useSqlLoading } from '../../hooks/useSqlEngine';
 import type { useDraft } from '../../hooks/useDraft';
 import { SqlTimeoutError, sqlClient } from '../../lib/sql/client';
 import { evaluateSql, type SqlEvaluation } from '../../lib/sql/evaluate';
-import { recordSubmission, type SubmissionVerdict } from '../../lib/progress/store';
+import { diagnose } from '../../lib/diagnosis';
+import { recordSubmission, wouldBeAssisted, type SubmissionVerdict } from '../../lib/progress/store';
 import type { SqlProblem } from '../../lib/problems/types';
 import { CodeEditor } from '../CodeEditor';
 import { SplitPane } from '../SplitPane';
@@ -12,6 +13,8 @@ import { SqlResultPanel, type SqlOutput } from './SqlResultPanel';
 interface Props {
   problem: SqlProblem;
   draft: ReturnType<typeof useDraft>;
+  /** Interview mode: no diagnosis of typical mistakes (it works as a hint). */
+  interview?: boolean;
 }
 
 function summarize(ev: SqlEvaluation): string {
@@ -22,7 +25,7 @@ function summarize(ev: SqlEvaluation): string {
   return `Falla en ${where}: ${!failed.verdict.pass ? failed.verdict.message : ''}`;
 }
 
-export function SqlWorkspace({ problem, draft }: Props) {
+export function SqlWorkspace({ problem, draft, interview = false }: Props) {
   const [output, setOutput] = useState<SqlOutput>({ kind: 'idle' });
   const busy = useRef(false);
   const engineLoading = useSqlLoading();
@@ -42,8 +45,11 @@ export function SqlWorkspace({ problem, draft }: Props) {
     setOutput({ kind: 'running', mode });
     try {
       const ev = await evaluateSql(problem, code, mode, (schema, jobs) => sqlClient.run(schema, jobs));
-      setOutput({ kind: 'evaluated', evaluation: ev });
-      if (mode === 'submit') {
+      const submit = mode === 'submit';
+      const diagnoses = submit && ev.status !== 'accepted' && !interview ? diagnose(ev.fingerprint, problem.diagnoses) : [];
+      const assisted = submit && ev.status === 'accepted' && wouldBeAssisted(problem.id);
+      setOutput({ kind: 'evaluated', evaluation: ev, diagnoses, assisted });
+      if (submit) {
         recordSubmission(problem.id, {
           verdict: ev.status,
           passed: ev.passed,
@@ -51,6 +57,8 @@ export function SqlWorkspace({ problem, draft }: Props) {
           ms: ev.ms,
           code,
           detail: summarize(ev),
+          score: ev.score,
+          diagnosis: diagnoses[0]?.title,
         });
       }
     } catch (e) {

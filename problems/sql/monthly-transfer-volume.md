@@ -115,6 +115,10 @@ Months with no completed transfers simply produce no group, so they don't appear
 
 ## Wrong Answers
 
+### Non-completed transfers included
+
+Failed and pending transfers must not count. Add `status = 'completed'`.
+
 ```sql
 SELECT DATE_TRUNC('month', created_at)::date AS month, COUNT(*) AS transfers,
        SUM(amount) AS volume, ROUND(AVG(amount), 2) AS avg_amount
@@ -122,6 +126,10 @@ FROM transfers
 WHERE created_at >= '2025-01-01' AND created_at < '2026-01-01'
 GROUP BY 1 ORDER BY 1;
 ```
+
+### Missing the year filter
+
+Transfers from other years show up as extra months. Restrict `created_at` to 2025.
 
 ```sql
 SELECT DATE_TRUNC('month', created_at)::date AS month, COUNT(*) AS transfers,

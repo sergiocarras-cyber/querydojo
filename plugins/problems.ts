@@ -1,8 +1,9 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import type { Plugin } from 'vite';
 import { parseProblem } from '../src/lib/problems/parse.ts';
-import type { Problem, ProblemMeta, Section } from '../src/lib/problems/types.ts';
+import type { Diagnosis, Problem, ProblemMeta, Section } from '../src/lib/problems/types.ts';
 
 /**
  * Parses every problems/**\/*.md file at build time (and on change in dev) and
@@ -43,6 +44,58 @@ export function loadProblemFiles(root: string): { problems: Problem[]; files: st
   return { problems, files };
 }
 
+/**
+ * Hash of everything that affects how a wrong answer is graded (data, tests,
+ * solution, the wrong code itself) but not the prose. When it changes, the
+ * stored fingerprints are stale and must be regenerated (npm run fingerprints).
+ */
+export function gradingHash(p: Problem): string {
+  const graded = {
+    ...p,
+    title: '',
+    statement: '',
+    hints: [],
+    explanation: '',
+    topics: [],
+    company: '',
+    file: '',
+    wrongAnswers: 'wrongAnswers' in p ? p.wrongAnswers.map((w) => w.code) : [],
+  };
+  return createHash('sha1').update(JSON.stringify(graded)).digest('hex').slice(0, 16);
+}
+
+export interface FingerprintEntry {
+  hash: string;
+  wrong: (string[] | null)[];
+}
+export type FingerprintFile = Record<string, FingerprintEntry>;
+
+export function fingerprintPath(root: string, section: Section): string {
+  return join(root, 'generated', 'fingerprints', `${section}.json`);
+}
+
+export function readFingerprints(root: string, section: Section): FingerprintFile {
+  const path = fingerprintPath(root, section);
+  return existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as FingerprintFile) : {};
+}
+
+/**
+ * Browser copy of a problem: wrong answers become diagnoses (title, explanation,
+ * fingerprint) and their code is dropped. Stale fingerprints are left out so a
+ * diagnosis is never shown for the wrong reason.
+ */
+function forBrowser(p: Problem, prints: FingerprintFile): Problem {
+  if (!('wrongAnswers' in p)) return p;
+  const entry = prints[p.id];
+  const fresh = entry && entry.hash === gradingHash(p) && entry.wrong.length === p.wrongAnswers.length;
+  const diagnoses: Diagnosis[] = p.wrongAnswers.map((w, i) => ({
+    title: w.title,
+    explanation: w.explanation,
+    fingerprint: fresh ? entry.wrong[i] : null,
+  }));
+  return { ...p, wrongAnswers: [], diagnoses };
+}
+
 export function toMeta(p: Problem): ProblemMeta {
   const { id, slug, title, section, difficulty, topics, company } = p;
   return { id, slug, title, section, difficulty, topics, company };
@@ -68,7 +121,10 @@ export function problemsPlugin(): Plugin {
       else {
         const section = name.slice(FULL_PREFIX.length);
         if (!(section in SECTION_ORDER)) throw new Error(`Unknown problem section module: ${name}`);
-        data = problems.filter((p) => p.section === section);
+        const prints = readFingerprints(root, section as Section);
+        const printsFile = fingerprintPath(root, section as Section);
+        if (existsSync(printsFile)) this.addWatchFile(printsFile);
+        data = problems.filter((p) => p.section === section).map((p) => forBrowser(p, prints));
       }
       // JSON.parse of a string literal is faster to evaluate than a big object literal.
       return `export default JSON.parse(${JSON.stringify(JSON.stringify(data))});`;

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { recordSubmission } from '../../lib/progress/store';
+import { getProgress, inAssistCooldown, markSolutionViewed, recordSubmission } from '../../lib/progress/store';
 import type { StatsProblem } from '../../lib/problems/types';
 import { formatNumber, isNumericCorrect, parseNumericAnswer } from '../../lib/stats/answer';
 import { readJson, writeJson } from '../../lib/storage/local';
 import { Markdown } from '../Markdown';
 import { Banner } from './Banner';
 
-type Result = { correct: boolean; given: string } | null;
+type Result = { correct: boolean; given: string; assisted: boolean } | null;
 
 interface Props {
   problem: StatsProblem;
@@ -44,7 +44,8 @@ export function StatsWorkspace({ problem, scope = '', interview = false }: Props
       correct = choice === problem.answer;
       given = `Opción ${String.fromCharCode(65 + choice)}`;
     }
-    setResult({ correct, given });
+    const assisted = correct && inAssistCooldown(getProgress().problems[problem.id]);
+    setResult({ correct, given, assisted });
     setShowExplanation(correct);
     recordSubmission(problem.id, {
       verdict: correct ? 'accepted' : 'wrong',
@@ -124,7 +125,14 @@ export function StatsWorkspace({ problem, scope = '', interview = false }: Props
         {result && (
           <div className="mt-5 space-y-4">
             {result.correct ? (
-              <Banner tone="ok" title="✓ ¡Correcto!" />
+              <Banner tone="ok" title="✓ ¡Correcto!">
+                {result.assisted && (
+                  <p className="text-xs">
+                    Cuenta como ◐ resuelto con ayuda porque viste la respuesta hace poco. Vuelve en unos días y respóndelo
+                    sin mirar.
+                  </p>
+                )}
+              </Banner>
             ) : (
               <Banner tone="bad" title="✗ No es correcto">
                 <p className="text-xs">
@@ -135,7 +143,13 @@ export function StatsWorkspace({ problem, scope = '', interview = false }: Props
               </Banner>
             )}
             {interview && !showExplanation ? null : !showExplanation ? (
-              <button onClick={() => setShowExplanation(true)} className="text-sm text-sky hover:underline">
+              <button
+                onClick={() => {
+                  markSolutionViewed(problem.id);
+                  setShowExplanation(true);
+                }}
+                className="text-sm text-sky hover:underline"
+              >
                 Ver la respuesta y la explicación
               </button>
             ) : (

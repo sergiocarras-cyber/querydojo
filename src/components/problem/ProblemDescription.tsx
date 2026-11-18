@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { statusOf, useProgress, type Submission } from '../../lib/progress/store';
+import {
+  ASSIST_COOLDOWN_DAYS,
+  assistReadyAt,
+  markSolutionViewed,
+  statusOf,
+  useProgress,
+  type Submission,
+} from '../../lib/progress/store';
 import type { Problem } from '../../lib/problems/types';
 import { readJson, writeJson } from '../../lib/storage/local';
 import { DifficultyBadge, SectionBadge, TopicChip } from '../Badges';
@@ -57,12 +64,21 @@ export function ProblemDescription({ problem, onLoadCode, tabs }: Props) {
 function Statement({ problem }: { problem: Problem }) {
   const progress = useProgress();
   const status = statusOf(progress, problem.id);
+  const readyAt = status === 'assisted' ? assistReadyAt(progress.problems[problem.id]) : null;
   return (
     <article>
       <div className="flex items-start justify-between gap-3">
         <h1 className="text-xl font-semibold text-ink-100">{problem.title}</h1>
         <StatusBadge status={status} />
       </div>
+      {readyAt && (
+        <p className="mt-2 rounded-md border border-sky/30 bg-sky/10 px-3 py-2 text-xs text-ink-200">
+          ◐ Lo resolviste después de ver la solución.{' '}
+          {readyAt.getTime() > Date.now()
+            ? `Vuelve a resolverlo sin mirar a partir del ${readyAt.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} para que cuente como resuelto.`
+            : 'Ya puedes volver a resolverlo sin mirar para que cuente como resuelto.'}
+        </p>
+      )}
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <DifficultyBadge difficulty={problem.difficulty} />
         <SectionBadge section={problem.section} />
@@ -125,12 +141,23 @@ function Hints({ problem }: { problem: Problem }) {
 
 function Solution({ problem }: { problem: Problem }) {
   const [revealed, setRevealed] = useState(false);
+  const progress = useProgress();
+  const solved = statusOf(progress, problem.id) === 'solved';
   if (!revealed) {
     return (
       <div className="rounded-lg border border-ink-700 bg-ink-850 p-6 text-center">
         <p className="text-sm text-ink-300">¿Seguro? Intentarlo un poco más es lo que más enseña.</p>
+        {!solved && (
+          <p className="mx-auto mt-2 max-w-sm text-xs text-ink-400">
+            Si la ves, un envío aceptado en los próximos {ASSIST_COOLDOWN_DAYS} días contará como{' '}
+            <span className="text-sky">◐ resuelto con ayuda</span>, no como resuelto.
+          </p>
+        )}
         <button
-          onClick={() => setRevealed(true)}
+          onClick={() => {
+            markSolutionViewed(problem.id);
+            setRevealed(true);
+          }}
           className="mt-4 rounded-md bg-ink-700 px-4 py-2 text-sm text-ink-100 hover:bg-ink-600"
         >
           Ver solución
@@ -177,6 +204,8 @@ function Solution({ problem }: { problem: Problem }) {
 
 function StatusBadge({ status }: { status: ReturnType<typeof statusOf> }) {
   if (status === 'todo') return null;
+  if (status === 'assisted')
+    return <span className="shrink-0 rounded-full bg-sky/15 px-2 py-0.5 font-mono text-[11px] text-sky">◐ Con ayuda</span>;
   return status === 'solved' ? (
     <span className="shrink-0 rounded-full bg-jade/15 px-2 py-0.5 font-mono text-[11px] text-jade">✓ Resuelto</span>
   ) : (
@@ -212,9 +241,12 @@ function Submissions({ problem, onLoadCode }: Props) {
         return (
           <li key={s.at} className="rounded-lg border border-ink-700 bg-ink-850">
             <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-center gap-3 px-3 py-2 text-left">
-              <span className={`w-24 text-sm font-medium ${v.cls}`}>{v.text}</span>
+              <span className={`w-24 text-sm font-medium ${s.assisted ? 'text-sky' : v.cls}`}>
+                {s.assisted ? '◐ Con ayuda' : v.text}
+              </span>
               <span className="font-mono text-xs text-ink-400">
                 {s.passed}/{s.total}
+                {s.score !== undefined && s.verdict !== 'accepted' && ` · ${Math.round(s.score * 100)} %`}
               </span>
               <span className="ml-auto font-mono text-[11px] text-ink-500">
                 {new Date(s.at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}

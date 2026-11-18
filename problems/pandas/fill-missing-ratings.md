@@ -99,6 +99,10 @@ the overall mean (4 + 5 + 3) / 3 = 4.0.
 
 ## Wrong Answers
 
+### Overall mean instead of category mean
+
+Missing ratings must take the mean of their own category. Use `groupby('category')['rating'].transform('mean')`.
+
 ```python
 import pandas as pd
 
@@ -106,6 +110,10 @@ def fill_ratings(reviews):
     rating = reviews["rating"].fillna(reviews["rating"].mean()).round(2)
     return pd.DataFrame({"review_id": reviews["review_id"], "rating": rating})
 ```
+
+### No fallback for empty categories
+
+If every rating in a category is missing, its category mean is `NaN` too. Fall back to the overall mean with a second `fillna`.
 
 ```python
 import pandas as pd

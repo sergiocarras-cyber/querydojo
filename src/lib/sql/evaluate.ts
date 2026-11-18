@@ -1,6 +1,6 @@
 import type { SqlProblem } from '../problems/types';
 import type { ResultSet } from './engine';
-import { compareResults, type Verdict } from './grade';
+import { caseScore, compareResults, resultFingerprint, type Verdict } from './grade';
 import type { JobResults, SqlJob } from './protocol';
 
 /** Anything that can run jobs: the browser worker client or PGlite in Node. */
@@ -27,6 +27,10 @@ export interface SqlEvaluation {
   total: number;
   status: SqlStatus;
   ms: number;
+  /** Average partial credit over datasets, 0..1. */
+  score: number;
+  /** One token per dataset: ok | err | none | out:<hash>. */
+  fingerprint: string[];
 }
 
 /**
@@ -67,5 +71,18 @@ export async function evaluateSql(
     : passed === cases.length
       ? 'accepted'
       : 'wrong';
-  return { mode, cases, passed, total: cases.length, status, ms: cases.reduce((t, c) => t + c.ms, 0) };
+  const scores = cases.map((c) => (c.kind === 'compared' ? caseScore(c.verdict, c.expected, c.actual) : 0));
+  const fingerprint = cases.map((c) =>
+    c.kind === 'error' ? 'err' : c.verdict.pass ? 'ok' : resultFingerprint(c.actual, problem.orderMatters),
+  );
+  return {
+    mode,
+    cases,
+    passed,
+    total: cases.length,
+    status,
+    ms: cases.reduce((t, c) => t + c.ms, 0),
+    score: scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length),
+    fingerprint,
+  };
 }

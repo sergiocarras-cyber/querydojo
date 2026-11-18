@@ -3,17 +3,23 @@ import { PyCrashError, PyTimeoutError } from '../src/lib/python/client';
 import { PANDAS_PACKAGES, buildPandasSpec, evaluatePandas, type PyRunOutput, type PyRunner } from '../src/lib/python/evaluate';
 import type { PandasProblem } from '../src/lib/problems/types';
 import { loadAllProblems } from './loadProblems';
+import { fingerprintStore } from './fingerprints';
 import { createNodePyRunner } from './nodePyRunner';
+import { KILLED } from '../src/lib/diagnosis';
 
 const problems = loadAllProblems().filter((p): p is PandasProblem => p.section === 'pandas');
 
+const prints = fingerprintStore('pandas');
 let run: PyRunner;
 let close: () => Promise<void>;
 beforeAll(() => {
   // pandas is slower to import: give the first run more room.
   ({ run, close } = createNodePyRunner(60_000));
 });
-afterAll(() => close());
+afterAll(async () => {
+  await close();
+  prints.save();
+});
 
 describe.each(problems.map((p) => [p.id, p] as const))('%s', (_id, p) => {
   it('has hidden data', () => {
@@ -41,12 +47,17 @@ describe.each(problems.map((p) => [p.id, p] as const))('%s', (_id, p) => {
     expect(out.error ?? '').toBe('');
   });
 
-  it.each(p.wrongAnswers.map((code, i) => [i + 1, code] as const))('wrong answer #%i is rejected', async (_i, code) => {
+  it('wrong-answer fingerprints are up to date', () => prints.checkFresh(p));
+
+  it.each(p.wrongAnswers.map((w, i) => [i + 1, w.code] as const))('wrong answer #%i is rejected', async (i, code) => {
     try {
       const ev = await evaluatePandas(p, code, 'submit', run);
       expect(ev.status).not.toBe('accepted');
+      expect(ev.score).toBeLessThan(1);
+      prints.record(p, i - 1, ev.fingerprint);
     } catch (e) {
       expect(e instanceof PyTimeoutError || e instanceof PyCrashError, String(e)).toBe(true);
+      prints.record(p, i - 1, KILLED);
     }
   });
 });

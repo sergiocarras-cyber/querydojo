@@ -129,6 +129,10 @@ A compact alternative for the last step is PostgreSQL's
 
 ## Wrong Answers
 
+### Running balance ordered by date
+
+With `ORDER BY entry_date`, entries on the same day are peers of the window, so the balance of the first one already includes the whole day. Order the running sum by `entry_id`.
+
 ```sql
 WITH running AS (
   SELECT user_id, entry_id, entry_date,
@@ -142,6 +146,10 @@ WITH running AS (
 SELECT user_id, entry_date AS overdraft_date, balance AS balance_after
 FROM negatives WHERE rn = 1 ORDER BY user_id;
 ```
+
+### Zero is not an overdraft
+
+An overdraft means a strictly negative balance; `balance <= 0` also flags a balance of exactly 0.
 
 ```sql
 WITH running AS (

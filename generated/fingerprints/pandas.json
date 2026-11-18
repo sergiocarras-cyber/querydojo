@@ -1,0 +1,190 @@
+{
+ "pandas-001": {
+  "hash": "fea559cb579abf20",
+  "wrong": [
+   [
+    "out:7e7bed76d14b",
+    "out:9027f75318ea",
+    "out:3968d7f7bebc"
+   ]
+  ]
+ },
+ "pandas-002": {
+  "hash": "651209c1d569453f",
+  "wrong": [
+   [
+    "out:0cdc2ccae214",
+    "out:34915c7c46e3"
+   ],
+   [
+    "out:512d32a25a84",
+    "ok"
+   ]
+  ]
+ },
+ "pandas-003": {
+  "hash": "eb24d44126f34bfa",
+  "wrong": [
+   [
+    "out:e63221d8c623",
+    "out:8e2bed226d71"
+   ],
+   [
+    "ok",
+    "out:cf00c7198e35"
+   ]
+  ]
+ },
+ "pandas-004": {
+  "hash": "185ebbadf7735e3f",
+  "wrong": [
+   [
+    "out:6e6ffdd1c1eb",
+    "out:4fe3ca578f02"
+   ],
+   [
+    "ok",
+    "out:1b0758263703"
+   ]
+  ]
+ },
+ "pandas-005": {
+  "hash": "e616024d21bf1875",
+  "wrong": [
+   [
+    "out:741657e9dacf",
+    "out:4278c7a6660d"
+   ]
+  ]
+ },
+ "pandas-006": {
+  "hash": "26eb2bd4f9cfb5e1",
+  "wrong": [
+   [
+    "out:c539fcccaf25",
+    "out:55effba24202"
+   ],
+   [
+    "out:0507cb2e2c4b",
+    "out:ccae3fd9a138"
+   ]
+  ]
+ },
+ "pandas-007": {
+  "hash": "887d9650ffa20bae",
+  "wrong": [
+   [
+    "out:5c451a85ab1d",
+    "out:5498cd41bbd4"
+   ],
+   [
+    "ok",
+    "out:a150a2c5571d"
+   ]
+  ]
+ },
+ "pandas-008": {
+  "hash": "b4799771e3f7d007",
+  "wrong": [
+   [
+    "out:d7b63b3d1790",
+    "out:f9eca7009ab2"
+   ],
+   [
+    "out:0570503a792a",
+    "ok"
+   ]
+  ]
+ },
+ "pandas-009": {
+  "hash": "a58cafb446a39794",
+  "wrong": [
+   [
+    "out:6c7cae48bc41",
+    "out:9a39f539ce87"
+   ],
+   [
+    "out:a10aa2f749cc",
+    "ok"
+   ]
+  ]
+ },
+ "pandas-010": {
+  "hash": "368ebd70d24a563a",
+  "wrong": [
+   [
+    "out:74fc232db7e1",
+    "out:e950fc7c17d3"
+   ],
+   [
+    "out:67fd34177dc6",
+    "out:58b016184ce8"
+   ]
+  ]
+ },
+ "pandas-011": {
+  "hash": "fc935b4130a876ba",
+  "wrong": [
+   [
+    "out:678e78b7e102",
+    "out:461f839f69c3"
+   ],
+   [
+    "out:9819355c6ee7",
+    "out:edcc8e0ec1a9"
+   ]
+  ]
+ },
+ "pandas-012": {
+  "hash": "2403fe64b6da17ec",
+  "wrong": [
+   [
+    "out:a683533c76b5",
+    "out:7af3808b5a40"
+   ],
+   [
+    "ok",
+    "out:a1ca8a33eb2a"
+   ]
+  ]
+ },
+ "pandas-013": {
+  "hash": "320ffbd6bfd91aa0",
+  "wrong": [
+   [
+    "out:3ec2abbc4995",
+    "out:ef9161e1fb19"
+   ],
+   [
+    "ok",
+    "out:d7355e817053"
+   ]
+  ]
+ },
+ "pandas-014": {
+  "hash": "3aeec04e5e3afd3d",
+  "wrong": [
+   [
+    "ok",
+    "out:fad77c8cba0b"
+   ],
+   [
+    "ok",
+    "out:b6921d4e5d8c"
+   ]
+  ]
+ },
+ "pandas-015": {
+  "hash": "d7621408c07cdff5",
+  "wrong": [
+   [
+    "out:a2f443951092",
+    "out:9a4a046a99b8"
+   ],
+   [
+    "out:5a252fae79c4",
+    "out:e95e765a21ac"
+   ]
+  ]
+ }
+}

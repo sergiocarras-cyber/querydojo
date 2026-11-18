@@ -94,6 +94,10 @@ def monthly_active_users(events: pd.DataFrame) -> pd.DataFrame:
 
 ## Wrong Answers
 
+### Counting events instead of users
+
+`count()` counts events, so a user with ten events counts ten times. Use `nunique()`.
+
 ```python
 import pandas as pd
 
@@ -102,6 +106,10 @@ def monthly_active_users(events):
     out = events.assign(month=month).groupby("month", as_index=False)["user_id"].count()
     return out.rename(columns={"user_id": "active_users"})
 ```
+
+### Hard-coded year
+
+Building the label as `2025-MM` merges months from different years. Format the full date: `dt.strftime('%Y-%m')`.
 
 ```python
 import pandas as pd

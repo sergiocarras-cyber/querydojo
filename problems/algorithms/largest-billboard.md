@@ -199,6 +199,10 @@ billion steps for 100 000 buildings.
 
 ## Wrong Answers
 
+### Every pair of borders
+
+Trying every start and end is O(n²): correct, but too slow for the large hidden inputs. A monotonic stack finds each bar's widest rectangle in one pass.
+
 ```python
 def largest_billboard(heights):
     best = 0
@@ -209,6 +213,10 @@ def largest_billboard(heights):
             best = max(best, low * (j - i + 1))
     return best
 ```
+
+### Buildings that are not contiguous
+
+Counting all buildings at least `h` tall ignores gaps between them. The billboard must span consecutive buildings.
 
 ```python
 def largest_billboard(heights):

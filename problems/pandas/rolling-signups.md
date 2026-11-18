@@ -100,6 +100,10 @@ handles gaps by itself (but you still need the zero rows for the output).
 
 ## Wrong Answers
 
+### Days without signups are missing
+
+Grouping signups only yields days that have signups, so the 7-row window covers more than 7 days. Reindex to the full date range with `fill_value=0` (and normalise timestamps to days).
+
 ```python
 import pandas as pd
 
@@ -109,6 +113,10 @@ def rolling_signups(signups):
     daily["avg_7d"] = daily["signups"].rolling(7, min_periods=1).mean().round(2)
     return daily
 ```
+
+### NaN for the first six days
+
+`rolling(7)` needs 7 values before it returns a number. Use `min_periods=1` so the first days average what is available.
 
 ```python
 import pandas as pd

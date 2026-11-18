@@ -166,6 +166,10 @@ of exact timestamps.
 
 ## Wrong Answers
 
+### BETWEEN includes day 14
+
+Week 1 is the half-open window `[signup + 7 days, signup + 14 days)`. `BETWEEN` also includes an event at exactly 14 days.
+
 ```sql
 WITH cohorts AS (
   SELECT user_id, signed_up_at, DATE_TRUNC('week', signed_up_at)::date AS cohort_week FROM users
@@ -179,6 +183,10 @@ FROM cohorts c LEFT JOIN retained r ON r.user_id = c.user_id
 GROUP BY c.cohort_week ORDER BY c.cohort_week;
 ```
 
+### Inner join drops users without events
+
+Joining `events` removes users who never came back from the cohort, so `cohort_size` is too small. Start from all users and `LEFT JOIN` the retained ones.
+
 ```sql
 SELECT DATE_TRUNC('week', u.signed_up_at)::date AS cohort_week,
        COUNT(DISTINCT u.user_id) AS cohort_size,
@@ -191,6 +199,10 @@ SELECT DATE_TRUNC('week', u.signed_up_at)::date AS cohort_week,
 FROM users u JOIN events e ON e.user_id = u.user_id
 GROUP BY 1 ORDER BY 1;
 ```
+
+### Counting events instead of users
+
+The `LEFT JOIN` to `events` produces one row per event in the window, so a user with three events counts three times in both columns. Collect retained users with `DISTINCT` first.
 
 ```sql
 WITH cohorts AS (

@@ -180,6 +180,10 @@ memoisation recomputes the same amounts exponentially many times.
 
 ## Wrong Answers
 
+### Greedy, biggest coupon first
+
+Taking the largest coupon first is not always optimal: with values 3 and 7, 12 = 3 + 3 + 3 + 3 but greedy gets stuck. Use DP over amounts.
+
 ```python
 def fewest_coupons(values, amount):
     count = 0
@@ -188,6 +192,10 @@ def fewest_coupons(values, amount):
         amount %= v
     return count if amount == 0 else -1
 ```
+
+### Plain recursion
+
+Trying every combination recursively is exponential. Use DP over amounts from 0 to `amount`.
 
 ```python
 def fewest_coupons(values, amount):

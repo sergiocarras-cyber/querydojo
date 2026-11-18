@@ -167,6 +167,10 @@ The recursive version is a nice one-liner but uses one stack frame per node.
 
 ## Wrong Answers
 
+### Recursion on a long playlist
+
+One recursive call per song exceeds Python's recursion limit on long playlists. Reverse iteratively with `prev` and `node` pointers.
+
 ```python
 def reverse_playlist(head):
     if head is None or head.next is None:
@@ -176,6 +180,10 @@ def reverse_playlist(head):
     head.next = None
     return new_head
 ```
+
+### The last song is lost
+
+`while node and node.next` stops before the last node, so it is never linked in. Loop `while node`.
 
 ```python
 def reverse_playlist(head):

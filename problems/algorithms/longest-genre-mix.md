@@ -135,6 +135,10 @@ long, which the hidden tests include.
 
 ## Wrong Answers
 
+### Re-scanning from every start
+
+Restarting from each index is O(n²): correct, but too slow for the large hidden inputs. Use a sliding window with a counter of genres.
+
 ```python
 def longest_mix(genres, k):
     best = 0
@@ -147,6 +151,10 @@ def longest_mix(genres, k):
             best = max(best, j - i + 1)
     return best
 ```
+
+### Zero counts never removed
+
+When a genre's count drops to 0 it stays in the dict, so `len(counts)` never decreases and the window keeps shrinking. Delete keys whose count reaches 0.
 
 ```python
 def longest_mix(genres, k):

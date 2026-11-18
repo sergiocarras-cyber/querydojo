@@ -94,11 +94,19 @@ In PostgreSQL you could also `GROUP BY 1`. In production, enforce this with a un
 
 ## Wrong Answers
 
+### Spaces not trimmed
+
+`' ben@mail.io'` and `'ben@mail.io'` are the same address. Apply `TRIM` as well as `LOWER`.
+
 ```sql
 SELECT LOWER(email) AS email, COUNT(*) AS accounts
 FROM accounts GROUP BY LOWER(email) HAVING COUNT(*) > 1
 ORDER BY accounts DESC, email;
 ```
+
+### Case not normalised
+
+`Ana@Mail.io` and `ana@mail.io` are the same address. Apply `LOWER` as well as `TRIM`.
 
 ```sql
 SELECT TRIM(email) AS email, COUNT(*) AS accounts

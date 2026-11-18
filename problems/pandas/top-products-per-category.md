@@ -103,6 +103,10 @@ In the kitchen example, kettle and mug both total 10 units (rank 1) and pan has 
 
 ## Wrong Answers
 
+### rank(method='min') skips numbers
+
+After a tie, `method='min'` gives 1, 1, 3, so the products in second place are lost. `method='dense'` gives 1, 1, 2.
+
 ```python
 import pandas as pd
 
@@ -112,6 +116,10 @@ def top_products(sales):
     top = totals[totals["rank"] <= 2]
     return top.sort_values(["category", "rank", "product"])
 ```
+
+### Ranking rows instead of products
+
+Ranking individual sales rows ignores that a product sells several times. Sum units per category and product first, then rank.
 
 ```python
 import pandas as pd

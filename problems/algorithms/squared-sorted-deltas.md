@@ -195,6 +195,10 @@ version is what interviewers usually want to see.
 
 ## Wrong Answers
 
+### Squares are not sorted
+
+Squaring a sorted list breaks the order when there are negatives (`-4² = 16 > 3² = 9`). Fill the result from the largest end with two pointers.
+
 ```python
 def squared_sorted(deltas):
     return [d * d for d in deltas]

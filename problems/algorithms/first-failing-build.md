@@ -172,6 +172,10 @@ each check is a 10-minute build, the difference is 20 builds vs a million.
 
 ## Wrong Answers
 
+### No failing build returns the last index
+
+When no build failed the answer is -1, but this search returns the last index. Search over `[0, len]` and map `len` to -1.
+
 ```python
 def first_failing(failed):
     lo, hi = 0, len(failed) - 1

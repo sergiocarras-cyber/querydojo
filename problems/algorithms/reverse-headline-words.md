@@ -137,10 +137,18 @@ If the interviewer forbids `split`, scan with two pointers to extract words from
 
 ## Wrong Answers
 
+### Splitting on a single space
+
+`split(' ')` keeps empty strings when there are several spaces in a row, so they reappear in the output. `split()` with no argument handles any run of whitespace.
+
 ```python
 def reverse_words(headline):
     return " ".join(reversed(headline.split(" ")))
 ```
+
+### Reversing characters instead of words
+
+`[::-1]` reverses every letter. Reverse the order of the words and keep each word intact.
 
 ```python
 def reverse_words(headline):

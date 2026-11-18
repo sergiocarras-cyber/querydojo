@@ -7,7 +7,15 @@ import { readJson, writeJson } from '../storage/local';
  * exported/imported as a single JSON file.
  */
 
-export type ProblemStatus = 'todo' | 'attempted' | 'solved';
+/**
+ * `assisted`: accepted while the official solution had been viewed in the last
+ * ASSIST_COOLDOWN_DAYS days. It does not count as solved until you solve it
+ * again later without looking.
+ */
+export type ProblemStatus = 'todo' | 'attempted' | 'assisted' | 'solved';
+
+export const ASSIST_COOLDOWN_DAYS = 3;
+const ASSIST_COOLDOWN_MS = ASSIST_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
 export type SubmissionVerdict = 'accepted' | 'wrong' | 'error' | 'timeout';
 
 export interface Submission {
@@ -19,6 +27,12 @@ export interface Submission {
   code: string;
   /** Short human summary of the result. */
   detail: string;
+  /** Share of test cases / datasets passed, 0..1 (absent in old submissions). */
+  score?: number;
+  /** Accepted, but within the cooldown after viewing the solution. */
+  assisted?: boolean;
+  /** Title of the typical mistake this submission matched, if any. */
+  diagnosis?: string;
 }
 
 export interface ProblemProgress {
@@ -28,6 +42,8 @@ export interface ProblemProgress {
   firstAttemptAt: string;
   lastAttemptAt: string;
   solvedAt?: string;
+  /** Last time the official solution (or stats explanation) was revealed. */
+  solutionViewedAt?: string;
 }
 
 export interface ProgressData {
@@ -87,20 +103,56 @@ export function statusOf(data: ProgressData, problemId: string): ProblemStatus {
   return data.problems[problemId]?.status ?? 'todo';
 }
 
-/** Records a Submit (Run does not count as an attempt). */
-export function recordSubmission(problemId: string, submission: Omit<Submission, 'at'>): void {
+/** When an `assisted` problem can be solved again for real (null if not applicable). */
+export function assistReadyAt(pp: ProblemProgress | undefined): Date | null {
+  if (!pp?.solutionViewedAt || pp.status === 'solved') return null;
+  return new Date(Date.parse(pp.solutionViewedAt) + ASSIST_COOLDOWN_MS);
+}
+
+/** True while an accepted submission would only count as `assisted`. */
+export function inAssistCooldown(pp: ProblemProgress | undefined, now = Date.now()): boolean {
+  const ready = assistReadyAt(pp);
+  return ready !== null && now < ready.getTime();
+}
+
+/** True if an accepted submission right now would only count as `assisted`. */
+export function wouldBeAssisted(problemId: string): boolean {
+  const pp = state.problems[problemId];
+  return pp?.status !== 'solved' && inAssistCooldown(pp);
+}
+
+/** Records that the official solution was revealed. Solved problems stay solved. */
+export function markSolutionViewed(problemId: string): void {
   const at = new Date().toISOString();
   const prev = state.problems[problemId];
+  const entry: ProblemProgress = prev
+    ? { ...prev, solutionViewedAt: at }
+    : { status: 'attempted', attempts: 0, failures: 0, firstAttemptAt: at, lastAttemptAt: at, solutionViewedAt: at };
+  commit({ ...state, problems: { ...state.problems, [problemId]: entry } });
+}
+
+/** Records a Submit (Run does not count as an attempt). */
+export function recordSubmission(problemId: string, submission: Omit<Submission, 'at'>): void {
+  const now = Date.now();
+  const at = new Date(now).toISOString();
+  const prev = state.problems[problemId];
   const accepted = submission.verdict === 'accepted';
+  let status: ProblemProgress['status'];
+  if (prev?.status === 'solved') status = 'solved';
+  else if (accepted) status = inAssistCooldown(prev, now) ? 'assisted' : 'solved';
+  else status = prev?.status === 'assisted' ? 'assisted' : 'attempted';
   const entry: ProblemProgress = {
-    status: accepted || prev?.status === 'solved' ? 'solved' : 'attempted',
+    ...prev,
+    status,
     attempts: (prev?.attempts ?? 0) + 1,
     failures: (prev?.failures ?? 0) + (accepted ? 0 : 1),
     firstAttemptAt: prev?.firstAttemptAt ?? at,
     lastAttemptAt: at,
-    solvedAt: prev?.solvedAt ?? (accepted ? at : undefined),
+    solvedAt: prev?.solvedAt ?? (status === 'solved' ? at : undefined),
   };
-  const subs = [{ ...submission, at }, ...(state.submissions[problemId] ?? [])].slice(0, MAX_SUBMISSIONS_PER_PROBLEM);
+  const record: Submission = { ...submission, at };
+  if (accepted && status === 'assisted') record.assisted = true;
+  const subs = [record, ...(state.submissions[problemId] ?? [])].slice(0, MAX_SUBMISSIONS_PER_PROBLEM);
   const today = todayKey();
   commit({
     ...state,

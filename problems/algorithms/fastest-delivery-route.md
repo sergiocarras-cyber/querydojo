@@ -270,6 +270,10 @@ billion steps here.
 
 ## Wrong Answers
 
+### BFS ignores travel times
+
+BFS finds the fewest roads, not the shortest time. With weighted roads, use Dijkstra with a heap.
+
 ```python
 from collections import deque
 
@@ -288,6 +292,10 @@ def fastest_delivery(n, roads, source, target):
                 q.append(v)
     return dist.get(target, -1)
 ```
+
+### Bellman-Ford
+
+Relaxing every road `n - 1` times is O(n·m): correct, but too slow for the large hidden inputs. All times are positive, so Dijkstra with a heap is enough.
 
 ```python
 def fastest_delivery(n, roads, source, target):

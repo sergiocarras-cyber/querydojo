@@ -88,6 +88,10 @@ many orders.
 
 ## Wrong Answers
 
+### Left merge without filtering
+
+A left merge keeps every customer (and repeats those with several orders). Keep only customers whose id is not in `orders`: `~customers['customer_id'].isin(orders['customer_id'])`.
+
 ```python
 import pandas as pd
 

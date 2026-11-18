@@ -130,6 +130,10 @@ In the example, January's cohort has users 1, 2, 3: users 1 and 3 were active in
 
 ## Wrong Answers
 
+### Month offset from days / 30
+
+Calendar months are not 30-day blocks. Compute `year * 12 + month` for both dates and subtract.
+
 ```python
 import pandas as pd
 
@@ -146,6 +150,10 @@ def retention_table(users, activity):
         out[f"month_{k}"] = (out["cohort"].map(r).fillna(0) / out["cohort_size"] * 100).round(1)
     return out
 ```
+
+### Counting activity rows instead of users
+
+`count()` counts activity rows, so a user active several times in the month counts several times. Count distinct users.
 
 ```python
 import pandas as pd

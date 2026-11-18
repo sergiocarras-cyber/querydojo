@@ -189,6 +189,10 @@ orientation.
 
 ## Wrong Answers
 
+### Only the root is mirrored
+
+Swapping the root's children leaves every subtree unmirrored. Swap the children of every node.
+
 ```python
 def mirror(root):
     if root:

@@ -1,6 +1,6 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
-import { DIFFICULTIES, SECTIONS, type Problem } from './types.ts';
+import { DIFFICULTIES, SECTIONS, type Problem, type WrongAnswer } from './types.ts';
 
 /**
  * Problem files are Markdown with a YAML frontmatter.
@@ -114,6 +114,38 @@ function codeBlocks(markdown: string): CodeBlock[] {
   return blocks;
 }
 
+/**
+ * `## Wrong Answers`: each mistake is a `### Title`, a short explanation shown
+ * to the user when their submission behaves the same way, and one code block.
+ * Bare code blocks (no heading) are still accepted, without a diagnosis.
+ */
+function parseWrongAnswers(raw: string, file: string): WrongAnswer[] {
+  const out: WrongAnswer[] = [];
+  const parts: { title: string; lines: string[] }[] = [];
+  let current: { title: string; lines: string[] } = { title: '', lines: [] };
+  let inFence = false;
+  for (const line of raw.split('\n')) {
+    if (/^\s*(```|~~~)/.test(line)) inFence = !inFence;
+    if (!inFence && line.startsWith('### ')) {
+      parts.push(current);
+      current = { title: line.slice(4).trim(), lines: [] };
+      continue;
+    }
+    current.lines.push(line);
+  }
+  parts.push(current);
+  for (const part of parts) {
+    const text = part.lines.join('\n');
+    const blocks = codeBlocks(text);
+    if (part.title && blocks.length !== 1) {
+      throw new ProblemFormatError(file, `wrong answer "${part.title}" must contain exactly one code block`);
+    }
+    const explanation = text.replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '').trim();
+    for (const b of blocks) out.push({ title: part.title, explanation: part.title ? explanation : '', code: b.code });
+  }
+  return out;
+}
+
 function requireSection(sections: Map<string, string>, name: string, file: string): string {
   const value = sections.get(name);
   if (value === undefined || value === '') {
@@ -169,7 +201,7 @@ export function parseProblem(raw: string, file: string): Problem {
         hiddenData: codeBlocks(hiddenRaw).map((b) => b.code),
         solution: singleCode(sections, 'solution', file),
         orderMatters: fm.order_matters ?? false,
-        wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
+        wrongAnswers: parseWrongAnswers(sections.get('wrong answers') ?? '', file),
       };
     }
     case 'algorithms': {
@@ -197,7 +229,7 @@ export function parseProblem(raw: string, file: string): Problem {
         hiddenTests: parseTests(sections, 'hidden tests', file, false),
         generator: optionalCode(sections, 'generator'),
         checker,
-        wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
+        wrongAnswers: parseWrongAnswers(sections.get('wrong answers') ?? '', file),
       };
     }
     case 'pandas': {
@@ -213,7 +245,7 @@ export function parseProblem(raw: string, file: string): Problem {
         solution: singleCode(sections, 'solution', file),
         dataCode: singleCode(sections, 'data', file),
         hiddenDataCode: optionalCode(sections, 'hidden data'),
-        wrongAnswers: codeBlocks(sections.get('wrong answers') ?? '').map((b) => b.code),
+        wrongAnswers: parseWrongAnswers(sections.get('wrong answers') ?? '', file),
       };
     }
     case 'stats': {

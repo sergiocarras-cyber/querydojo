@@ -102,6 +102,10 @@ end is inclusive.
 
 ## Wrong Answers
 
+### The as-of day is excluded
+
+`< end` drops orders placed on the as-of date itself. The 30-day window is `[as_of - 29 days, as_of]`, both ends included.
+
 ```python
 import pandas as pd
 
@@ -111,6 +115,10 @@ def recent_high_value(orders, as_of):
     out = orders.loc[mask, ["order_id", "customer_id", "total"]]
     return out.sort_values(["total", "order_id"], ascending=[False, True])
 ```
+
+### A 31-day window
+
+`between(end - 30 days, end)` includes both ends, which is 31 days. Start at `end - 29 days`.
 
 ```python
 import pandas as pd

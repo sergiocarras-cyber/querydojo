@@ -3,10 +3,12 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { evaluateSql, type JobRunner } from '../src/lib/sql/evaluate';
 import type { SqlProblem } from '../src/lib/problems/types';
 import { loadAllProblems } from './loadProblems';
+import { fingerprintStore } from './fingerprints';
 import { createNodeRunner } from './nodeSqlRunner';
 
 const sqlProblems = loadAllProblems().filter((p): p is SqlProblem => p.section === 'sql');
 
+const prints = fingerprintStore('sql');
 let run: JobRunner;
 let db: PGlite;
 beforeAll(async () => {
@@ -14,6 +16,7 @@ beforeAll(async () => {
 });
 afterAll(async () => {
   await db.close();
+  prints.save();
 });
 
 describe.each(sqlProblems.map((p) => [p.id, p] as const))('%s', (_id, p) => {
@@ -38,8 +41,12 @@ describe.each(sqlProblems.map((p) => [p.id, p] as const))('%s', (_id, p) => {
     expect(res.ok, res.ok ? '' : res.error).toBe(true);
   });
 
-  it.each(p.wrongAnswers.map((q, i) => [i + 1, q] as const))('wrong answer #%i is rejected', async (_i, query) => {
+  it('wrong-answer fingerprints are up to date', () => prints.checkFresh(p));
+
+  it.each(p.wrongAnswers.map((w, i) => [i + 1, w.code] as const))('wrong answer #%i is rejected', async (i, query) => {
     const ev = await evaluateSql(p, query, 'submit', run);
     expect(ev.status).not.toBe('accepted');
+    expect(ev.score).toBeLessThan(1);
+    prints.record(p, i - 1, ev.fingerprint);
   });
 });

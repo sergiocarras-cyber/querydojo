@@ -212,6 +212,10 @@ for 3000 numbers), and without the skips you'd return duplicates.
 
 ## Wrong Answers
 
+### Duplicate triples
+
+Without skipping repeated values, the same triple is reported several times. Skip equal neighbours for the first number and after each match.
+
 ```python
 def zero_triples(nums):
     nums = sorted(nums)
@@ -230,6 +234,10 @@ def zero_triples(nums):
                 hi -= 1
     return out
 ```
+
+### Every combination of three
+
+`combinations(nums, 3)` is O(n³): correct, but too slow for the large hidden inputs. Sort, fix one number and use two pointers for the other two.
 
 ```python
 from itertools import combinations
