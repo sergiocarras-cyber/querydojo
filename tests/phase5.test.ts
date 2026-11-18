@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STUDY_PATHS, pathProblemIds } from '../src/lib/paths';
+import { inJudgmentTrack } from '../src/lib/problems/types';
 import {
   candidates,
   formatDuration,
@@ -29,11 +30,14 @@ describe('study paths', () => {
     it(`${path.id} covers every ${path.section} problem exactly once`, () => {
       const ids = pathProblemIds(path);
       expect(new Set(ids).size).toBe(ids.length);
+      // Criterio also includes the "fix the AI's code" exercises from the code sections.
+      const belongs = (p: (typeof problems)[number]) =>
+        path.section === 'judgment' ? inJudgmentTrack(p) : p.section === path.section;
       for (const id of ids) {
         expect(byId.get(id), id).toBeDefined();
-        expect(byId.get(id)!.section).toBe(path.section);
+        expect(belongs(byId.get(id)!), id).toBe(true);
       }
-      const all = problems.filter((p) => p.section === path.section).map((p) => p.id);
+      const all = problems.filter(belongs).map((p) => p.id);
       expect([...ids].sort()).toEqual(all.sort());
       for (const step of path.steps) expect(step.problems.length).toBeGreaterThan(0);
     });
@@ -52,6 +56,7 @@ describe('study paths', () => {
       'Graphs',
       'Heaps',
       'Programación dinámica',
+      'Revisa el código de la IA',
     ]);
   });
 });
@@ -100,10 +105,11 @@ describe('progress aggregations', () => {
 
   it('tallies sections and difficulties', () => {
     const sql = sectionTallies(problems, data).find((s) => s.section === 'sql')!;
-    expect(sql.total).toBe(30);
+    const sqlTotal = problems.filter((p) => p.section === 'sql').length;
+    expect(sql.total).toBe(sqlTotal);
     expect(sql.solved).toBe(1);
     expect(sql.attempted).toBe(1);
-    expect(sql.byDifficulty.Easy.total + sql.byDifficulty.Medium.total + sql.byDifficulty.Hard.total).toBe(30);
+    expect(sql.byDifficulty.Easy.total + sql.byDifficulty.Medium.total + sql.byDifficulty.Hard.total).toBe(sqlTotal);
   });
 
   it('counts submissions per local day and keeps trimmed active days', () => {

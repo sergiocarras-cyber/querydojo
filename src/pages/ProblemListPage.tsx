@@ -1,9 +1,24 @@
 import { useMemo } from 'react';
 import { Link, NavLink, useParams, useSearchParams } from 'react-router';
-import { DifficultyBadge, STATUS_LABEL, SectionBadge, StatusIcon, TopicChip } from '../components/Badges';
+import { AiReviewChip, DifficultyBadge, IndustryChip, STATUS_LABEL, SectionBadge, StatusIcon, TopicChip } from '../components/Badges';
 import { statusOf, useProgress, type ProblemStatus } from '../lib/progress/store';
 import { problems } from '../lib/problems/registry';
-import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Section } from '../lib/problems/types';
+import {
+  DIFFICULTIES,
+  INDUSTRIES,
+  INDUSTRY_INFO,
+  SECTIONS,
+  SECTION_INFO,
+  inJudgmentTrack,
+  type ProblemMeta,
+  type Section,
+} from '../lib/problems/types';
+
+/** Criterio also lists the "fix the AI's code" exercises from the code sections. */
+function inTab(p: ProblemMeta, section: Section | null): boolean {
+  if (!section) return true;
+  return section === 'judgment' ? inJudgmentTrack(p) : p.section === section;
+}
 import { useTitle } from '../hooks/useTitle';
 
 const selectCls =
@@ -20,6 +35,7 @@ export function ProblemListPage() {
   const difficulty = params.get('difficulty') ?? '';
   const topic = params.get('topic') ?? '';
   const status = params.get('status') ?? '';
+  const industry = params.get('industry') ?? '';
 
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params);
@@ -28,22 +44,25 @@ export function ProblemListPage() {
     setParams(next, { replace: true });
   };
 
-  const inSection = useMemo(() => (current ? problems.filter((p) => p.section === current) : problems), [current]);
+  const inSection = useMemo(() => problems.filter((p) => inTab(p, current)), [current]);
+  const industries = INDUSTRIES.filter((i) => inSection.some((p) => p.industry === i));
   const topics = useMemo(() => [...new Set(inSection.flatMap((p) => p.topics))].sort(), [inSection]);
 
   const list = inSection.filter((p) => {
     if (difficulty && p.difficulty !== difficulty) return false;
     if (topic && !p.topics.includes(topic)) return false;
     if (status && statusOf(progress, p.id) !== status) return false;
+    if (industry && p.industry !== industry) return false;
     if (q) {
-      const hay = `${p.title} ${p.company} ${p.topics.join(' ')} ${p.id}`.toLowerCase();
+      const hay = `${p.title} ${p.company} ${INDUSTRY_INFO[p.industry].name} ${p.topics.join(' ')} ${p.id}`.toLowerCase();
       if (!q.toLowerCase().split(/\s+/).every((w) => hay.includes(w))) return false;
     }
     return true;
   });
 
   const solved = inSection.filter((p) => statusOf(progress, p.id) === 'solved').length;
-  const filtersOn = q || difficulty || topic || status;
+  const filtersOn = q || difficulty || topic || status || industry;
+  const showSection = !current || current === 'judgment';
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8">
@@ -66,17 +85,26 @@ export function ProblemListPage() {
           >
             {s ? SECTION_INFO[s].short : 'Todas'}
             <span className="ml-1.5 font-mono text-[11px] text-ink-500">
-              {s ? problems.filter((p) => p.section === s).length : problems.length}
+              {problems.filter((p) => inTab(p, s)).length}
             </span>
           </NavLink>
         ))}
       </nav>
 
+      {current === 'judgment' && (
+        <p className="mt-4 max-w-3xl text-sm text-ink-400">
+          La IA ya escribe consultas y funciones en segundos. Lo que se valora es el criterio: detectar el fallo en
+          código que parece correcto, elegir bien las métricas, modelar los datos y saber por qué algo va lento.
+          Los ejercicios <span className="text-amber">Revisión IA</span> parten de código escrito por una IA que
+          tiene un fallo sutil.
+        </p>
+      )}
+
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <input
           value={q}
           onChange={(e) => setParam('q', e.target.value)}
-          placeholder="Buscar por título, tema o empresa…"
+          placeholder="Buscar por título, tema, empresa o sector…"
           className="w-72 rounded-md border border-ink-700 bg-ink-900 px-3 py-1.5 text-sm text-ink-100 outline-none placeholder:text-ink-500 focus:border-ink-500"
         />
         <select value={difficulty} onChange={(e) => setParam('difficulty', e.target.value)} className={selectCls}>
@@ -92,6 +120,14 @@ export function ProblemListPage() {
           {topics.map((t) => (
             <option key={t} value={t}>
               {t}
+            </option>
+          ))}
+        </select>
+        <select value={industry} onChange={(e) => setParam('industry', e.target.value)} className={selectCls}>
+          <option value="">Sector</option>
+          {industries.map((i) => (
+            <option key={i} value={i}>
+              {INDUSTRY_INFO[i].name}
             </option>
           ))}
         </select>
@@ -117,10 +153,10 @@ export function ProblemListPage() {
             <tr>
               <th className="w-10 px-4 py-2 font-medium" aria-label="Estado" />
               <th className="px-2 py-2 font-medium">Título</th>
-              {!current && <th className="px-4 py-2 font-medium">Sección</th>}
+              {showSection && <th className="px-4 py-2 font-medium">Sección</th>}
               <th className="px-4 py-2 font-medium">Dificultad</th>
               <th className="px-4 py-2 font-medium">Temas</th>
-              <th className="px-4 py-2 font-medium">Empresa</th>
+              <th className="px-4 py-2 font-medium">Sector</th>
             </tr>
           </thead>
           <tbody>
@@ -133,8 +169,13 @@ export function ProblemListPage() {
                   <Link to={`/problem/${p.slug}`} className="text-ink-100 hover:text-vermilion">
                     {p.title}
                   </Link>
+                  {p.aiReview && (
+                    <span className="ml-2">
+                      <AiReviewChip />
+                    </span>
+                  )}
                 </td>
-                {!current && (
+                {showSection && (
                   <td className="px-4 py-2.5">
                     <SectionBadge section={p.section} />
                   </td>
@@ -151,7 +192,11 @@ export function ProblemListPage() {
                     ))}
                   </div>
                 </td>
-                <td className="px-4 py-2.5 text-ink-400">{p.company}</td>
+                <td className="px-4 py-2.5">
+                  <button onClick={() => setParam('industry', p.industry)} title={`Filtrar por sector · ${p.company}`}>
+                    <IndustryChip industry={p.industry} />
+                  </button>
+                </td>
               </tr>
             ))}
             {list.length === 0 && (

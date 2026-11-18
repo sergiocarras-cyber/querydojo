@@ -55,7 +55,9 @@ export function fingerprintStore(section: Section) {
       if (!UPDATE) return;
       const path = fingerprintPath(ROOT, section);
       mkdirSync(dirname(path), { recursive: true });
-      const sorted = Object.fromEntries(Object.entries(next).sort(([a], [b]) => a.localeCompare(b)));
+      // Merge, so regenerating a subset (vitest -t) keeps the other problems' entries.
+      const merged = { ...stored, ...next };
+      const sorted = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)));
       writeFileSync(path, JSON.stringify(sorted, null, 1) + '\n');
     },
   };

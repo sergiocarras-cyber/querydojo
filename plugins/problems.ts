@@ -18,7 +18,7 @@ import type { Diagnosis, Problem, ProblemMeta, Section } from '../src/lib/proble
  */
 const INDEX_ID = 'virtual:problem-index';
 const FULL_PREFIX = 'virtual:problems/';
-const SECTION_ORDER: Record<Section, number> = { sql: 0, algorithms: 1, pandas: 2, stats: 3 };
+const SECTION_ORDER: Record<Section, number> = { sql: 0, algorithms: 1, pandas: 2, stats: 3, judgment: 4 };
 
 export function loadProblemFiles(root: string): { problems: Problem[]; files: string[] } {
   const dir = join(root, 'problems');
@@ -50,8 +50,11 @@ export function loadProblemFiles(root: string): { problems: Problem[]; files: st
  * stored fingerprints are stale and must be regenerated (npm run fingerprints).
  */
 export function gradingHash(p: Problem): string {
+  // Metadata that doesn't change grading is left out entirely (not blanked), so adding a new
+  // descriptive field never invalidates the stored fingerprints.
+  const { industry: _industry, aiReview: _aiReview, ...rest } = p;
   const graded = {
-    ...p,
+    ...rest,
     title: '',
     statement: '',
     hints: [],
@@ -97,8 +100,8 @@ function forBrowser(p: Problem, prints: FingerprintFile): Problem {
 }
 
 export function toMeta(p: Problem): ProblemMeta {
-  const { id, slug, title, section, difficulty, topics, company } = p;
-  return { id, slug, title, section, difficulty, topics, company };
+  const { id, slug, title, section, difficulty, topics, company, industry, aiReview } = p;
+  return { id, slug, title, section, difficulty, topics, company, industry, aiReview };
 }
 
 export function problemsPlugin(): Plugin {

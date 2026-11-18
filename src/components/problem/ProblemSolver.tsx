@@ -1,5 +1,5 @@
 import { useDraft } from '../../hooks/useDraft';
-import type { CodeProblem, Problem, StatsProblem } from '../../lib/problems/types';
+import { isQuiz, type CodeProblem, type Problem, type StatsProblem } from '../../lib/problems/types';
 import { SplitPane } from '../SplitPane';
 import { ProblemDescription, type DescriptionTab } from './ProblemDescription';
 import { PythonWorkspace } from './PythonWorkspace';
@@ -18,7 +18,7 @@ const INTERVIEW_TABS: DescriptionTab[] = ['statement'];
 
 /** Statement on the left, editor or answer box on the right. */
 export function ProblemSolver(props: Props) {
-  return props.problem.section === 'stats' ? (
+  return isQuiz(props.problem) ? (
     <StatsSolver {...props} problem={props.problem} />
   ) : (
     <CodeSolver {...props} problem={props.problem} />

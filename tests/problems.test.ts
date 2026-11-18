@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Section } from '../src/lib/problems/types';
 import { loadAllProblems } from './loadProblems';
 
-const ID_PREFIX: Record<Section, string> = { sql: 'sql-', algorithms: 'algo-', pandas: 'pandas-', stats: 'stats-' };
+const ID_PREFIX: Record<Section, string> = { sql: 'sql-', algorithms: 'algo-', pandas: 'pandas-', stats: 'stats-', judgment: 'crit-' };
 
 const problems = loadAllProblems();
 

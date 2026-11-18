@@ -8,6 +8,7 @@ const LOADERS: Record<Section, () => Promise<{ default: Problem[] }>> = {
   algorithms: () => import('virtual:problems/algorithms'),
   pandas: () => import('virtual:problems/pandas'),
   stats: () => import('virtual:problems/stats'),
+  judgment: () => import('virtual:problems/judgment'),
 };
 
 const sections = new Map<Section, Promise<Map<string, Problem>>>();

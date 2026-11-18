@@ -1,4 +1,4 @@
-export const SECTIONS = ['sql', 'algorithms', 'pandas', 'stats'] as const;
+export const SECTIONS = ['sql', 'algorithms', 'pandas', 'stats', 'judgment'] as const;
 export type Section = (typeof SECTIONS)[number];
 
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
@@ -9,8 +9,8 @@ export interface SectionInfo {
   name: string;
   short: string;
   description: string;
-  /** Tailwind text/bg colour suffix from the theme (sky, vermilion, jade, violet). */
-  color: 'sky' | 'vermilion' | 'jade' | 'violet';
+  /** Tailwind text/bg colour suffix from the theme. */
+  color: 'sky' | 'vermilion' | 'jade' | 'violet' | 'amber';
   language: 'sql' | 'python' | 'markdown';
 }
 
@@ -47,6 +47,59 @@ export const SECTION_INFO: Record<Section, SectionInfo> = {
     color: 'violet',
     language: 'markdown',
   },
+  judgment: {
+    id: 'judgment',
+    name: 'Criterio',
+    short: 'Criterio',
+    description: 'Revisar código de IA, métricas, modelado y rendimiento: lo que la IA no decide por ti.',
+    color: 'amber',
+    language: 'markdown',
+  },
+};
+
+/**
+ * Industry of each problem. Companies are fictional, but every scenario is the
+ * kind of question that comes up in that industry. Derived from the company
+ * (COMPANY_INDUSTRY) unless the frontmatter sets `industry`.
+ */
+export const INDUSTRIES = [
+  'ecommerce',
+  'marketplace',
+  'social',
+  'fintech',
+  'apps',
+  'streaming',
+  'mobility',
+  'gaming',
+  'travel',
+] as const;
+export type Industry = (typeof INDUSTRIES)[number];
+
+export const INDUSTRY_INFO: Record<Industry, { name: string; about: string }> = {
+  ecommerce: { name: 'E-commerce', about: 'pedidos, cestas, devoluciones, cohortes de compra' },
+  marketplace: { name: 'Marketplace', about: 'vendedores, comisiones, oferta y demanda' },
+  social: { name: 'Redes sociales', about: 'seguidores, engagement, feeds, sesiones' },
+  fintech: { name: 'Fintech', about: 'pagos, saldos, fraude, transferencias' },
+  apps: { name: 'Apps y SaaS', about: 'suscripciones, conversión, retención, activación' },
+  streaming: { name: 'Streaming', about: 'reproducciones, minutos vistos, recomendaciones' },
+  mobility: { name: 'Movilidad', about: 'viajes, conductores, ciudades, tiempos de llegada' },
+  gaming: { name: 'Videojuegos', about: 'jugadores, partidas, recompensas, monetización' },
+  travel: { name: 'Viajes', about: 'reservas, ocupación, cancelaciones' },
+};
+
+export const COMPANY_INDUSTRY: Record<string, Industry> = {
+  Basketly: 'ecommerce',
+  'Loomly Home': 'ecommerce',
+  'Shelfie Books': 'ecommerce',
+  'Cartwell Marketplace': 'marketplace',
+  Chirpnest: 'social',
+  'Pennywise Pay': 'fintech',
+  Habitly: 'apps',
+  Tunely: 'streaming',
+  'Lumora Stream': 'streaming',
+  'Moviq Rides': 'mobility',
+  'Fernplay Games': 'gaming',
+  'Nestaway Stays': 'travel',
 };
 
 /** A typical mistake: kept to prove the hidden data rejects it, and to explain it. */
@@ -75,6 +128,9 @@ interface BaseProblem {
   difficulty: Difficulty;
   topics: string[];
   company: string;
+  industry: Industry;
+  /** "Fix the AI's code": the starter is plausible AI-written code with a bug. Listed under Criterio too. */
+  aiReview: boolean;
   /** Markdown statement (examples and constraints included). */
   statement: string;
   /** Hints, unlocked one at a time. Markdown. */
@@ -88,7 +144,10 @@ interface BaseProblem {
 }
 
 /** What lists, paths and progress need: everything but the content. */
-export type ProblemMeta = Pick<BaseProblem, 'id' | 'slug' | 'title' | 'section' | 'difficulty' | 'topics' | 'company'>;
+export type ProblemMeta = Pick<
+  BaseProblem,
+  'id' | 'slug' | 'title' | 'section' | 'difficulty' | 'topics' | 'company' | 'industry' | 'aiReview'
+>;
 
 export interface SqlProblem extends BaseProblem {
   section: 'sql';
@@ -163,8 +222,9 @@ export interface PandasProblem extends BaseProblem {
   diagnoses?: Diagnosis[];
 }
 
+/** Answer-only questions (numeric or multiple choice): Estadística and Criterio. */
 export interface StatsProblem extends BaseProblem {
-  section: 'stats';
+  section: 'stats' | 'judgment';
   answerType: 'numeric' | 'choice';
   /** Numeric answer, or the index of the correct option. */
   answer: number;
@@ -180,3 +240,12 @@ export type Problem = SqlProblem | AlgorithmsProblem | PandasProblem | StatsProb
 
 /** Problems solved by writing code in the editor. */
 export type CodeProblem = SqlProblem | AlgorithmsProblem | PandasProblem;
+
+export function isQuiz<P extends Pick<BaseProblem, 'section'>>(p: P): p is P & StatsProblem {
+  return p.section === 'stats' || p.section === 'judgment';
+}
+
+/** Problems shown under Criterio: its own questions plus the "fix the AI's code" exercises. */
+export function inJudgmentTrack(p: Pick<BaseProblem, 'section' | 'aiReview'>): boolean {
+  return p.section === 'judgment' || p.aiReview;
+}

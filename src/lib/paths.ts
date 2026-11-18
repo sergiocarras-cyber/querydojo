@@ -62,6 +62,11 @@ export const STUDY_PATHS: StudyPath[] = [
         summary: 'Las preguntas de producto más típicas de las entrevistas de analytics.',
         problems: ['sql-010', 'sql-027'],
       },
+      {
+        title: 'Revisa el SQL de la IA',
+        summary: 'Consultas que funcionan pero dan números falsos: fan-out, divisiones enteras, LEFT JOIN roto.',
+        problems: ['sql-033', 'sql-031', 'sql-032', 'sql-034'],
+      },
     ],
   },
   {
@@ -121,6 +126,11 @@ export const STUDY_PATHS: StudyPath[] = [
         summary: 'Subproblemas, tablas y la combinación con binary search.',
         problems: ['algo-036', 'algo-010', 'algo-040'],
       },
+      {
+        title: 'Revisa el código de la IA',
+        summary: 'Funciones correctas en el ejemplo que fallan en producción.',
+        problems: ['algo-041', 'algo-042'],
+      },
     ],
   },
   {
@@ -154,6 +164,11 @@ export const STUDY_PATHS: StudyPath[] = [
         summary: 'Sesiones y tablas de retención por cohorte.',
         problems: ['pandas-014', 'pandas-015'],
       },
+      {
+        title: 'Revisa el pandas de la IA',
+        summary: 'Asignación encadenada y merges que multiplican filas.',
+        problems: ['pandas-016', 'pandas-017'],
+      },
     ],
   },
   {
@@ -186,6 +201,35 @@ export const STUDY_PATHS: StudyPath[] = [
         title: 'Inferencia y A/B testing',
         summary: 'Errores, p-valores, intervalos, potencia y comparaciones múltiples.',
         problems: ['stats-011', 'stats-010', 'stats-013', 'stats-009', 'stats-012', 'stats-020'],
+      },
+    ],
+  },
+  {
+    id: 'criterio-ia',
+    title: 'Criterio en la era de la IA',
+    section: 'judgment',
+    description:
+      'Lo que la IA no decide por ti: revisar su código, elegir métricas, modelar datos y diagnosticar pipelines.',
+    steps: [
+      {
+        title: 'Revisa el código de la IA',
+        summary: 'Código que corre sin errores y da resultados falsos. Encuentra el fallo y arréglalo.',
+        problems: ['sql-033', 'sql-031', 'sql-032', 'sql-034', 'algo-041', 'algo-042', 'pandas-016', 'pandas-017'],
+      },
+      {
+        title: 'Métricas y producto',
+        summary: 'Validar los datos, elegir la métrica correcta y no confundir correlación con causa.',
+        problems: ['crit-001', 'crit-004', 'crit-002', 'crit-003', 'crit-005', 'crit-006'],
+      },
+      {
+        title: 'Modelado de datos',
+        summary: 'Granularidad, claves e historial de cambios.',
+        problems: ['crit-009', 'crit-007', 'crit-008'],
+      },
+      {
+        title: 'Rendimiento y pipelines',
+        summary: 'Índices, cargas idempotentes y datos que llegan tarde.',
+        problems: ['crit-010', 'crit-011', 'crit-012'],
       },
     ],
   },

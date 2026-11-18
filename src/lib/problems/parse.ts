@@ -1,6 +1,6 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
-import { DIFFICULTIES, SECTIONS, type Problem, type WrongAnswer } from './types.ts';
+import { COMPANY_INDUSTRY, DIFFICULTIES, INDUSTRIES, SECTIONS, type Problem, type WrongAnswer } from './types.ts';
 
 /**
  * Problem files are Markdown with a YAML frontmatter.
@@ -15,6 +15,8 @@ const frontmatterSchema = z.object({
   difficulty: z.enum(DIFFICULTIES),
   topics: z.array(z.string().min(1)).min(1),
   company: z.string().min(2),
+  industry: z.enum(INDUSTRIES).optional(),
+  ai_review: z.boolean().optional(),
   order_matters: z.boolean().optional(),
   // algorithms / pandas
   function: z.string().regex(/^[a-z_][a-z0-9_]*$/).optional(),
@@ -176,6 +178,14 @@ export function parseProblem(raw: string, file: string): Problem {
   const hints = [...splitSections(hintsRaw, 3).values()].filter(Boolean);
   if (hints.length === 0) throw new ProblemFormatError(file, 'hints must contain at least one "### Hint" block');
 
+  const industry = fm.industry ?? COMPANY_INDUSTRY[fm.company];
+  if (!industry) {
+    throw new ProblemFormatError(file, `unknown company "${fm.company}": add it to COMPANY_INDUSTRY or set "industry"`);
+  }
+  if (fm.ai_review && !['sql', 'algorithms', 'pandas'].includes(fm.section)) {
+    throw new ProblemFormatError(file, '"ai_review" only applies to code problems');
+  }
+
   const base = {
     id: fm.id,
     slug: fm.slug,
@@ -183,6 +193,8 @@ export function parseProblem(raw: string, file: string): Problem {
     difficulty: fm.difficulty,
     topics: fm.topics,
     company: fm.company,
+    industry,
+    aiReview: fm.ai_review ?? false,
     statement: requireSection(sections, 'statement', file),
     hints,
     explanation: requireSection(sections, 'explanation', file),
@@ -248,7 +260,8 @@ export function parseProblem(raw: string, file: string): Problem {
         wrongAnswers: parseWrongAnswers(sections.get('wrong answers') ?? '', file),
       };
     }
-    case 'stats': {
+    case 'stats':
+    case 'judgment': {
       if (!fm.answer_type || fm.answer === undefined) {
         throw new ProblemFormatError(file, 'stats problems need "answer_type" and "answer"');
       }
@@ -268,7 +281,7 @@ export function parseProblem(raw: string, file: string): Problem {
       }
       return {
         ...base,
-        section: 'stats',
+        section: fm.section,
         answerType: fm.answer_type,
         answer: fm.answer,
         tolerance: fm.tolerance ?? 1e-3,

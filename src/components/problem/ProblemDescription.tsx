@@ -7,9 +7,9 @@ import {
   useProgress,
   type Submission,
 } from '../../lib/progress/store';
-import type { Problem } from '../../lib/problems/types';
+import { isQuiz, type Problem } from '../../lib/problems/types';
 import { readJson, writeJson } from '../../lib/storage/local';
-import { DifficultyBadge, SectionBadge, TopicChip } from '../Badges';
+import { AiReviewChip, DifficultyBadge, IndustryChip, SectionBadge, TopicChip } from '../Badges';
 import { Markdown } from '../Markdown';
 import { formatNumber } from '../../lib/stats/answer';
 import { PandasTables } from './PandasTables';
@@ -82,7 +82,9 @@ function Statement({ problem }: { problem: Problem }) {
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <DifficultyBadge difficulty={problem.difficulty} />
         <SectionBadge section={problem.section} />
+        {problem.aiReview && <AiReviewChip />}
         <span className="text-xs text-ink-400">{problem.company}</span>
+        <IndustryChip industry={problem.industry} />
       </div>
       <div className="mt-2 flex flex-wrap gap-1">
         {problem.topics.map((t) => (
@@ -165,7 +167,7 @@ function Solution({ problem }: { problem: Problem }) {
       </div>
     );
   }
-  if (problem.section === 'stats') {
+  if (isQuiz(problem)) {
     return (
       <div>
         <div className="mb-4 rounded-md border border-jade/30 bg-jade/10 px-3 py-2 text-sm text-ink-100">
@@ -228,7 +230,7 @@ function Submissions({ problem, onLoadCode }: Props) {
   if (subs.length === 0) {
     return (
       <p className="text-sm text-ink-500">
-        {problem.section === 'stats'
+        {isQuiz(problem)
           ? 'Todavía no has respondido. Escribe tu respuesta y pulsa Comprobar.'
           : 'Todavía no has enviado ninguna solución. Usa Submit para corregir.'}
       </p>

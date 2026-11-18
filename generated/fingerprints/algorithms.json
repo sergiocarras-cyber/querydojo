@@ -867,5 +867,60 @@
     "out:b1b16491e495"
    ]
   ]
+ },
+ "algo-041": {
+  "hash": "a696673261e1666d",
+  "wrong": [
+   [
+    "ok",
+    "out:313aa8431a9b",
+    "out:313aa8431a9b",
+    "out:313aa8431a9b",
+    "out:fca48e2b44c8",
+    "out:fca48e2b44c8"
+   ],
+   [
+    "out:a2c88f6e2278",
+    "out:4c447cc23006",
+    "ok",
+    "ok",
+    "out:8c70feb54a04",
+    "ok"
+   ],
+   [
+    "out:512122fde179",
+    "out:c48b9e5c56b1",
+    "ok",
+    "ok",
+    "out:675b3ce70be3",
+    "ok"
+   ]
+  ]
+ },
+ "algo-042": {
+  "hash": "13e890cfa949b676",
+  "wrong": [
+   [
+    "killed"
+   ],
+   [
+    "out:eb872b7d9fb5",
+    "ok",
+    "ok",
+    "out:e2a66b395cd6",
+    "ok",
+    "out:3d53fc5dbb9e",
+    "out:14f2bc990ec0"
+   ],
+   [
+    "out:ceff6a1346bf",
+    "ok",
+    "ok",
+    "ok",
+    "out:80dfa2628d09",
+    "out:53b22c88bb38",
+    "out:1cd56e3fdcf9"
+   ]
+  ]
  }
 }

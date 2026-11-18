@@ -8,6 +8,14 @@ sin API keys, coste 0 €.
 - **Python:** [Pyodide](https://pyodide.org) (CPython en WebAssembly) en un Web Worker, cargado desde jsDelivr solo al abrir un problema de Python.
 - **Progreso:** `localStorage` del navegador, con exportar/importar en JSON desde la página de Progreso.
 
+Hay una quinta sección, **Criterio**, pensada para la era de la IA: ejercicios **Revisión IA** (código
+SQL, Python o pandas escrito "por una IA" que funciona pero tiene un fallo sutil: hay que encontrarlo y
+arreglarlo, con el mismo corrector) y preguntas de métricas y producto, modelado de datos y rendimiento
+de pipelines.
+
+Cada problema lleva un **sector** (E-commerce, Fintech, Streaming…). Las empresas son ficticias, pero cada
+escenario es del tipo que se pregunta en ese sector; se puede filtrar por sector en la lista.
+
 Además de la lista de problemas hay **rutas de estudio** (una por sección, en orden de aprendizaje),
 **modo entrevista** (problema al azar, 30 minutos, sin pistas, resumen al final), **problema del día**
 y una página de **progreso** con rachas, calendario de actividad y temas débiles.
@@ -57,6 +65,12 @@ Cada problema es un archivo Markdown con *frontmatter* YAML. El nombre del archi
 (el orden da igual). Los problemas se escriben en inglés; la interfaz está en español.
 
 ### Frontmatter (común)
+
+Además de los campos de la tabla: `industry` es opcional (se deduce de `company` mediante
+`COMPANY_INDUSTRY` en `src/lib/problems/types.ts`; una empresa nueva hay que añadirla ahí) y
+`ai_review: true` marca un ejercicio de revisión de código de IA (su `## Starter` es el código con el
+fallo y su primer error típico debería ser ese mismo código).
+
 
 ```yaml
 ---
@@ -158,7 +172,10 @@ La corrección usa `pandas.testing.assert_frame_equal` después de comprobar col
 orden) y número de filas; el índice siempre se ignora. Con pandas 3, usa un formato de fecha
 uniforme dentro de cada `pd.to_datetime([...])`.
 
-### Problemas de estadística y probabilidad
+### Problemas de estadística y probabilidad (y de Criterio)
+
+Las preguntas de la sección `judgment` (Criterio) usan exactamente este formato, con ids `crit-NNN`.
+
 
 ```yaml
 answer_type: numeric      # numeric | choice

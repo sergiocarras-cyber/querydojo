@@ -186,5 +186,31 @@
     "out:e95e765a21ac"
    ]
   ]
+ },
+ "pandas-016": {
+  "hash": "9c0e34145ed70b23",
+  "wrong": [
+   [
+    "out:09d297eca1fb",
+    "out:d1fc8d325410"
+   ],
+   [
+    "out:5c599ca16ed9",
+    "ok"
+   ]
+  ]
+ },
+ "pandas-017": {
+  "hash": "aa0e4ce91be9c2d3",
+  "wrong": [
+   [
+    "out:7acddcd3fd9e",
+    "out:da85c640aac4"
+   ],
+   [
+    "out:35884580cfe8",
+    "out:4bbcf5226c46"
+   ]
+  ]
  }
 }

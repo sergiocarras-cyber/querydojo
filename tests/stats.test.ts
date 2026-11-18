@@ -4,7 +4,7 @@ import type { StatsProblem } from '../src/lib/problems/types';
 import { loadAllProblems } from './loadProblems';
 import { createNodePyRunner } from './nodePyRunner';
 
-const problems = loadAllProblems().filter((p): p is StatsProblem => p.section === 'stats');
+const problems = loadAllProblems().filter((p): p is StatsProblem => p.section === 'stats' || p.section === 'judgment');
 
 let run: PyRunner;
 let close: () => Promise<void>;

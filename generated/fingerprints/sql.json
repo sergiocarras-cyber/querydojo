@@ -414,5 +414,73 @@
     "out:adf4d2d85543"
    ]
   ]
+ },
+ "sql-031": {
+  "hash": "c1cb9989fb9639d1",
+  "wrong": [
+   [
+    "out:18bdf7d3bc6a",
+    "out:28b797e3e424"
+   ],
+   [
+    "out:628110eeeb66",
+    "out:060b2bbac454"
+   ],
+   [
+    "ok",
+    "out:85f9c76a6635"
+   ]
+  ]
+ },
+ "sql-032": {
+  "hash": "ce884841529b6970",
+  "wrong": [
+   [
+    "out:c1e7463566d9",
+    "out:1fa9fec19bf5"
+   ],
+   [
+    "out:f95bc409ecd6",
+    "out:7f422871d3f6"
+   ],
+   [
+    "out:32fe8a711bcc",
+    "out:1e8f6157f875"
+   ]
+  ]
+ },
+ "sql-033": {
+  "hash": "8fe4bb8c7b71cde7",
+  "wrong": [
+   [
+    "out:62b627491581",
+    "out:1af8e3f91f8a"
+   ],
+   [
+    "out:3ab84ce4aaca",
+    "out:84feb58d8655"
+   ],
+   [
+    "out:134e2f2f4c31",
+    "out:0c6cd05078a7"
+   ]
+  ]
+ },
+ "sql-034": {
+  "hash": "f74a9c432b1db73a",
+  "wrong": [
+   [
+    "out:2645cd10b99a",
+    "out:be1203091f8f"
+   ],
+   [
+    "out:84aa43eed269",
+    "out:a5d03a738c09"
+   ],
+   [
+    "ok",
+    "out:820b55c35cc4"
+   ]
+  ]
  }
 }

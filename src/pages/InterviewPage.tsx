@@ -27,7 +27,7 @@ import { getProgress, statusOf, useProgress, type Submission } from '../lib/prog
 import { loadProblem } from '../lib/problems/content';
 import { getProblemById, problems } from '../lib/problems/registry';
 import { readJson, writeJson } from '../lib/storage/local';
-import { DIFFICULTIES, SECTIONS, SECTION_INFO, type Problem } from '../lib/problems/types';
+import { DIFFICULTIES, SECTIONS, SECTION_INFO, isQuiz, type Problem } from '../lib/problems/types';
 import { useTitle } from '../hooks/useTitle';
 
 export function InterviewPage() {
@@ -332,7 +332,7 @@ function SummaryView({ summary, onClose }: { summary: InterviewSummary; onClose:
       <p className="mt-6 text-sm text-ink-400">
         {!summary.solved
           ? 'Ahora sí: mira las pistas y la solución, y vuelve a intentarlo dentro de unos días.'
-          : problem?.section === 'stats'
+          : problem && isQuiz(problem)
             ? 'Repasa la explicación oficial: en una entrevista real te pedirían justificar el razonamiento, no solo el número.'
             : 'Repasa la solución oficial y compara la complejidad con la tuya: en una entrevista real te la preguntarían.'}
       </p>

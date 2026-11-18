@@ -7,7 +7,7 @@ import { STUDY_PATHS, pathProblemIds } from '../lib/paths';
 import { currentStreak } from '../lib/progress/stats';
 import { statusOf, useProgress, type ProgressData } from '../lib/progress/store';
 import { getProblemById, problems, problemsIn } from '../lib/problems/registry';
-import { DIFFICULTIES, SECTIONS, SECTION_INFO, type ProblemMeta } from '../lib/problems/types';
+import { DIFFICULTIES, SECTIONS, SECTION_INFO, inJudgmentTrack, type ProblemMeta } from '../lib/problems/types';
 
 const HIGHLIGHTS = ['PostgreSQL real', 'Python 3 + pandas', 'Tests ocultos', 'Sin registro'];
 
@@ -50,7 +50,7 @@ export function HomePage() {
               entrevista técnica.
             </h1>
             <p className="mt-5 max-w-md text-lg leading-relaxed text-ink-400">
-              {problems.length} problemas de SQL, algoritmos, pandas y probabilidad. Escribes código de verdad y se
+              {problems.length} problemas de SQL, algoritmos, pandas, probabilidad y criterio. Escribes código de verdad y se
               corrige al instante, todo en tu navegador.
             </p>
 
@@ -115,10 +115,11 @@ export function HomePage() {
         </section>
 
         {/* Sections */}
-        <section className="grid gap-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid gap-4 py-12 sm:grid-cols-2 lg:grid-cols-5">
           {SECTIONS.map((id) => {
             const info = SECTION_INFO[id];
-            const list = problemsIn(id);
+            // Criterio also counts the "fix the AI's code" exercises from the code sections.
+            const list = id === 'judgment' ? problems.filter(inJudgmentTrack) : problemsIn(id);
             const total = list.length;
             const done = list.filter((p) => statusOf(progress, p.id) === 'solved').length;
             return (
@@ -153,7 +154,9 @@ export function HomePage() {
                           return <div key={d} className={DIFF_BG[d]} style={{ flexGrow: n }} />;
                         })}
                       </div>
-                      <div className="mt-2 font-mono text-[11px] text-ink-500">{total} problemas</div>
+                      <div className="mt-2 font-mono text-[11px] text-ink-500">
+                        {total} {id === 'judgment' ? 'ejercicios' : 'problemas'}
+                      </div>
                     </>
                   )}
                 </div>

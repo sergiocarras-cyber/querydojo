@@ -1,5 +1,5 @@
 import type { ProblemStatus } from '../lib/progress/store';
-import { SECTION_INFO, type Difficulty, type Section } from '../lib/problems/types';
+import { INDUSTRY_INFO, SECTION_INFO, type Difficulty, type Industry, type Section } from '../lib/problems/types';
 
 const DIFFICULTY_CLASS: Record<Difficulty, string> = {
   Easy: 'text-jade bg-jade/10 ring-jade/25',
@@ -20,6 +20,7 @@ export const SECTION_TEXT: Record<Section, string> = {
   algorithms: 'text-vermilion',
   pandas: 'text-jade',
   stats: 'text-violet',
+  judgment: 'text-amber',
 };
 
 export const SECTION_BG: Record<Section, string> = {
@@ -27,6 +28,7 @@ export const SECTION_BG: Record<Section, string> = {
   algorithms: 'bg-vermilion',
   pandas: 'bg-jade',
   stats: 'bg-violet',
+  judgment: 'bg-amber',
 };
 
 export function SectionBadge({ section }: { section: Section }) {
@@ -60,4 +62,27 @@ export function StatusIcon({ status }: { status: ProblemStatus }) {
     );
   if (status === 'attempted') return <span title="Intentado" className="text-amber">●</span>;
   return <span title="Sin empezar" className="text-ink-600">○</span>;
+}
+
+export function IndustryChip({ industry }: { industry: Industry }) {
+  return (
+    <span
+      title={`Escenario típico de ${INDUSTRY_INFO[industry].name}: ${INDUSTRY_INFO[industry].about}`}
+      className="rounded border border-ink-700 px-1.5 py-0.5 text-[11px] whitespace-nowrap text-ink-400"
+    >
+      {INDUSTRY_INFO[industry].name}
+    </span>
+  );
+}
+
+/** Marks "fix the AI's code" exercises. */
+export function AiReviewChip() {
+  return (
+    <span
+      title="El código de partida lo escribió una IA: funciona, pero tiene un fallo. Encuéntralo y arréglalo."
+      className="rounded bg-amber/15 px-1.5 py-0.5 font-mono text-[11px] whitespace-nowrap text-amber"
+    >
+      Revisión IA
+    </span>
+  );
 }
